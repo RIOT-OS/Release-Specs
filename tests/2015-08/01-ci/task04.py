@@ -13,34 +13,7 @@ if len(sys.argv) < 2:
 else:
     os.chdir(sys.argv[1])
 
-print("Run task #01")
-child = pexpect.spawn("./dist/tools/compile_test/compile_test.py", timeout=3600)
-try:
-    child.expect("failed")
-    print("!!! compile tests failed")
-    sys.exit(1)
-except pexpect.EOF:
-    pass
-
 os.chdir("tests/unittests")
-print("Run task #02")
-child = pexpect.spawn("make -B clean all term")
-try:
-    child.expect("OK ")
-except pexpect.EOF:
-    print("!!! Unittests failed")
-    sys.exit(1)
-
-print("Run task #03")
-tests = os.listdir(".")
-for t in tests:
-    if t.startswith("tests-"):
-        child = pexpect.spawn("make -B clean %s term" % t)
-        try:
-            child.expect("OK ")
-        except pexpect.EOF:
-            print("!!! Unittest %s failed" % t)
-            sys.exit(1)
 
 os.environ['BOARD'] = TESTBOARD 
 print("Run task #04")
