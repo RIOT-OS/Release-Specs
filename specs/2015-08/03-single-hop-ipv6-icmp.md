@@ -1,4 +1,4 @@
-## Goal: Check single-hop connectivity over IPv6
+## Goal: Check single-hop ICMP connectivity over IPv6
 
 Task #01
 ========
