@@ -18,6 +18,7 @@ from subprocess import check_output
 import shlex
 from itertools import groupby, count, islice
 from operator import itemgetter
+import getpass
 
 class IOTLABHelper:
     def __init__(self):
@@ -109,6 +110,9 @@ class IOTLABHelper:
     def startAggregator(self, user, site, expId):
         child = pexpect.spawn('ssh {0}@{1}.iot-lab.info -t "serial_aggregator -i {2}"' \
                               .format(user, site, expId), maxread=1)
+        if child.expect([pexpect.TIMEOUT, "[pP]ass"], timeout=2) != 0:
+                passw = getpass.getpass('Password: ')
+                child.sendline(passw)
         time.sleep(2)
         return child
 
