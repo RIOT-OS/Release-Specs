@@ -75,16 +75,21 @@ class IOTLABHelper:
             return "";
 
         randomNodes = [ nodes[i] for i in sorted(random.sample(range(len(nodes)), sampleSize)) ]
-        randomNodes = self.__getPhysicalLocation(randomNodes, site, nodeType)
+        return sorted(randomNodes)
 
-        return sorted(randomNodes, key=lambda node: node[0])
-
-    def startExperiment(self, expName, expDur, nodesNum, site, nodesType):
+    def startExperiment(self, expName, expDur, nodesNum, site, nodesType, nodes):
         iotlabrc = os.path.expanduser('~') + os.path.sep + ".iotlabrc"
         user = check_output(shlex.split("cut -f1 -d: " + iotlabrc), universal_newlines=True).rstrip()
         print("Authenticated as user: {0}".format(user))
         
-        self.randomNodes = self.getRandomTestbedNodes(nodesNum, site, nodesType)
+        if nodes:
+            nodes = self.__extractNodes(nodes)
+            nodes = self.__getPhysicalLocation(nodes, site, nodesType)
+            self.randomNodes = sorted(nodes, key=lambda node: node[0])
+        else:
+            randomNodes = self.getRandomTestbedNodes(nodesNum, site, nodesType)
+            randomNodes = self.__getPhysicalLocation(randomNodes, site, nodesType)
+            self.randomNodes = sorted(randomNodes, key=lambda node: node[0])
 
         nodesStr = self.__compressNodes(self.randomNodes)
         print("Starting experiment with nodes: {0}".format(nodesStr))
@@ -139,7 +144,8 @@ class IOTLABHelper:
             if not self.setIPAddress(nodeType, node[0], 7, ip):
                 ret = False
                 print("failed")
-            print("success")
+            else:
+                print("success")
         return ret
 
     def setFibRoute(self, nodeType, nodeId, dst, nextHop):

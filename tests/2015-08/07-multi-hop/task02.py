@@ -14,6 +14,7 @@ IOTLAB_EXP_DUR = 5
 IOTLAB_NODES = 20
 NODES = 4
 PORT = 1337
+nodesStr = None
 
 def testUDP(helper, nodes, hops):
     localIPFormat = "fe80::{0}"
@@ -23,7 +24,7 @@ def testUDP(helper, nodes, hops):
         helper.startUDPServer(n, IOTLAB_ARCH, PORT)
 
     for win in helper.window(sortedNodes, hops):
-        print("window: {0}".format(win))
+        print("window: {0}".format([v[0] for v in win]))
         helper.setFibRoutesInARow(win, IOTLAB_ARCH, localIPFormat, globalIPFormat)
         p = 0.0
         for i in range(20):
@@ -39,10 +40,12 @@ def testUDP(helper, nodes, hops):
     return False
 
 if len(sys.argv) < 2:
-    print("Usage: %s <RIOT directory>" % (sys.argv[0]))
+    print("Usage: %s <RIOT directory> [nodes]" % (sys.argv[0]))
     sys.exit(1)
 else:
     os.chdir(sys.argv[1])
+    if len(sys.argv) == 3:
+        nodesStr = sys.argv[2]
 
 os.chdir("examples/gnrc_networking")
 
@@ -50,7 +53,7 @@ print("Run task #02")
 
 helper = IOTLABHelper.IOTLABHelper()
 
-testbed = helper.startExperiment(IOTLAB_EXP_NAME, IOTLAB_EXP_DUR, IOTLAB_NODES, IOTLAB_SITE, IOTLAB_ARCH)
+testbed = helper.startExperiment(IOTLAB_EXP_NAME, IOTLAB_EXP_DUR, IOTLAB_NODES, IOTLAB_SITE, IOTLAB_ARCH, nodesStr)
 if testbed == None:
     sys.exit(1)
 
