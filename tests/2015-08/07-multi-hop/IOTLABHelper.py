@@ -226,3 +226,30 @@ class IOTLABHelper:
             return True
         print("failed")
         return False
+
+    def rplInit(self, node, nodeType, iface):
+        print("Initializing RPL on interface {0} for {1}-{2} ... ". format(iface, nodeType, node[0]), end="")
+        self.testbed.sendline("{0}-{1};rpl init {2}".format(nodeType, node[0], iface))
+        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=0.5) != 0:
+            print("success")
+            return True
+        print("failed")
+        return False
+
+    def rplRoot(self, node, nodeType, instanceId, dodagId):
+        print("{0}-{1}: Root for Instance {2} and Dodag {3} ... ".format(nodeType, node[0], instanceId, dodagId), end="")
+        self.testbed.sendline("{0}-{1};rpl root {2} {3}".format(nodeType, node[0], instanceId, dodagId))
+        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=0.5) != 0:
+            print("success")
+            return True
+        print("failed")
+        return False
+
+    def getRplNodes(self, instanceId, dodagId, nodeType):
+        nodes = set()
+        self.testbed.sendline("rpl")
+        cpl = self.testbed.compile_pattern_list([pexpect.TIMEOUT, r"\d+\.\d+;{0}-(\d+);\s+dodag\s\[{1} \| R: (\d+) " \
+                                                .format(nodeType, dodagId)])
+        while self.testbed.expect_list(cpl, timeout=1) != 0:
+            nodes.add([(v, int(self.testbed.match.group(2))) for v in self.randomNodes if v[0] == int(self.testbed.match.group(1))][0])
+        return sorted(nodes, key=lambda node: node[1], reverse=True)
