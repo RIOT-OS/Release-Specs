@@ -16,7 +16,7 @@ import time
 from subprocess import call
 from subprocess import check_output
 import shlex
-from itertools import groupby, count
+from itertools import groupby, count, islice
 from operator import itemgetter
 
 class IOTLABHelper:
@@ -140,16 +140,52 @@ class IOTLABHelper:
 
     def setFibRoute(self, nodeType, nodeId, dst, nextHop):
         self.testbed.sendline("{0}-{1};fibroute add {2} via {3}".format(nodeType, nodeId, dst, nextHop))
-        if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=1) == 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=0.3) == 0:
             return True
         print(self.testbed.before)
         return False
 
+    def setFibRoutesInARow(self, nodes, nodeType, localIPFormat, globalIPFormat):
+        ret = True
+        source = nodes[0]
+        dest = nodes[-1]
+        globalIPDest = globalIPFormat.format(format(dest[0], 'x'))
+
+        readahead = iter(nodes)
+        next(readahead)
+        for a, b in zip(nodes, readahead):
+            localIPA = localIPFormat.format(format(a[0], 'x'))
+            localIPB = localIPFormat.format(format(b[0], 'x'))
+            print("Setting route {0} via {1} for {2}-{3} ..." \
+                  .format(globalIPDest, localIPB, nodeType, a[0]), end="")
+            if not self.setFibRoute(nodeType, a[0], globalIPDest, localIPB):
+                ret = False
+                print("failed")
+            else:
+                print("success")
+
+            print("Setting route {0} via {1} for {2}-{3} ... " \
+                  .format("::", localIPA, nodeType, b[0]), end="")
+            if not self.setFibRoute(nodeType, b[0], "::", localIPA):
+                ret = False
+                print("failed")
+            else:
+                print("success")
+
+    def window(self, seq, n):
+        it = iter(seq)
+        result = tuple(islice(it, n))
+        if len(result) == n:
+            yield result
+        for elem in it:
+            result = result[1:] + (elem,)
+            yield result
+
     def ping(self, ip, nodeType, node):
         print("Pinging ({0}) for node {1}-{2} ... ".format(ip, nodeType, node[0]), end="")
         self.testbed.sendline("{0}-{1};ping6 2 {2} 10 10".format(nodeType, node[0], ip))
-        if self.testbed.expect([pexpect.TIMEOUT, "[0-9][0-9]?% packet loss"], timeout=10) != 0:
-            print("success")
+        if self.testbed.expect([pexpect.TIMEOUT, " ([0-9][0-9]?)% packet loss"], timeout=20) != 0:
+            print("success with {0}% packet loss".format(self.testbed.match.group(1).decode()))
             return True
         print("failed")
         return False
