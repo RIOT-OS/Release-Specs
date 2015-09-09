@@ -23,9 +23,17 @@ def testUDP(helper, nodes, hops):
         helper.startUDPServer(n, IOTLAB_ARCH, PORT)
 
     for win in helper.window(sortedNodes, hops):
+        print("window: {0}".format(win))
         helper.setFibRoutesInARow(win, IOTLAB_ARCH, localIPFormat, globalIPFormat)
-        if helper.sendUDP(globalIPFormat.format(format(win[0][0], 'x')), \
-                          globalIPFormat.format(format(win[-1][0], 'x')), PORT, IOTLAB_ARCH, win[0]):
+        p = 0.0
+        for i in range(20):
+            if not helper.sendUDP(globalIPFormat.format(format(win[0][0], 'x')), \
+                                  globalIPFormat.format(format(win[-1][0], 'x')),\
+                                  PORT, IOTLAB_ARCH, win[0]):
+                p += 1.0
+        p /= 20
+        if (p < 0.1):
+            print("Sent successfully with packet loss of {0}%".format(p*100))
             return True
         print("")
     return False
