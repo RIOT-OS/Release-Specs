@@ -193,3 +193,30 @@ class IOTLABHelper:
             return True
         print("failed")
         return False
+
+    def startUDPServer(self, node, nodeType, port):
+        print("Starting UDP server on port {0} for {1}-{2} ... ". format(port, nodeType, node[0]), end="")
+        self.testbed.sendline("{0}-{1};udp server start {2}".format(nodeType, node[0], port))
+        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=0.5) != 0:
+            print("success")
+            return True
+        print("failed")
+        return False
+
+    def stopUDPServer(self, node, nodeType, port):
+        print("Stopping UDP server {0} for {1}-{2} ... ". format(nodeType, n[0]), end="")
+        self.testbed.sendline("{0}-{1};udp server stop".format(nodeType, n[0]))
+        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=0.5) != 0:
+            print("success")
+            return True
+        print("failed")
+        return False
+
+    def sendUDP(self, src, dst, port, nodeType, node):
+        print("Send UDP to {0} from node {1}-{2} ... ".format(dst, nodeType, node[0]), end="")
+        self.testbed.sendline("{0}-{1};udp send {2} {3} test".format(nodeType, node[0], dst, port))
+        if self.testbed.expect([pexpect.TIMEOUT, "source address: {0}".format(src)], timeout=1) != 0:
+            print("success")
+            return True
+        print("failed")
+        return False
