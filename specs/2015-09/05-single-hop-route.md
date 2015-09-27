@@ -19,7 +19,7 @@ Task #02
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between two IoT-LAB_M3 nodes with global
+ICMPv6 echo request/reply exchange between two iotlab-m3 nodes with global
 unicast addresses. The sending node uses global unicast address with a
 different prefix. A static default route has to be used.
 * Stack configuration: IPv6 (default)

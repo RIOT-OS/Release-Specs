@@ -15,7 +15,7 @@ Task #02
 ========
 ### Description
 
-Perform a subset of tests on IoT-LAB_M3 node.
+Perform a subset of tests on iotlab-m3 node.
 
 ### Result
 
