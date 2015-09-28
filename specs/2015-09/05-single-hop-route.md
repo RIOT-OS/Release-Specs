@@ -50,19 +50,3 @@ addresses. A static /64 route has to be used.
 ### Result
 
 <1% packets lost on the pinging node.
-
-Task #04
-========
-### Description
-
-ICMPv6 echo request/reply exchange between two native nodes with global unicast
-addresses. A static /64 route has to be used.
-* Stack configuration: IPv6 (default)
-* Count:                  10
-* Interval:               10ms
-* Payload:                1kB
-* Destination Address:    beef::1/64
-
-### Result
-
-<1% packets lost on the pinging node.
