@@ -1,3 +1,5 @@
+## Goal: Check static routing of ICMPv6 packets over a single hop
+
 Task #01
 ========
 ### Description

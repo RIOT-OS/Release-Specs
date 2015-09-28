@@ -25,7 +25,7 @@ Task #03
 ========
 ### Description
 
-Perform a subset of tests (!= subset from Task #ß2) on SAMR21 node.
+Perform a subset of tests (!= subset from Task #02) on samr21-xpro node.
 
 ### Result
 
