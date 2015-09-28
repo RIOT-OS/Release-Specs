@@ -20,7 +20,7 @@ Task #02
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between an iotlab-m3 and a SAMR21 node.
+ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                17
 * Count:                  1000
@@ -52,7 +52,7 @@ Task #04
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between an iotlab-m3 and a SAMR21 node.
+ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  10000
