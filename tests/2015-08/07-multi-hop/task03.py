@@ -17,6 +17,9 @@ INSTANCE_ID = 155
 nodesStr = None
 ROOT_NODE_IDX = 3
 IFACE = 7
+PINGCOUNT = 10
+PINGPAYLOADSZ = 100
+PINGDELAY = 10
 
 def testPing(helper, nodes):
     prefix = "dead:beef::"
@@ -29,7 +32,7 @@ def testPing(helper, nodes):
             print("Could not find IP address of {0}-{1}. continue".format(IOTLAB_ARCH, b[0][0]))
             continue
         print("Ping [{0}-{1} -> {2}-{3}]".format(IOTLAB_ARCH, a[0][0], IOTLAB_ARCH, b[0][0]))
-        if not helper.ping(ip, IOTLAB_ARCH, a[0]):
+        if not helper.ping(ip, IOTLAB_ARCH, a[0], PINGCOUNT, PINGPAYLOADSZ, PINGDELAY):
             ret = False
         print("")
     return ret

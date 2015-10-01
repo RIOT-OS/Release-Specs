@@ -201,9 +201,10 @@ class IOTLABHelper:
             result = result[1:] + (elem,)
             yield result
 
-    def ping(self, ip, nodeType, node):
+    def ping(self, ip, nodeType, node, pingCount, pingPayloadSz, pingDelay):
         print("Pinging ({0}) for node {1}-{2} ... ".format(ip, nodeType, node[0]), end="")
-        self.testbed.sendline("{0}-{1};ping6 2 {2} 10 10".format(nodeType, node[0], ip))
+        self.testbed.sendline("{0}-{1};ping6 {2} {3} {4} {5}".format(nodeType, node[0], pingCount,
+                              ip, pingPayloadSz, pingDelay))
         if self.testbed.expect([pexpect.TIMEOUT, " ([0-9][0-9]?)% packet loss"], timeout=10) != 0:
             print("success with {0}% packet loss".format(self.testbed.match.group(1).decode()))
             return True

@@ -9,7 +9,7 @@ import math
 
 IOTLAB_ARCH = "m3"
 IOTLAB_SITE = "grenoble"
-IOTLAB_EXP_NAME = "RIOT_EXP_PING_TEST"
+IOTLAB_EXP_NAME = "RIOT_EXP_UDP_TEST"
 IOTLAB_EXP_DUR = 5
 IOTLAB_NODES = 20
 NODES = 4
@@ -74,7 +74,7 @@ while len(availableNodes):
                                           math.pow(x[2]-node[2],2) + \
                                           math.pow(x[3]-node[3],2)))
 
-print("order of nodes for ping test: {0}".format([v[0] for v in sortedNodes]))
+print("order of nodes for udp test: {0}".format([v[0] for v in sortedNodes]))
 
 if not testUDP(helper, sortedNodes, NODES):
     print("Error while communicating with UDP")
