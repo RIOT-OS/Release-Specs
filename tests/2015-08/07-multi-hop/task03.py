@@ -11,19 +11,25 @@ import itertools
 IOTLAB_ARCH = "m3"
 IOTLAB_SITE = "grenoble"
 IOTLAB_EXP_NAME = "RIOT_EXP_RPL_PING_TEST"
-IOTLAB_EXP_DUR = 5
+IOTLAB_EXP_DUR = 15
 IOTLAB_NODES = 20
+INSTANCE_ID = 155
 nodesStr = None
+ROOT_NODE_IDX = 3
+IFACE = 7
 
 def testPing(helper, nodes):
-    globalIPFormat = "dead:beef::{0}"
+    prefix = "dead:beef::"
 
+    print("rplnodes: {0}".format([(v[0][0],v[1]) for v in nodes]))
     ret = True
-    print("rplNodes: {0}".format(nodes))
     for a, b in itertools.permutations(nodes, 2):
-        print(a)
-        print(b)
-        if not helper.ping(globalIPFormat.format(format(b[0][0], 'x')), IOTLAB_ARCH, a[0]):
+        ip = helper.findAddressByPrefix(IOTLAB_ARCH, b[0][0], IFACE, prefix)
+        if ip is None:
+            print("Could not find IP address of {0}-{1}. continue".format(IOTLAB_ARCH, b[0][0]))
+            continue
+        print("Ping [{0}-{1} -> {2}-{3}]".format(IOTLAB_ARCH, a[0][0], IOTLAB_ARCH, b[0][0]))
+        if not helper.ping(ip, IOTLAB_ARCH, a[0]):
             ret = False
         print("")
     return ret
@@ -49,24 +55,32 @@ if testbed == None:
 availableNodes = helper.probeForNodes()
 print("Available nodes: {0}".format([v[0] for v in availableNodes]))
 
-if not helper.configureIPAddresses("dead:beef::{0}", IOTLAB_ARCH, [availableNodes[0]]):
+if not helper.configureIPAddresses("dead:beef::{0}", IOTLAB_ARCH, [availableNodes[ROOT_NODE_IDX]]):
     print("Error while configuring IP addresses")
+    testbed.sendline("reboot")
+    testbed.kill(0)
     sys.exit(1)
 
 for n in availableNodes:
-    if not helper.rplInit(n, IOTLAB_ARCH, 7):
+    if not helper.rplInit(n, IOTLAB_ARCH, IFACE):
         print("Error initializing RPL")
+        testbed.sendline("reboot")
+        testbed.kill(0)
         sys.exit(1)
 
-helper.rplRoot(availableNodes[0], IOTLAB_ARCH, 1, "dead:beef::{0}".format(format(availableNodes[0][0], 'x')))
+helper.rplRoot(availableNodes[ROOT_NODE_IDX], IOTLAB_ARCH, INSTANCE_ID, "dead:beef::{0}".format(format(availableNodes[ROOT_NODE_IDX][0], 'x')))
 
-print("Waiting for 20 seconds so that RPL can build the DODAG")
-time.sleep(20)
+print("Waiting for 30 seconds so that RPL can build the DODAG")
+time.sleep(30)
 
-rplNodes = helper.getRplNodes(1, "dead:beef::{0}".format(format(availableNodes[0][0], 'x')), IOTLAB_ARCH)
+rplNodes = helper.getRplNodes(INSTANCE_ID, "dead:beef::{0}".format(format(availableNodes[ROOT_NODE_IDX][0], 'x')), IOTLAB_ARCH)
 
 if not testPing(helper, rplNodes):
     print("Error while pinging")
+    testbed.sendline("reboot")
+    testbed.kill(0)
     sys.exit(1)
 
+testbed.sendline("reboot")
+testbed.kill(0)
 print("SUCCESS")

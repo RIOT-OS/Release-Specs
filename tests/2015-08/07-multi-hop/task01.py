@@ -13,6 +13,7 @@ IOTLAB_EXP_NAME = "RIOT_EXP_PING_TEST"
 IOTLAB_EXP_DUR = 5
 IOTLAB_NODES = 20
 NODES = 4
+IFACE = 7
 nodesStr = None
 
 def testPing(helper, nodes, hops):
@@ -21,7 +22,7 @@ def testPing(helper, nodes, hops):
 
     for win in helper.window(sortedNodes, hops):
         print("window: {0}".format([v[0] for v in win]))
-        helper.setFibRoutesInARow(win, IOTLAB_ARCH, localIPFormat, globalIPFormat)
+        helper.setFibRoutesInARow(win, IOTLAB_ARCH, IFACE, globalIPFormat)
         if helper.ping(globalIPFormat.format(format(win[-1][0], 'x')), IOTLAB_ARCH, win[0]):
             return True
         print("")

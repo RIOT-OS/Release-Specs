@@ -133,7 +133,18 @@ class IOTLABHelper:
         self.testbed.sendline("{0}-{1};ifconfig {2} add {3}".format(nodeType, nodeId, iface, ip))
         if self.testbed.expect([pexpect.TIMEOUT, "success"], timeout=1) != 0:
             return True
-        print(self.testbed.before)
+        return False
+
+    def findAddressByPrefix(self, nodeType, nodeId, iface, prefix):
+        self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: ({0}[:0-9a-f]+)/".format(prefix)], timeout=1) != 0:
+            return self.testbed.match.group(1).decode()
+        return None
+
+    def hasAddress(self, nodeType, nodeId, iface, ip):
+        self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0}/".format(ip)], timeout=1) != 0:
+            return True
         return False
      
     def configureIPAddresses(self, ipFormat, nodeType, nodes):
@@ -150,12 +161,11 @@ class IOTLABHelper:
 
     def setFibRoute(self, nodeType, nodeId, dst, nextHop):
         self.testbed.sendline("{0}-{1};fibroute add {2} via {3}".format(nodeType, nodeId, dst, nextHop))
-        if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=0.3) == 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=0.5) == 0:
             return True
-        print(self.testbed.before)
         return False
 
-    def setFibRoutesInARow(self, nodes, nodeType, localIPFormat, globalIPFormat):
+    def setFibRoutesInARow(self, nodes, nodeType, iface, globalIPFormat):
         ret = True
         source = nodes[0]
         dest = nodes[-1]
@@ -164,8 +174,8 @@ class IOTLABHelper:
         readahead = iter(nodes)
         next(readahead)
         for a, b in zip(nodes, readahead):
-            localIPA = localIPFormat.format(format(a[0], 'x'))
-            localIPB = localIPFormat.format(format(b[0], 'x'))
+            localIPA = self.findAddressByPrefix(nodeType, a[0], iface, "fe80")
+            localIPB = self.findAddressByPrefix(nodeType, b[0], iface, "fe80")
             print("Setting route {0} via {1} for {2}-{3} ..." \
                   .format(globalIPDest, localIPB, nodeType, a[0]), end="")
             if not self.setFibRoute(nodeType, a[0], globalIPDest, localIPB):
@@ -194,7 +204,7 @@ class IOTLABHelper:
     def ping(self, ip, nodeType, node):
         print("Pinging ({0}) for node {1}-{2} ... ".format(ip, nodeType, node[0]), end="")
         self.testbed.sendline("{0}-{1};ping6 2 {2} 10 10".format(nodeType, node[0], ip))
-        if self.testbed.expect([pexpect.TIMEOUT, " ([0-9][0-9]?)% packet loss"], timeout=20) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, " ([0-9][0-9]?)% packet loss"], timeout=10) != 0:
             print("success with {0}% packet loss".format(self.testbed.match.group(1).decode()))
             return True
         print("failed")
@@ -203,7 +213,7 @@ class IOTLABHelper:
     def startUDPServer(self, node, nodeType, port):
         print("Starting UDP server on port {0} for {1}-{2} ... ". format(port, nodeType, node[0]), end="")
         self.testbed.sendline("{0}-{1};udp server start {2}".format(nodeType, node[0], port))
-        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=0.5) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=1) != 0:
             print("success")
             return True
         print("failed")
@@ -212,7 +222,7 @@ class IOTLABHelper:
     def stopUDPServer(self, node, nodeType, port):
         print("Stopping UDP server {0} for {1}-{2} ... ". format(nodeType, n[0]), end="")
         self.testbed.sendline("{0}-{1};udp server stop".format(nodeType, n[0]))
-        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=0.5) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "Success"], timeout=1) != 0:
             print("success")
             return True
         print("failed")
@@ -221,7 +231,7 @@ class IOTLABHelper:
     def sendUDP(self, src, dst, port, nodeType, node):
         print("Send UDP to {0} from node {1}-{2} ... ".format(dst, nodeType, node[0]), end="")
         self.testbed.sendline("{0}-{1};udp send {2} {3} test".format(nodeType, node[0], dst, port))
-        if self.testbed.expect([pexpect.TIMEOUT, "source address: {0}".format(src)], timeout=1) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "source address: {0}".format(src)], timeout=2) != 0:
             print("success")
             return True
         print("failed")
@@ -230,7 +240,7 @@ class IOTLABHelper:
     def rplInit(self, node, nodeType, iface):
         print("Initializing RPL on interface {0} for {1}-{2} ... ". format(iface, nodeType, node[0]), end="")
         self.testbed.sendline("{0}-{1};rpl init {2}".format(nodeType, node[0], iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=0.5) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=1) != 0:
             print("success")
             return True
         print("failed")
@@ -239,7 +249,7 @@ class IOTLABHelper:
     def rplRoot(self, node, nodeType, instanceId, dodagId):
         print("{0}-{1}: Root for Instance {2} and Dodag {3} ... ".format(nodeType, node[0], instanceId, dodagId), end="")
         self.testbed.sendline("{0}-{1};rpl root {2} {3}".format(nodeType, node[0], instanceId, dodagId))
-        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=0.5) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "successfully"], timeout=1) != 0:
             print("success")
             return True
         print("failed")
@@ -253,3 +263,36 @@ class IOTLABHelper:
         while self.testbed.expect_list(cpl, timeout=1) != 0:
             nodes.add([(v, int(self.testbed.match.group(2))) for v in self.randomNodes if v[0] == int(self.testbed.match.group(1))][0])
         return sorted(nodes, key=lambda node: node[1], reverse=True)
+
+    def getNodeByAddress(self, nodeType, iface, ip):
+        self.testbed.sendline("ifconfig {0}".format(iface))
+        if self.testbed.expect([pexpect.TIMEOUT, "{0}-(\d+);\s+inet6 addr: {1}/".format(nodeType, ip)], timeout=1) != 0:
+            return self.testbed.match.group(1).decode()
+        return None
+
+    def getRplParent(self, nodeType, node, iface):
+        self.testbed.sendline("{0}-{1};rpl".format(nodeType, node))
+        if self.testbed.expect([pexpect.TIMEOUT, r"parent \[addr: ([:0-9a-z]+) "], timeout=2) != 0:
+            return self.getNodeByAddress(nodeType, iface, self.testbed.match.group(1).decode())
+        print("no parent",end="")
+        return None
+
+    def hasDefaultRouteToParent(self, nodeType, node, parent, iface):
+        self.testbed.sendline("{0}-{1};fibroute".format(nodeType, node))
+        if self.testbed.expect([pexpect.TIMEOUT, "{0}-{1};::\s+0x.+?\s([:0-9a-z]+)\s+".format(nodeType, node)], timeout=2) != 0:
+            if self.hasAddress(nodeType, parent, iface, self.testbed.match.group(1).decode()):
+                return True
+        return False
+
+    def hasValidFibRoute(self, nodeType, node, ip):
+        self.testbed.sendline("{0}-{1};fibroute".format(nodeType, node))
+        if self.testbed.expect([pexpect.TIMEOUT, r"{0}-{1};{2}.*?(?!EXPIRED).*".format(nodeType, node, ip)], timeout=2) != 0:
+            return True
+        return False
+
+    def hasDownwardRoute(self, nodeType, parent, node, iface, prefix):
+        child = self.findAddressByPrefix(nodeType, node, iface, prefix)
+        if child is not None:
+            if self.hasValidFibRoute(nodeType, parent, child):
+                return True
+        return False
