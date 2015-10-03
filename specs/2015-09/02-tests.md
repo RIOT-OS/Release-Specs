@@ -1,5 +1,4 @@
-## Goal: Perform test applications on various platforms and check that they run
-         as expected
+## Goal: Perform test applications on various platforms and check that they run as expected
 
 Task #01
 ========
