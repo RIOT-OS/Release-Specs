@@ -5,7 +5,7 @@ import os
 import sys
 import time
 
-TESTBOARD = "iot-lab_M3"
+TESTBOARD = "native"
 
 if len(sys.argv) < 2:
     print("Usage: %s <RIOT directory>" % (sys.argv[0]))
@@ -14,6 +14,8 @@ else:
     os.chdir(sys.argv[1])
 
 os.chdir("tests/unittests")
+os.environ['BOARD'] = TESTBOARD
+
 print("Run task #02")
 child = pexpect.spawn("make -B clean all term")
 try:

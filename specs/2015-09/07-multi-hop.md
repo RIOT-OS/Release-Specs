@@ -4,7 +4,7 @@ Task #01
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between two IoT-LAB_M3 nodes over three hops
+ICMPv6 echo request/reply exchange between two iotlab-m3 nodes over three hops
 with static routes.
 
 ### Result
@@ -15,7 +15,7 @@ Task #02
 ========
 ### Description
 
-Sending UDP between two IoT-LAB_M3 nodes over three hops with static routes.
+Sending UDP between two iotlab-m3 nodes over three hops with static routes.
 
 ### Result
 
@@ -25,7 +25,7 @@ Task #03
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between two IoT-LAB_M3 nodes over three hops
+ICMPv6 echo request/reply exchange between two iotlab-m3 nodes over three hops
 with RPL generated routes.
 
 ### Result
@@ -36,7 +36,7 @@ Task #04
 ========
 ### Description
 
-Sending UDP between two IoT-LAB_M3 nodes over three hops with static routes
+Sending UDP between two iotlab-m3 nodes over three hops with static routes
 with RPL generated routes.
 
 ### Result

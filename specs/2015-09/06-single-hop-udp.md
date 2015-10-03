@@ -4,7 +4,7 @@ Task #01
 ========
 ### Description
 
-Sending UDP between two IoT-LAB_M3 nodes.
+Sending UDP between two iotlab-m3 nodes.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  1000

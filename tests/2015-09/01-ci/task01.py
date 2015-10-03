@@ -5,8 +5,6 @@ import os
 import sys
 import time
 
-TESTBOARD = "iot-lab_M3"
-
 if len(sys.argv) < 2:
     print("Usage: %s <RIOT directory>" % (sys.argv[0]))
     sys.exit(1)

@@ -1,3 +1,5 @@
+## Goal: Check static routing of ICMPv6 packets over a single hop
+
 Task #01
 ========
 ### Description
@@ -19,7 +21,7 @@ Task #02
 ========
 ### Description
 
-ICMPv6 echo request/reply exchange between two IoT-LAB_M3 nodes with global
+ICMPv6 echo request/reply exchange between two iotlab-m3 nodes with global
 unicast addresses. The sending node uses global unicast address with a
 different prefix. A static default route has to be used.
 * Stack configuration: IPv6 (default)
@@ -34,22 +36,6 @@ different prefix. A static default route has to be used.
 <1% packets lost on the pinging node.
 
 Task #03
-========
-### Description
-
-ICMPv6 echo request/reply exchange between two native nodes with global unicast
-addresses. A static /64 route has to be used.
-* Stack configuration: IPv6 (default)
-* Count:                  10
-* Interval:               10ms
-* Payload:                1kB
-* Destination Address:    beef::1/64
-
-### Result
-
-<1% packets lost on the pinging node.
-
-Task #04
 ========
 ### Description
 

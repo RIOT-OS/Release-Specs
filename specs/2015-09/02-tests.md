@@ -1,5 +1,4 @@
-## Goal: Perform test applications on various platforms and check that they run
-         as expected
+## Goal: Perform test applications on various platforms and check that they run as expected
 
 Task #01
 ========
@@ -15,7 +14,7 @@ Task #02
 ========
 ### Description
 
-Perform a subset of tests on IoT-LAB_M3 node.
+Perform a subset of tests on iotlab-m3 node.
 
 ### Result
 
@@ -25,7 +24,7 @@ Task #03
 ========
 ### Description
 
-Perform a subset of tests (!= subset from Task #ß2) on SAMR21 node.
+Perform a subset of tests (!= subset from Task #02) on samr21-xpro node.
 
 ### Result
 
