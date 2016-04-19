@@ -53,3 +53,25 @@ Task #07
 UDP/IPv6 packet exchange (payload length 200) between an iotlab-m3 node
 running RIOT with GNRC and an Linux Internet host using a RIOT node as border
 router. Routes are configured statically.
+
+Task #08
+========
+### Description
+
+Link-local UDP/IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP.
+
+Task #09
+========
+### Description
+
+Link-local UDP/IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with GNRC and an iotlab-m3 node running RIOT with emb6.
+
+
+Task #10
+========
+### Description
+
+Link-local UDP/IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6.
