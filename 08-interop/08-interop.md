@@ -37,3 +37,19 @@ Task #05
 ICMPv6 echo request/reply exchange between an iotlab-m3 node running RIOT and
 an Linux Internet host using a RIOT node  as border router. Routes are
 configured statically.
+
+Task #06
+========
+### Description
+
+UDP/IPv6 packet exchange (payload length 8) between an iotlab-m3 node running
+RIOT with GNRC and an Linux Internet host using a RIOT node as border router.
+Routes are configured statically.
+
+Task #07
+========
+### Description
+
+UDP/IPv6 packet exchange (payload length 200) between an iotlab-m3 node
+running RIOT with GNRC and an Linux Internet host using a RIOT node as border
+router. Routes are configured statically.
