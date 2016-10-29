@@ -58,8 +58,8 @@ Task #08
 ========
 ### Description
 
-Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
-node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP.
+~~Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP.~~ (not possible due to [bug #48825](http://savannah.nongnu.org/bugs/?48825))
 
 Task #09
 ========
@@ -73,5 +73,5 @@ Task #10
 ========
 ### Description
 
-Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
-node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6.
+~~Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6.~~ (not possible due to [bug #48825]
