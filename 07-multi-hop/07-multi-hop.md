@@ -36,8 +36,7 @@ Task #04
 ========
 ### Description
 
-Sending UDP between two iotlab-m3 nodes over three hops with static routes
-with RPL generated routes.
+Sending UDP between two iotlab-m3 nodes over three hops with RPL generated routes.
 
 ### Result
 
