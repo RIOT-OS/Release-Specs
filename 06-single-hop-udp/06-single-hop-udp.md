@@ -9,6 +9,24 @@ Sending UDP between two iotlab-m3 nodes.
 * Channel:                26
 * Count:                  1000
 * Interval:               1s
+* Port:                   1337
+* Payload:                1kB
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<5% packets lost on the receiving node.
+
+Task #02
+========
+### Description
+
+Sending UDP between two iotlab-m3 nodes.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  1000
+* Interval:               1s
+* Port:                   61616
 * Payload:                1kB
 * Destination Address:    Link local unicast (fe80::.../64)
 
