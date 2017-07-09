@@ -26,7 +26,7 @@ def testUDP(helper, nodes, hops):
 
     for win in helper.window(sortedNodes, hops):
         print("window: {0}".format([v[0] for v in win]))
-        helper.setFibRoutesInARow(win, IOTLAB_ARCH, iface, globalIPFormat)
+        helper.setFibRoutesInARow(win, IOTLAB_ARCH, IFACE, globalIPFormat)
         p = 0.0
         for i in range(20):
             if not helper.sendUDP(globalIPFormat.format(format(win[0][0], 'x')), \
