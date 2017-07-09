@@ -63,3 +63,71 @@ ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 ### Result
 
 <10% packets lost on the pinging node.
+
+Task #05 (Experimental)
+=======================
+### Description
+
+ICMPv6 echo request/reply exchange between  a Zolertia Remote node (CC2538) and
+a samr21-xpro node.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                17
+* Count:                  1000
+* Interval:               100ms
+* Payload:                50B
+* Destination Address:    ff02::1
+
+### Result
+
+<10% packets lost on the pinging node.
+
+Task #06 (Experimental)
+=======================
+### Description
+
+ICMPv6 echo request/reply exchange between a Zolertia Remote node (CC2538) and
+a samr21-xpro node.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  1000
+* Interval:               100ms
+* Payload:                100B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<10% packets lost on the pinging node.
+
+Task #07 (Experimental)
+=======================
+### Description
+
+ICMPv6 echo request/reply exchange between an Arduino Zero + XBee node and
+a samr21-xpro node.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                17
+* Count:                  1000
+* Interval:               100ms
+* Payload:                50B
+* Destination Address:    ff02::1
+
+### Result
+
+<10% packets lost on the pinging node.
+
+Task #08 (Experimental)
+=======================
+### Description
+
+ICMPv6 echo request/reply exchange between an Arduino Zero + XBee node and
+a samr21-xpro node.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  1000
+* Interval:               100ms
+* Payload:                100B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<10% packets lost on the pinging node.
