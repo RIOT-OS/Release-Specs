@@ -1,4 +1,4 @@
-## Goal: Test interoperability of gnrc with different implementatiosn
+## Goal: Test interoperability of gnrc with different implementations
 
 Task #01
 ========
