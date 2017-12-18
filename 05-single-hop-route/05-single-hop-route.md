@@ -33,7 +33,7 @@ different prefix. A static default route has to be used (`fibroute add :: via <d
 
 ### Result
 
-<1% packets lost on the pinging node.
+<10% packets lost on the pinging node.
 
 Task #03
 ========
