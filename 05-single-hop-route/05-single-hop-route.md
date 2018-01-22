@@ -5,7 +5,8 @@ Task #01
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes with global unicast
-addresses. A static default route has to be used (`fibroute add :: via <dst link-local>`).
+addresses. A static default route has to be used
+(`nib route add <iface> :: <dst link-local>`).
 * Stack configuration: IPv6 (default)
 * Count:                  100
 * Interval:               10ms
@@ -23,7 +24,8 @@ Task #02
 
 ICMPv6 echo request/reply exchange between two iotlab-m3 nodes with global
 unicast addresses. The sending node uses global unicast address with a
-different prefix. A static default route has to be used (`fibroute add :: via <dst link-local>`).
+different prefix. A static default route has to be used
+(`nib route add <iface> :: <dst link-local>`).
 * Stack configuration: IPv6 (default)
 * Count:                  100
 * Interval:               10ms
@@ -40,7 +42,8 @@ Task #03
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes with global unicast
-addresses. A static /64 route has to be used (`fibroute add beef::/64 via <dst link-local>`).
+addresses. A static /64 route has to be used
+(`nib route add <iface> :: <dst link-local>`).
 * Stack configuration: IPv6 (default)
 * Count:                  10
 * Interval:               10ms
