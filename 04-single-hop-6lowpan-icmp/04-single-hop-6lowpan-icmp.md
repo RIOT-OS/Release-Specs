@@ -47,6 +47,7 @@ ICMPv6 echo request/reply exchange between two nodes.
 ### Result
 
 <10% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 Task #04
 ========
