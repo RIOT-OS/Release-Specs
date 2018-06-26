@@ -16,6 +16,7 @@ Sending UDP between two iotlab-m3 nodes.
 ### Result
 
 <5% packets lost on the receiving node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 Task #02
 ========
@@ -33,3 +34,4 @@ Sending UDP between two iotlab-m3 nodes.
 ### Result
 
 <5% packets lost on the receiving node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).

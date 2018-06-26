@@ -19,6 +19,7 @@ otherwise default routes and address resolution will be auto-configured).
 ### Result
 
 <1% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 
 Task #02
@@ -40,6 +41,7 @@ advertisements for this task).
 ### Result
 
 <10% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 Task #03
 ========
@@ -60,6 +62,7 @@ otherwise default routes and address resolution will be auto-configured ).
 ### Result
 
 <1% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 Task #04
 ========
