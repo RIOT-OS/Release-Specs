@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import pexpect
 import os
 import sys
-import time
+import subprocess
 
 TESTBOARD = "native"
 
@@ -20,10 +19,9 @@ print("Run task #03")
 tests = os.listdir(".")
 for t in tests:
     if t.startswith("tests-"):
-        child = pexpect.spawn("make -B clean %s term" % t)
         try:
-            child.expect("OK ")
-        except pexpect.EOF:
+            subprocess.check_call(["make", "-B", "clean", t, "test"])
+        except subprocess.CalledProcessError:
             print("!!! Unittest %s failed" % t)
             sys.exit(1)
 
