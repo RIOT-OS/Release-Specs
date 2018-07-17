@@ -63,9 +63,9 @@ while len(availableNodes):
     node = availableNodes[0]
     sortedNodes.append(node)
     availableNodes.remove(availableNodes[0])
-    sorted(availableNodes, key=lambda x: math.sqrt(math.pow(x[1]-node[1],2) + \
-                                          math.pow(x[2]-node[2],2) + \
-                                          math.pow(x[3]-node[3],2)))
+    availableNodes.sort(key=lambda x: (math.pow(x[1]-node[1],2) +
+                                       math.pow(x[2]-node[2],2) +
+                                       math.pow(x[3]-node[3],2)))
 
 print("order of nodes for ping test: {0}".format([v[0] for v in sortedNodes]))
 
