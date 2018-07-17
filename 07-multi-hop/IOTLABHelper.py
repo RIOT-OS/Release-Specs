@@ -26,7 +26,7 @@ class IOTLABHelper:
         self.testbed = None
 
     def __getLivingNodesFromTestbed(self, site, nodeType):
-        nodesStr = check_output(shlex.split("experiment-cli info -li"), universal_newlines=True)
+        nodesStr = check_output(shlex.split("iotlab-experiment info -li"), universal_newlines=True)
         nodesJSON = json.loads(nodesStr)['items']
         for siteJSON in nodesJSON:
             if site not in siteJSON:
@@ -36,7 +36,7 @@ class IOTLABHelper:
 
     def __getPhysicalLocation(self, nodes, site, nodeType):
         nodesWithPos = list()
-        nodesStr = check_output(shlex.split("experiment-cli info -l --site {0}".format(site)), \
+        nodesStr = check_output(shlex.split("iotlab-experiment info -l --site {0}".format(site)), \
                                 universal_newlines=True)
         nodesJSON = json.loads(nodesStr)['items']
         for node in nodesJSON:
