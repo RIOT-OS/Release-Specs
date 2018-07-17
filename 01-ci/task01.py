@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import pexpect
 import os
 import sys
-import time
+import pexpect
 
 if len(sys.argv) < 2:
     print("Usage: %s <RIOT directory>" % (sys.argv[0]))
@@ -12,7 +11,8 @@ else:
     os.chdir(sys.argv[1])
 
 print("Run task #01")
-child = pexpect.spawn("./dist/tools/compile_test/compile_test.py", timeout=3600)
+child = pexpect.spawnu("./dist/tools/compile_test/compile_test.py",
+                       timeout=None, logfile=sys.stdout)
 try:
     child.expect("failed")
     print("!!! compile tests failed")
