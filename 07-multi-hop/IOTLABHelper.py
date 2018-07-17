@@ -81,7 +81,7 @@ class IOTLABHelper:
         iotlabrc = os.path.expanduser('~') + os.path.sep + ".iotlabrc"
         user = check_output(shlex.split("cut -f1 -d: " + iotlabrc), universal_newlines=True).rstrip()
         print("Authenticated as user: {0}".format(user))
-        
+
         if nodes:
             nodes = self.__extractNodes(nodes)
             nodes = self.__getPhysicalLocation(nodes, site, nodesType)
@@ -93,7 +93,7 @@ class IOTLABHelper:
 
         nodesStr = self.__compressNodes(self.randomNodes)
         print("Starting experiment with nodes: {0}".format(nodesStr))
-        
+
         exp_cmd = "make iotlab-exp -I ../../dist/testbed-support IOTLAB_USER={0} IOTLAB_EXP_NAME={1} " \
                   "IOTLAB_DURATION={2} BOARD=iotlab-m3 IOTLAB_PHY_NODES={3}" \
                   .format(user, expName, expDur, nodesStr)
@@ -106,7 +106,7 @@ class IOTLABHelper:
             print("Experiment id could not be parsed")
             return None
         print("Experiment with id {0} started".format(expId))
-        
+
         self.testbed = self.startAggregator(user, site, expId)
         print("Aggregator started")
 
@@ -146,7 +146,7 @@ class IOTLABHelper:
         if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0}/".format(ip)], timeout=1) != 0:
             return True
         return False
-     
+
     def configureIPAddresses(self, ipFormat, nodeType, nodes):
         ret = True
         for node in nodes:
