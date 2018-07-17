@@ -26,7 +26,7 @@ def testPing(helper, nodes, hops):
 
     for win in helper.window(sortedNodes, hops):
         print("window: {0}".format([v[0] for v in win]))
-        helper.setFibRoutesInARow(win, IOTLAB_ARCH, IFACE, globalIPFormat)
+        helper.setNibRoutesInARow(win, IOTLAB_ARCH, IFACE, globalIPFormat)
         if helper.ping(globalIPFormat.format(format(win[-1][0], 'x')), IOTLAB_ARCH, win[0],
                 PINGCOUNT, PINGPAYLOADSZ, PINGDELAY):
             return True

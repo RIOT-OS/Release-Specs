@@ -159,13 +159,19 @@ class IOTLABHelper:
                 print("success")
         return ret
 
-    def setFibRoute(self, nodeType, nodeId, dst, nextHop):
-        self.testbed.sendline("{0}-{1};fibroute add {2} via {3}".format(nodeType, nodeId, dst, nextHop))
+    def setNibRoute(self, nodeType, nodeId, iface, dst, nextHop):
+        """Add a nib route.
+
+        nib route add
+            <iface> <prefix>[/<prefix_len>] <next_hop> [<ltime in sec>]
+        """
+        cmd = 'nib route add {0} {1} {2}'.format(iface, dst, nextHop)
+        self.testbed.sendline('{0}-{1};{cmd}'.format(nodeType, nodeId, cmd=cmd))
         if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=0.5) == 0:
             return True
         return False
 
-    def setFibRoutesInARow(self, nodes, nodeType, iface, globalIPFormat):
+    def setNibRoutesInARow(self, nodes, nodeType, iface, globalIPFormat):
         ret = True
         source = nodes[0]
         dest = nodes[-1]
@@ -178,7 +184,7 @@ class IOTLABHelper:
             localIPB = self.findAddressByPrefix(nodeType, b[0], iface, "fe80")
             print("Setting route {0} via {1} for {2}-{3} ..." \
                   .format(globalIPDest, localIPB, nodeType, a[0]), end="")
-            if not self.setFibRoute(nodeType, a[0], globalIPDest, localIPB):
+            if not self.setNibRoute(nodeType, a[0], iface, globalIPDest, localIPB):
                 ret = False
                 print("failed")
             else:
@@ -186,7 +192,7 @@ class IOTLABHelper:
 
             print("Setting route {0} via {1} for {2}-{3} ... " \
                   .format("::", localIPA, nodeType, b[0]), end="")
-            if not self.setFibRoute(nodeType, b[0], "::", localIPA):
+            if not self.setNibRoute(nodeType, b[0], iface, "::", localIPA):
                 ret = False
                 print("failed")
             else:
@@ -285,7 +291,7 @@ class IOTLABHelper:
                 return True
         return False
 
-    def hasValidFibRoute(self, nodeType, node, ip):
+    def hasValidNibRoute(self, nodeType, node, ip):
         self.testbed.sendline("{0}-{1};fibroute".format(nodeType, node))
         if self.testbed.expect([pexpect.TIMEOUT, r"{0}-{1};{2}.*?(?!EXPIRED).*".format(nodeType, node, ip)], timeout=2) != 0:
             return True
@@ -294,6 +300,6 @@ class IOTLABHelper:
     def hasDownwardRoute(self, nodeType, parent, node, iface, prefix):
         child = self.findAddressByPrefix(nodeType, node, iface, prefix)
         if child is not None:
-            if self.hasValidFibRoute(nodeType, parent, child):
+            if self.hasValidNibRoute(nodeType, parent, child):
                 return True
         return False
