@@ -26,7 +26,7 @@ class IOTLABHelper:
         self.testbed = None
 
     def __getLivingNodesFromTestbed(self, site, nodeType):
-        nodesStr = check_output(shlex.split("experiment-cli info -li"), universal_newlines=True)
+        nodesStr = check_output(shlex.split("iotlab-experiment info -li"), universal_newlines=True)
         nodesJSON = json.loads(nodesStr)['items']
         for siteJSON in nodesJSON:
             if site not in siteJSON:
@@ -36,7 +36,7 @@ class IOTLABHelper:
 
     def __getPhysicalLocation(self, nodes, site, nodeType):
         nodesWithPos = list()
-        nodesStr = check_output(shlex.split("experiment-cli info -l --site {0}".format(site)), \
+        nodesStr = check_output(shlex.split("iotlab-experiment info -l --site {0}".format(site)), \
                                 universal_newlines=True)
         nodesJSON = json.loads(nodesStr)['items']
         for node in nodesJSON:
@@ -81,7 +81,7 @@ class IOTLABHelper:
         iotlabrc = os.path.expanduser('~') + os.path.sep + ".iotlabrc"
         user = check_output(shlex.split("cut -f1 -d: " + iotlabrc), universal_newlines=True).rstrip()
         print("Authenticated as user: {0}".format(user))
-        
+
         if nodes:
             nodes = self.__extractNodes(nodes)
             nodes = self.__getPhysicalLocation(nodes, site, nodesType)
@@ -93,28 +93,28 @@ class IOTLABHelper:
 
         nodesStr = self.__compressNodes(self.randomNodes)
         print("Starting experiment with nodes: {0}".format(nodesStr))
-        
+
         exp_cmd = "make iotlab-exp -I ../../dist/testbed-support IOTLAB_USER={0} IOTLAB_EXP_NAME={1} " \
                   "IOTLAB_DURATION={2} BOARD=iotlab-m3 IOTLAB_PHY_NODES={3}" \
                   .format(user, expName, expDur, nodesStr)
-        make = pexpect.run(exp_cmd, timeout=600)
-        
-        m = re.search('Waiting that experiment ([0-9]+) gets in state Running', make.decode())
+        make = pexpect.run(exp_cmd, timeout=600, encoding='utf-8')
+
+        m = re.search('Waiting that experiment ([0-9]+) gets in state Running', make)
         if m and m.group(1):
             expId = m.group(1)
         else:
             print("Experiment id could not be parsed")
             return None
         print("Experiment with id {0} started".format(expId))
-        
+
         self.testbed = self.startAggregator(user, site, expId)
         print("Aggregator started")
 
         return self.testbed
 
     def startAggregator(self, user, site, expId):
-        child = pexpect.spawn('ssh {0}@{1}.iot-lab.info -t "serial_aggregator -i {2}"' \
-                              .format(user, site, expId), maxread=1)
+        child = pexpect.spawnu('ssh {0}@{1}.iot-lab.info -t "serial_aggregator -i {2}"' \
+                               .format(user, site, expId), maxread=1)
         if child.expect([pexpect.TIMEOUT, "[pP]ass"], timeout=2) != 0:
                 passw = getpass.getpass('Password: ')
                 child.sendline(passw)
@@ -137,16 +137,16 @@ class IOTLABHelper:
 
     def findAddressByPrefix(self, nodeType, nodeId, iface, prefix):
         self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: ({0}[:0-9a-f]+)/".format(prefix)], timeout=1) != 0:
-            return self.testbed.match.group(1).decode()
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: ({0}[:0-9a-f]+) ".format(prefix)], timeout=1) != 0:
+            return self.testbed.match.group(1)
         return None
 
     def hasAddress(self, nodeType, nodeId, iface, ip):
         self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0}/".format(ip)], timeout=1) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0} ".format(ip)], timeout=1) != 0:
             return True
         return False
-     
+
     def configureIPAddresses(self, ipFormat, nodeType, nodes):
         ret = True
         for node in nodes:
@@ -159,13 +159,19 @@ class IOTLABHelper:
                 print("success")
         return ret
 
-    def setFibRoute(self, nodeType, nodeId, dst, nextHop):
-        self.testbed.sendline("{0}-{1};fibroute add {2} via {3}".format(nodeType, nodeId, dst, nextHop))
+    def setNibRoute(self, nodeType, nodeId, iface, dst, nextHop):
+        """Add a nib route.
+
+        nib route add
+            <iface> <prefix>[/<prefix_len>] <next_hop> [<ltime in sec>]
+        """
+        cmd = 'nib route add {0} {1} {2}'.format(iface, dst, nextHop)
+        self.testbed.sendline('{0}-{1};{cmd}'.format(nodeType, nodeId, cmd=cmd))
         if self.testbed.expect([pexpect.TIMEOUT, "Please enter"], timeout=0.5) == 0:
             return True
         return False
 
-    def setFibRoutesInARow(self, nodes, nodeType, iface, globalIPFormat):
+    def setNibRoutesInARow(self, nodes, nodeType, iface, globalIPFormat):
         ret = True
         source = nodes[0]
         dest = nodes[-1]
@@ -178,7 +184,7 @@ class IOTLABHelper:
             localIPB = self.findAddressByPrefix(nodeType, b[0], iface, "fe80")
             print("Setting route {0} via {1} for {2}-{3} ..." \
                   .format(globalIPDest, localIPB, nodeType, a[0]), end="")
-            if not self.setFibRoute(nodeType, a[0], globalIPDest, localIPB):
+            if not self.setNibRoute(nodeType, a[0], iface, globalIPDest, localIPB):
                 ret = False
                 print("failed")
             else:
@@ -186,7 +192,7 @@ class IOTLABHelper:
 
             print("Setting route {0} via {1} for {2}-{3} ... " \
                   .format("::", localIPA, nodeType, b[0]), end="")
-            if not self.setFibRoute(nodeType, b[0], "::", localIPA):
+            if not self.setNibRoute(nodeType, b[0], iface, "::", localIPA):
                 ret = False
                 print("failed")
             else:
@@ -206,7 +212,7 @@ class IOTLABHelper:
         self.testbed.sendline("{0}-{1};ping6 {2} {3} {4} {5}".format(nodeType, node[0], pingCount,
                               ip, pingPayloadSz, pingDelay))
         if self.testbed.expect([pexpect.TIMEOUT, " ([0-9][0-9]?)% packet loss"], timeout=10) != 0:
-            print("success with {0}% packet loss".format(self.testbed.match.group(1).decode()))
+            print("success with {0}% packet loss".format(self.testbed.match.group(1)))
             return True
         print("failed")
         return False
@@ -267,25 +273,25 @@ class IOTLABHelper:
 
     def getNodeByAddress(self, nodeType, iface, ip):
         self.testbed.sendline("ifconfig {0}".format(iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "{0}-(\d+);\s+inet6 addr: {1}/".format(nodeType, ip)], timeout=1) != 0:
-            return self.testbed.match.group(1).decode()
+        if self.testbed.expect([pexpect.TIMEOUT, "{0}-(\d+);\s+inet6 addr: {1} ".format(nodeType, ip)], timeout=1) != 0:
+            return self.testbed.match.group(1)
         return None
 
     def getRplParent(self, nodeType, node, iface):
         self.testbed.sendline("{0}-{1};rpl".format(nodeType, node))
         if self.testbed.expect([pexpect.TIMEOUT, r"parent \[addr: ([:0-9a-z]+) "], timeout=2) != 0:
-            return self.getNodeByAddress(nodeType, iface, self.testbed.match.group(1).decode())
+            return self.getNodeByAddress(nodeType, iface, self.testbed.match.group(1))
         print("no parent",end="")
         return None
 
     def hasDefaultRouteToParent(self, nodeType, node, parent, iface):
         self.testbed.sendline("{0}-{1};fibroute".format(nodeType, node))
         if self.testbed.expect([pexpect.TIMEOUT, "{0}-{1};::\s+0x.+?\s([:0-9a-z]+)\s+".format(nodeType, node)], timeout=2) != 0:
-            if self.hasAddress(nodeType, parent, iface, self.testbed.match.group(1).decode()):
+            if self.hasAddress(nodeType, parent, iface, self.testbed.match.group(1)):
                 return True
         return False
 
-    def hasValidFibRoute(self, nodeType, node, ip):
+    def hasValidNibRoute(self, nodeType, node, ip):
         self.testbed.sendline("{0}-{1};fibroute".format(nodeType, node))
         if self.testbed.expect([pexpect.TIMEOUT, r"{0}-{1};{2}.*?(?!EXPIRED).*".format(nodeType, node, ip)], timeout=2) != 0:
             return True
@@ -294,6 +300,6 @@ class IOTLABHelper:
     def hasDownwardRoute(self, nodeType, parent, node, iface, prefix):
         child = self.findAddressByPrefix(nodeType, node, iface, prefix)
         if child is not None:
-            if self.hasValidFibRoute(nodeType, parent, child):
+            if self.hasValidNibRoute(nodeType, parent, child):
                 return True
         return False
