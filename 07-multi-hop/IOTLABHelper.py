@@ -137,13 +137,13 @@ class IOTLABHelper:
 
     def findAddressByPrefix(self, nodeType, nodeId, iface, prefix):
         self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: ({0}[:0-9a-f]+)/".format(prefix)], timeout=1) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: ({0}[:0-9a-f]+) ".format(prefix)], timeout=1) != 0:
             return self.testbed.match.group(1)
         return None
 
     def hasAddress(self, nodeType, nodeId, iface, ip):
         self.testbed.sendline("{0}-{1};ifconfig {2}".format(nodeType, nodeId, iface))
-        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0}/".format(ip)], timeout=1) != 0:
+        if self.testbed.expect([pexpect.TIMEOUT, "inet6 addr: {0} ".format(ip)], timeout=1) != 0:
             return True
         return False
 
