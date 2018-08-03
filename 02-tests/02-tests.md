@@ -1,7 +1,7 @@
 ## Goal: Perform test applications on various platforms and check that they run as expected
 
-Task #01
-========
+Task #01 - All tests on native
+==============================
 ### Description
 
 Execute all tests on native and check their output.
@@ -10,8 +10,8 @@ Execute all tests on native and check their output.
 
 All tests succeed.
 
-Task #02
-========
+Task #02 - Subset of tests on iotlab-m3
+=======================================
 ### Description
 
 Perform a subset of tests on iotlab-m3 node.
@@ -20,8 +20,8 @@ Perform a subset of tests on iotlab-m3 node.
 
 All tests succeed.
 
-Task #03
-========
+Task #03 - Subset of tests on samr21-xpro
+=========================================
 ### Description
 
 Perform a subset of tests (!= subset from Task #02) on samr21-xpro node.
