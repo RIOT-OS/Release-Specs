@@ -1,7 +1,7 @@
 ## Goal: Check static routing of ICMPv6 packets over a single hop
 
-Task #01
-========
+Task #01 - ICMPv6 echo unicast addresess on native (default route)
+==================================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes both with global
@@ -22,8 +22,8 @@ otherwise default routes and address resolution will be auto-configured).
 No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
 
-Task #02
-========
+Task #02 - ICMPv6 echo unicast addresess on iotlab-m3 (default route)
+=====================================================================
 ### Description
 https://github.com/RIOT-OS/Release-Specs.git
 ICMPv6 echo request/reply exchange between two iotlab-m3 nodes with global
@@ -43,8 +43,8 @@ advertisements for this task).
 <10% packets lost on the pinging node.
 No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
-Task #03
-========
+Task #03 - ICMPv6 echo unicast addresess on native (specific route)
+===================================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes both with global
@@ -64,8 +64,8 @@ otherwise default routes and address resolution will be auto-configured ).
 <1% packets lost on the pinging node.
 No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 
-Task #04
-========
+Task #04 - ICMPv6 echo unicast addresess on iotlab-m3 (static route)
+====================================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes. The source address of the
