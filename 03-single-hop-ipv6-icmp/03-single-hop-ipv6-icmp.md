@@ -1,7 +1,7 @@
 ## Goal: Check single-hop ICMP connectivity over IPv6
 
-Task #01
-========
+Task #01 - ICMPv6 multicast echo on native
+==========================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes.
@@ -15,8 +15,8 @@ ICMPv6 echo request/reply exchange between two native nodes.
 
 <1% packets lost on the pinging node.
 
-Task #02
-========
+Task #02 - ICMPv6 link-local echo on native
+===========================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes.
@@ -30,8 +30,8 @@ ICMPv6 echo request/reply exchange between two native nodes.
 
 <1% packets lost on the pinging node.
 
-Task #03
-========
+Task #03 - ICMPv6 link-local echo on native (1 hour)
+====================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two native nodes.
