@@ -406,7 +406,8 @@ class RIOTApplication():
             raise err
         return out
 
-    def make_with_outfile(self, name, args, save_output=False):
+    def make_with_outfile(self, name, args, save_output=False,
+                          setuptasks=None):
         """Run make but save result in an outfile.
 
         It will be saved in `self.resultdir/name.[success|failure]`.
@@ -414,13 +415,24 @@ class RIOTApplication():
         :param name: basename to use for the result file.
         :param save_output: output should be saved in the outfile and returned,
                             if not, return an empty string.
+        :param setuptasks: OrderedDict of tasks to run before the main one
         """
         self.logger.info('Run %s', name)
+        setuptasks = setuptasks or {}
 
         # Do not re-run if success
         output = self._make_get_previous_output(name)
         if output is not None:
             return output
+
+        # Run setup-tasks, output is only kept in case of error
+        for taskname, taskargs in setuptasks.items():
+            taskname = '%s.%s' % (name, taskname)
+            self.logger.info('Run %s', taskname)
+            try:
+                self.make(taskargs)
+            except subprocess.CalledProcessError as err:
+                self._make_handle_error(taskname, err)
 
         # Run make command
         try:
