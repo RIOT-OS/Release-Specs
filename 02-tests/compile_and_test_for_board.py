@@ -70,6 +70,7 @@ import shutil
 import logging
 import argparse
 import subprocess
+import collections
 
 LOG_HANDLER = logging.StreamHandler()
 LOG_HANDLER.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
@@ -368,8 +369,10 @@ class RIOTApplication():
 
         if runtest:
             if self.has_test():
-                self.make_with_outfile('test', ['flash-only', 'test'],
-                                       save_output=True)
+                setuptasks = collections.OrderedDict(
+                    [('flash', ['flash-only'])])
+                self.make_with_outfile('test', ['test'],
+                                       save_output=True, setuptasks=setuptasks)
                 if clean_after:
                     self.clean()
             else:
