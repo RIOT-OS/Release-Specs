@@ -65,6 +65,7 @@ optional arguments:
 """
 
 import os
+import sys
 import glob
 import shutil
 import logging
@@ -602,7 +603,7 @@ def main():
         print(summary, end='')
     else:
         logger.info('Tests successful')
-    exit(num_errors)
+    sys.exit(num_errors)
 
 
 if __name__ == '__main__':
