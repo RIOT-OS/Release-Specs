@@ -29,6 +29,10 @@ ICMPv6 echo request/reply exchange between an iotlab-m3 node running RIOT and
 an Linux Internet host using a Raspberry Pi running Linux with 6LoWPAN support
 as border router. Routes are configured statically.
 
+Since Linux' 6Lo implementation doesn't support 6Lo-ND DAD yet, the RIOT image
+needs to be compiled with `CFLAGS += -DGNRC_IPV6_NIB_CONF_SLAAC=1` to be able to
+fall back to classic SLAAC + DAD.
+
 Task #05 - ICMPv6 echo between iotlab-m3 and Internet host through RIOT border router
 =====================================================================================
 ### Description
