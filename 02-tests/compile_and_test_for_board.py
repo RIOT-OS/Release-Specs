@@ -265,12 +265,10 @@ class RIOTApplication():
         return appname
 
     def has_test(self):
-        """Detect if the app has tests target."""
-        try:
-            self.make(['-n', 'test'])
-            return True
-        except subprocess.CalledProcessError:
-            return False
+        """Detect if the application has tests."""
+        tests = self.make(['info-debug-variable-TESTS'],
+                          log_error=True).strip()
+        return bool(tests)
 
     def board_is_supported(self):
         """Return if current board is supported."""
