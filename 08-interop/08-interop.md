@@ -61,8 +61,9 @@ Task #08 - UDP between GNRC and lwIP on iotlab-m3 (not working)
 ===============================================================
 ### Description
 
-~~Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
-node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP.~~ (not possible due to [bug #48825](http://savannah.nongnu.org/bugs/?48825))
+Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP (in
+both directions).
 
 Task #09 - UDP between GNRC and emb6 on iotlab-m3
 =================================================
@@ -76,5 +77,6 @@ Task #10 - UDP between lwIP and emb6 on iotlab-m3 (not working)
 ===============================================================
 ### Description
 
-~~Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
-node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6.~~ (not possible due to [bug #48825](http://savannah.nongnu.org/bugs/?48825))
+Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
+node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6 (in
+both directions).
