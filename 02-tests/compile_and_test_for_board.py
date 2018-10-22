@@ -418,9 +418,13 @@ class RIOTApplication():
         self.logger.info('Run %s', name)
 
         # Do not re-run if success
-        output = self._make_get_previous_output(name)
-        if output is not None:
-            return output
+        try:
+            with open(self._outfile('%s.success' % name),
+                      encoding='utf-8') as outputfd:
+                self.logger.info('Nothing to be done for %s', name)
+                return outputfd.read()
+        except OSError:
+            pass
 
         # Run make command
         try:
@@ -430,31 +434,13 @@ class RIOTApplication():
             self._write_resultfile(name, 'success', output)
             return output
         except subprocess.CalledProcessError as err:
-            self._make_handle_error(name, err)
+            output = ' '.join(err.cmd) + '\n'
+            output += err.output + '\n'
+            output += 'Return value: %s\n' % err.returncode
+            outfile = self._write_resultfile(name, 'failed', output)
 
-    def _make_get_previous_output(self, name):
-        """Get previous result output for step `name`.
-
-        Returns `output` if it is there, None if not.
-        """
-        try:
-            with open(self._outfile('%s.success' % name),
-                      encoding='utf-8') as outputfd:
-                self.logger.info('Nothing to be done for %s', name)
-                return outputfd.read()
-        except OSError:
-            pass
-        return None
-
-    def _make_handle_error(self, name, err):
-        """Handle exception during make step `name`."""
-        output = ' '.join(err.cmd) + '\n'
-        output += err.output + '\n'
-        output += 'Return value: %s\n' % err.returncode
-        outfile = self._write_resultfile(name, 'failed', output)
-
-        self.logger.error('Error during %s, writing to %s', name, outfile)
-        raise TestError(name, self, outfile)
+            self.logger.error('Error during %s, writing to %s', name, outfile)
+            raise TestError(name, self, outfile)
 
     def _write_resultfile(self, name, status, body=''):
         """Write `body` to result file `name.status`.
