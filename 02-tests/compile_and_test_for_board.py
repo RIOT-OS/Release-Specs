@@ -496,8 +496,7 @@ def save_toolchain(riotdir, resultdir):
 
 def _test_failed_summary(errors, relpathstart=None):
     """Generate a test summary for failures."""
-    if not errors:
-        return ''
+    summary = ''
 
     errors_dict = {}
     for step, appdir, errorfile in errors:
@@ -505,16 +504,10 @@ def _test_failed_summary(errors, relpathstart=None):
             errorfile = os.path.relpath(errorfile, relpathstart)
         errors_dict.setdefault(step, []).append((appdir, errorfile))
 
-    summary = ''
     for step, errs in sorted(errors_dict.items()):
         summary += 'Failures during %s:\n' % step
         for appdir, errorfile in errs:
             summary += '- [%s](%s)\n' % (appdir, errorfile)
-        # Separate sections with a new line
-        summary += '\n'
-
-    # Remove last new line
-    summary = summary[:-1]
     return summary
 
 
