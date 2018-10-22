@@ -136,6 +136,11 @@ PARSER.add_argument(
     '--jobs', '-j', type=int, default=None,
     help="Parallel building (0 means not limit, like '--jobs')")
 
+APPLICATIONS_DIRS_GLOBS = (
+    os.path.join('examples', '*'),
+    os.path.join('tests', '*'),
+)
+
 
 class TestError(Exception):
     """Custom exception for a failed test.
@@ -149,17 +154,18 @@ class TestError(Exception):
         self.errorfile = errorfile
 
 
-def apps_directories(riotdir, apps_dirs=None, apps_dirs_skip=None):
+def apps_directories(riotdir, apps_dirs_globs=APPLICATIONS_DIRS_GLOBS,
+                     apps_dirs=None, apps_dirs_skip=None):
     """Return sorted list of test directories relative to `riotdir`.
 
-    By default it uses RIOT 'info-applications' command to list them.
-
     :param riotdir: base riot directory
-    :param apps_dirs: use this applications list instead of the RIOT list
+    :param apps_dirs_globs: list of application dirs, 'glob' syntax with '*'
+    :param apps_dirs: use this applications list instead of searching
+                      `apps_dirs_globs`
     :param apps_dirs_skip: list of application directories to remove, applied
-                           on the RIOT list or `apps_dirs`
+                           on `apps_dirs_globs` or `apps_dirs`
     """
-    apps_dirs = apps_dirs or _riot_tracked_applications_dirs(riotdir)
+    apps_dirs = apps_dirs or _apps_dirs_from_globs(riotdir, *apps_dirs_globs)
     apps_dirs_skip = apps_dirs_skip or []
 
     # Remove applications to skip
@@ -186,27 +192,25 @@ def _is_git_tracked(appdir):
     return ret == 0
 
 
-def _riot_tracked_applications_dirs(riotdir):
-    """Applications directories in the RIOT repository with relative path.
+def _apps_dirs_from_globs(riotdir, *dir_globs):
+    """Directories in `*dir_globs` in directory `riotdir` with a Makefile.
 
-    Only return 'tracked' applications if riotdir is a git repository.
+    It also only keeps apps that are tracked if `riotdir` is a git repo.
     """
-    apps_dirs = _riot_applications_dirs(riotdir)
+    apps_dirs = []
+    for directory in dir_globs:
+        apps_search_glob = os.path.join(riotdir, directory, 'Makefile')
+        apps_dirs += [os.path.dirname(dir) for dir in
+                      glob.glob(apps_search_glob)]
 
     # Only keep tracked directories
     if _is_git_repo(riotdir):
-        apps_dirs = [dir for dir in apps_dirs
-                     if _is_git_tracked(os.path.join(riotdir, dir))]
+        apps_dirs = [dir for dir in apps_dirs if _is_git_tracked(dir)]
+
+    # Save as relative name
+    apps_dirs = [os.path.relpath(dir, riotdir) for dir in apps_dirs]
+
     return apps_dirs
-
-
-def _riot_applications_dirs(riotdir):
-    """Applications directories in the RIOT repository with relative path."""
-    cmd = ['make', 'info-applications']
-
-    out = subprocess.check_output(cmd, cwd=riotdir)
-    out = out.decode('utf-8', errors='replace')
-    return out.split()
 
 
 def check_is_board(riotdir, board):
