@@ -265,13 +265,8 @@ class RIOTApplication():
         return appname
 
     def has_test(self):
-        """Detect if the application has tests.
-
-        Use '--silent' to disable the message from packages:
-
-            make[1]: Nothing to be done for 'Makefile.include'
-        """
-        tests = self.make(['--silent', 'info-debug-variable-TESTS'],
+        """Detect if the application has tests."""
+        tests = self.make(['info-debug-variable-TESTS'],
                           log_error=True).strip()
         return bool(tests)
 
