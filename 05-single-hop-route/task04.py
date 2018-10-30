@@ -43,10 +43,12 @@ try:
         count = 10
         tolerance = 1
 
-        packet_loss = single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count)
-        results.append(packet_loss)
+        packet_loss, buf_source, buf_dest = single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count)
+        results.append([packet_loss, buf_source, buf_dest])
 
         assert(packet_loss < tolerance)
+        assert(buf_source == True)
+        assert(buf_dest == True)
         print("OK")
 
 except Exception as e:
