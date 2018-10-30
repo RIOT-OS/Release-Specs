@@ -29,14 +29,18 @@ try:
     native_cmd = "make PORT={} BOARD=native term"
     source = SingleHopNode(native_cmd.format("tap0"))
     dest = SingleHopNode(native_cmd.format("tap1"))
+
+    ip_src =  "affe::2/64"
+    ip_dest =  "beef::1/64"
+    src_route = "::"
+    dest_route = "::"
+    disable_rdv = True
+    count = 100
+    tolerance = 1
+
     for i in range(N):
-        ip_src =  "affe::2/64"
-        ip_dest =  "beef::1/64"
-        src_route = "::"
-        dest_route = "::"
-        disable_rdv = True
-        count = 100
-        tolerance = 1
+        source.reboot()
+        dest.reboot()
 
         packet_loss, buf_source, buf_dest = single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count)
         results.append([packet_loss, buf_source, buf_dest])

@@ -31,17 +31,18 @@ try:
     iotlab_cmd = "make IOTLAB_NODE={} BOARD=iotlab-m3 term"
     source = SingleHopNode(iotlab_cmd.format(addr[0]))
     dest = SingleHopNode(iotlab_cmd.format(addr[1]))
+
+    ip_src =  None
+    ip_dest =  "beef::1/64"
+    src_route = "::"
+    dest_route = "::"
+    disable_rdv = True
+    count = 10
+    tolerance = 1
+
     for i in range(N):
         source.reboot()
         dest.reboot()
-
-        ip_src =  None
-        ip_dest =  "beef::1/64"
-        src_route = "::"
-        dest_route = "::"
-        disable_rdv = True
-        count = 10
-        tolerance = 1
 
         packet_loss, buf_source, buf_dest = single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count)
         results.append([packet_loss, buf_source, buf_dest])
