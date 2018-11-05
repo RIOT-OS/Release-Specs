@@ -57,8 +57,8 @@ UDP over IPv6 packet exchange (payload length 200) between an iotlab-m3 node
 running RIOT with GNRC and an Linux Internet host using a RIOT node as border
 router. Routes are configured statically.
 
-Task #08 - UDP between GNRC and lwIP on iotlab-m3 (not working)
-===============================================================
+Task #08 - UDP between GNRC and lwIP on iotlab-m3
+=================================================
 ### Description
 
 Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
@@ -73,8 +73,8 @@ Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
 node running RIOT with GNRC and an iotlab-m3 node running RIOT with emb6.
 
 
-Task #10 - UDP between lwIP and emb6 on iotlab-m3 (not working)
-===============================================================
+Task #10 - UDP between lwIP and emb6 on iotlab-m3
+=================================================
 ### Description
 
 Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
