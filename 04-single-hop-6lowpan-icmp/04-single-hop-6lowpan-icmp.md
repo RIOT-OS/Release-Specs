@@ -116,8 +116,8 @@ a samr21-xpro node.
 
 <10% packets lost on the pinging node.
 
-Task #08 (Experimental) - ICMPv6 echo with samr21-xpro/zero + xbee 15 minutes
-=============================================================================
+Task #08 (Experimental) - ICMPv6 echo with samr21-xpro/zero + xbee
+==================================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between an Arduino Zero + XBee node and
