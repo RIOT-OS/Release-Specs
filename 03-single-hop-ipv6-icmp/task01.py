@@ -4,14 +4,12 @@ import os
 import argparse
 sys.path.append("../testutils")
 
-from testutils import bootstrap
-from common import SingleHopNode, ping, print_results
-
-from time import sleep
+from testutils import bootstrap  # noqa: E402
+from common import SingleHopNode, ping, print_results  # noqa: E402
 
 PAYLOAD_SIZE = 0
-ERROR_TOLERANCE = 1 # %
-DELAY = 10 # ms
+ERROR_TOLERANCE = 1  # %
+DELAY = 10  # ms
 
 p = argparse.ArgumentParser()
 p.add_argument('riotbase', nargs='?',
@@ -25,7 +23,6 @@ if not riotbase:
 
 os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-
 bootstrap("native")
 N = 1
 results = []
@@ -35,7 +32,7 @@ try:
     source = SingleHopNode(native_cmd.format("tap0"))
     dest = SingleHopNode(native_cmd.format("tap1"))
     for i in range(N):
-        ip_dest =  "ff02::1/64"
+        ip_dest = "ff02::1/64"
         count = 1000
 
         packet_loss = ping(source, dest, ip_dest, count, PAYLOAD_SIZE, DELAY)

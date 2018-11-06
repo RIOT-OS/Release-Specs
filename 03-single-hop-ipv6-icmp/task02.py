@@ -4,14 +4,12 @@ import os
 import argparse
 sys.path.append("../testutils")
 
-from testutils import bootstrap
-from common import SingleHopNode, ping, print_results
-
-from time import sleep
+from testutils import bootstrap  # noqa: E402
+from common import SingleHopNode, ping, print_results  # noqa: E402
 
 PAYLOAD_SIZE = 1024
-ERROR_TOLERANCE = 1 # %
-DELAY = 100 # ms
+ERROR_TOLERANCE = 1  # %
+DELAY = 100  # ms
 
 p = argparse.ArgumentParser()
 p.add_argument('riotbase', nargs='?',
