@@ -5,19 +5,28 @@ from time import sleep
 PAYLOAD_SIZE = 1024
 DELAY = 10
 
-#Declare node
+
+# Declare node
 class SingleHopNode(Board, GNRC, PktBuf):
     pass
 
+
 def print_results(results):
     packet_losses = [results[i][0] for i in range(len(results))]
-    print("Summary of {packet losses, source pktbuf sanity, dest pktbuf sanity}:")
-    for i in range(len(results)):
-        print("Run {}: {} {} {}".format(i+1, packet_losses[i], results[i][1], results[i][2]))
-    print("")
-    print("Average packet losses: {}".format(sum(packet_losses)/len(packet_losses)))
+    print("Summary of {packet losses, source pktbuf sanity, \
+            dest pktbuf sanity}:")
 
-def single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count):
+    for i in range(len(results)):
+        print("Run {}: {} {} {}".format(
+            i+1, packet_losses[i], results[i][1], results[i][2]))
+
+    print("")
+    print("Average packet losses: {}".format(
+        sum(packet_losses)/len(packet_losses)))
+
+
+def single_hop_run(source, dest, ip_src, ip_dest,
+                   src_route, dest_route, disable_rdv, count):
     source.reboot()
     dest.reboot()
 
@@ -48,9 +57,10 @@ def single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable
     source.add_nib_route(iface, src_route, ip_src_ll)
     dest.add_nib_route(iface, dest_route, ip_dest_ll)
 
-    packet_loss = source.ping(count, ip_dest.split("/")[0], PAYLOAD_SIZE, DELAY)
+    packet_loss = source.ping(
+            count, ip_dest.split("/")[0], PAYLOAD_SIZE, DELAY)
     buf_source_end = source.extract_unused()
     buf_dest_end = dest.extract_unused()
 
-    return packet_loss, buf_source_end==buf_source_start, buf_dest_end==buf_dest_start
-
+    return (packet_loss, buf_source_end == buf_source_start,
+            buf_dest_end == buf_dest_start)

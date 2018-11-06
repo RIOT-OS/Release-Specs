@@ -4,9 +4,10 @@ import os
 import argparse
 sys.path.append("../testutils")
 
-from testutils import Board
-from iotlab import create_experiment, stop_experiment, get_nodes_addresses
-from common import SingleHopNode, single_hop_run, print_results
+from iotlab import create_experiment  # noqa: E402
+from iotlab import stop_experiment  # noqa: E402
+from iotlab import get_nodes_addresses  # noqa: E402
+from common import SingleHopNode, single_hop_run, print_results  # noqa: E402
 
 p = argparse.ArgumentParser()
 p.add_argument('riotbase', nargs='?',
@@ -20,7 +21,7 @@ if not riotbase:
 
 os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-#Create IoTLAB experiment (TODO: Return addresses)
+# Create IoTLAB experiment (TODO: Return addresses)
 exp_id = create_experiment(2)
 
 N = 10
@@ -32,8 +33,8 @@ try:
     source = SingleHopNode(iotlab_cmd.format(addr[0]))
     dest = SingleHopNode(iotlab_cmd.format(addr[1]))
 
-    ip_src =  None
-    ip_dest =  "beef::1/64"
+    ip_src = None
+    ip_dest = "beef::1/64"
     src_route = "::"
     dest_route = "::"
     disable_rdv = True
@@ -44,12 +45,14 @@ try:
         source.reboot()
         dest.reboot()
 
-        packet_loss, buf_source, buf_dest = single_hop_run(source, dest, ip_src, ip_dest, src_route, dest_route, disable_rdv, count)
+        packet_loss, buf_source, buf_dest = single_hop_run(
+                source, dest, ip_src, ip_dest, src_route,
+                dest_route, disable_rdv, count)
         results.append([packet_loss, buf_source, buf_dest])
 
         assert(packet_loss < tolerance)
-        assert(buf_source == True)
-        assert(buf_dest == True)
+        assert(buf_source)
+        assert(buf_dest)
         print("OK")
 
 except Exception as e:
