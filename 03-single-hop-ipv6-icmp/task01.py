@@ -36,7 +36,8 @@ if __name__ == "__main__":
             ip_dest = "ff02::1/64"
             count = 1000
 
-            packet_loss = ping(source, dest, ip_dest, count, PAYLOAD_SIZE, DELAY)
+            packet_loss = ping(source, dest, ip_dest,
+                               count, PAYLOAD_SIZE, DELAY)
             results.append(packet_loss)
 
             assert(packet_loss < ERROR_TOLERANCE * count)

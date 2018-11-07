@@ -24,7 +24,6 @@ if __name__ == "__main__":
 
     os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-
     bootstrap("native")
     N = 1
     results = []
@@ -37,7 +36,8 @@ if __name__ == "__main__":
             ip_dest = dest.get_ip_addr()
             count = 3600
 
-            packet_loss = ping(source, dest, ip_dest, count, PAYLOAD_SIZE, DELAY)
+            packet_loss = ping(source, dest, ip_dest,
+                               count, PAYLOAD_SIZE, DELAY)
             results.append(packet_loss)
 
             assert(packet_loss < ERROR_TOLERANCE * count)
