@@ -39,6 +39,10 @@ def task02(riotbase, runs=1):
                                                      COUNT, PAYLOAD_SIZE, DELAY,
                                                      CHANNEL)
             results.append([packet_loss, buf_source, buf_dest])
+            packet_loss, buf_source, buf_dest = ping(dest, source, "ff02::1",
+                                                     COUNT, PAYLOAD_SIZE, DELAY,
+                                                     CHANNEL)
+            results.append([packet_loss, buf_source, buf_dest])
 
             assert(packet_loss < ERROR_TOLERANCE)
             assert(buf_source)
