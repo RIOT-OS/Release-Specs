@@ -89,8 +89,11 @@ def create_experiment(nodes):
 def stop_experiment(exp_id):
     subprocess.check_call(['iotlab-experiment', 'stop', '-i', str(exp_id)])
 
+
 def get_nodes_addresses(exp_id):
-    output = subprocess.check_output(['iotlab-experiment', 'get', '-i', str(exp_id), '-r'], encoding="utf-8")
+    output = subprocess.check_output(
+            ['iotlab-experiment', 'get', '-i', str(exp_id), '-r'],
+        ).decode("utf-8")
     res = json.loads(output)
     l = []
     for i in res["items"]:
