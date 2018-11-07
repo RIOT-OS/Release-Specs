@@ -2,9 +2,7 @@ import os
 import json
 import logging
 import subprocess
-import re
 
-from testutils import Board
 
 class IoTLABNode(object):
     BOARD_ARCHI_MAP = {
@@ -108,8 +106,8 @@ class IoTLABExperiment(object):
                 ['iotlab-experiment', 'get', '-i', str(self.exp_id), '-r'],
             ).decode("utf-8")
         res = json.loads(output)
-        l = []
+        addresses = []
         for i in res["items"]:
-            l.append(i["network_address"])
+            addresses.append(i["network_address"])
 
-        return l
+        return addresses
