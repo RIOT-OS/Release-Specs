@@ -5,7 +5,7 @@ import argparse
 sys.path.append("../testutils")
 
 from testutils import Board
-from iotlab import create_experiment, stop_experiment, get_nodes_addresses
+from iotlab import IoTLABNode, IoTLABExperiment
 from common import SingleHopNode, single_hop_run, print_results
 
 p = argparse.ArgumentParser()
@@ -20,17 +20,19 @@ if not riotbase:
 
 os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-#Create IoTLAB experiment (TODO: Return addresses)
-exp_id = create_experiment(2)
+# Create IoTLAB experiment
+exp = IoTLABExperiment("RIOT-release-test-05-02",
+                       [IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
+                        IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"])])
 
 N = 10
-results = []
 
 try:
-    addr = get_nodes_addresses(exp_id)
+    addr = exp.nodes_addresses
     iotlab_cmd = "make IOTLAB_NODE={} BOARD=iotlab-m3 term"
     source = SingleHopNode(iotlab_cmd.format(addr[0]))
     dest = SingleHopNode(iotlab_cmd.format(addr[1]))
+    results = []
 
     ip_src =  "affe::1/120"
     ip_dest =  "beef::1/64"
@@ -52,10 +54,9 @@ try:
         assert(buf_dest == True)
         print("OK")
 
+    print_results(results)
 except Exception as e:
     print(str(e))
     print("Test failed!")
-    pass
-
-stop_experiment(exp_id)
-print_results(results)
+finally:
+    exp.stop()
