@@ -26,13 +26,13 @@ exp_id = create_experiment([IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
                             IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"])])
 
 N = 10
-results = []
 
 try:
     addr = get_nodes_addresses(exp_id)
     iotlab_cmd = "make IOTLAB_NODE={} BOARD=iotlab-m3 term"
     source = SingleHopNode(iotlab_cmd.format(addr[0]))
     dest = SingleHopNode(iotlab_cmd.format(addr[1]))
+    results = []
 
     ip_src =  "affe::1/120"
     ip_dest =  "beef::1/64"
@@ -54,10 +54,9 @@ try:
         assert(buf_dest == True)
         print("OK")
 
+    print_results(results)
 except Exception as e:
     print(str(e))
     print("Test failed!")
-    pass
-
-stop_experiment(exp_id)
-print_results(results)
+finally:
+    stop_experiment(exp_id)
