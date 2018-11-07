@@ -21,6 +21,7 @@ class IoTLABNode(object):
         self.board = board
         self.site = site
         self.extra_modules = extra_modules
+        self.exp = None
         self.addr = None
 
     def __repr__(self):
@@ -38,12 +39,13 @@ class IoTLABNode(object):
         else:
             return addr == self.addr
 
-    def flash(self, addr, exp_id):
+    def flash(self, addr):
+        assert(self.exp is not None)
         env = os.environ
         env["BOARD"] = self.board
         env["USEMODULE"] = " ".join(self.extra_modules)
         env["IOTLAB_NODE"] = addr
-        env["IOTLAB_EXP_ID"] = exp_id
+        env["IOTLAB_EXP_ID"] = self.exp.exp_id
         logging.info("Flashing test binary to {}".format(addr))
         subprocess.run(["make", "flash"], env=env)
 
@@ -61,42 +63,48 @@ class IoTLABExperimentError(Exception):
     pass
 
 
-def create_experiment(nodes):
-    exp_id = None
-    try:
-        exp_id = subprocess.check_output(
-                ["iotlab-experiment", "--jmespath", "@.id", "--format", "int",
-                    "submit", "-d", "30"] + [node.exp_param for node in nodes],
-                stderr=subprocess.PIPE
-            ).strip().decode("utf-8")
-        logging.info("Waiting for experiment", exp_id,
-                     "to go to state \"Running\"")
-        subprocess.run(["iotlab-experiment", "wait", "-i", exp_id],
-                       stderr=subprocess.PIPE, check=True)
-        addrs = get_nodes_addresses(exp_id)
-        for node in nodes:
-            addr = next(a for a in addrs if node.addr_points_to_node(a))
-            node.flash(addr, exp_id)
-            addrs.remove(addr)
-    except subprocess.CalledProcessError as e:
-        if exp_id is not None:
-            stop_experiment(exp_id)
-        raise IoTLABExperimentError(e.stderr.decode("utf-8"))
+class IoTLABExperiment(object):
+    def __init__(self, nodes):
+        self.nodes = nodes
+        self.exp_id = None
+        try:
+            self.exp_id = subprocess.check_output(
+                    ["iotlab-experiment", "--jmespath", "@.id",
+                        "--format", "int", "submit", "-d", "30"] +
+                    [node.exp_param for node in nodes],
+                    stderr=subprocess.PIPE
+                ).strip().decode("utf-8")
+            logging.info("Waiting for experiment", self.exp_id,
+                         "to go to state \"Running\"")
+            subprocess.run(["iotlab-experiment", "wait", "-i", self.exp_id],
+                           stderr=subprocess.PIPE, check=True)
+            addrs = self._get_nodes_addresses()
+            for node in nodes:
+                addr = next(a for a in addrs if node.addr_points_to_node(a))
+                node.exp = self
+                node.flash(addr)
+                addrs.remove(addr)
+        except subprocess.CalledProcessError as e:
+            self.stop()
+            raise IoTLABExperimentError(e.stderr.decode("utf-8"))
+        self.exp_id = int(self.exp_id)
 
-    return exp_id
+    def stop(self):
+        if self.exp_id is not None:
+            subprocess.check_call(['iotlab-experiment', 'stop',
+                                   '-i', str(self.exp_id)])
 
+    @property
+    def nodes_addresses(self):
+        return [node.addr for node in self.nodes]
 
-def stop_experiment(exp_id):
-    subprocess.check_call(['iotlab-experiment', 'stop', '-i', str(exp_id)])
+    def _get_nodes_addresses(self):
+        output = subprocess.check_output(
+                ['iotlab-experiment', 'get', '-i', str(self.exp_id), '-r'],
+            ).decode("utf-8")
+        res = json.loads(output)
+        l = []
+        for i in res["items"]:
+            l.append(i["network_address"])
 
-
-def get_nodes_addresses(exp_id):
-    output = subprocess.check_output(
-            ['iotlab-experiment', 'get', '-i', str(exp_id), '-r'],
-        ).decode("utf-8")
-    res = json.loads(output)
-    l = []
-    for i in res["items"]:
-        l.append(i["network_address"])
-
-    return l
+        return l
