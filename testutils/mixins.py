@@ -21,6 +21,12 @@ class GNRC:
         self.pexpect.sendline("ifconfig {} add {}".format(iface, source))
         self.pexpect.expect("success")
 
+    def set_chan(self, iface, chan):
+        self.pexpect.sendline("ifconfig {} set chan {}".format(iface, chan))
+        self.pexpect.expect("success: set channel on interface {} to {}".format(
+                iface, chan
+            ))
+
     def add_nib_route(self, iface, route, ip_addr):
         self.pexpect.sendline(
                 "nib route add {} {} {}".format(iface, route, ip_addr))
