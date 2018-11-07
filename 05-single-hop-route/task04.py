@@ -4,9 +4,8 @@ import os
 import argparse
 sys.path.append("../testutils")
 
-from testutils import Board
-from iotlab import IoTLABNode, IoTLABExperiment
-from common import SingleHopNode, single_hop_run, print_results
+from iotlab import IoTLABNode, IoTLABExperiment  # noqa: E402
+from common import SingleHopNode, single_hop_run, print_results  # noqa: E402
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
@@ -21,7 +20,7 @@ if __name__ == "__main__":
 
     os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-    #Create IoTLAB experiment (TODO: Return addresses)
+    # Create IoTLAB experiment (TODO: Return addresses)
     exp = IoTLABExperiment("RIOT-release-test-05-04",
                            [IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
                             IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"])])

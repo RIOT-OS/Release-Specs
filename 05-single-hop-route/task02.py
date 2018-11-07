@@ -4,9 +4,8 @@ import os
 import argparse
 sys.path.append("../testutils")
 
-from testutils import Board
-from iotlab import IoTLABNode, IoTLABExperiment
-from common import SingleHopNode, single_hop_run, print_results
+from iotlab import IoTLABNode, IoTLABExperiment  # noqa: E402
+from common import SingleHopNode, single_hop_run, print_results  # noqa: E402
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()

@@ -24,7 +24,6 @@ if __name__ == "__main__":
     N = 3
     results = []
 
-
     try:
         native_cmd = "make PORT={} BOARD=native term"
         source = SingleHopNode(native_cmd.format("tap0"))
