@@ -5,7 +5,8 @@ import argparse
 sys.path.append("../testutils")
 
 from testutils import Board
-from iotlab import create_experiment, stop_experiment, get_nodes_addresses
+from iotlab import IoTLABNode, create_experiment, stop_experiment, \
+                   get_nodes_addresses
 from common import SingleHopNode, single_hop_run, print_results
 
 p = argparse.ArgumentParser()
@@ -21,7 +22,8 @@ if not riotbase:
 os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
 #Create IoTLAB experiment (TODO: Return addresses)
-exp_id = create_experiment(2)
+exp_id = create_experiment([IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
+                            IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"])])
 
 N = 10
 results = []
