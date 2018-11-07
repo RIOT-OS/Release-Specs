@@ -21,7 +21,8 @@ if not riotbase:
 os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
 #Create IoTLAB experiment (TODO: Return addresses)
-exp = IoTLABExperiment([IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
+exp = IoTLABExperiment("RIOT-release-test-05-04",
+                       [IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"]),
                         IoTLABNode(extra_modules=["gnrc_pktbuf_cmd"])])
 
 N = 10

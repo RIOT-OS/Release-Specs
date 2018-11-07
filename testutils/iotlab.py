@@ -64,13 +64,14 @@ class IoTLABExperimentError(Exception):
 
 
 class IoTLABExperiment(object):
-    def __init__(self, nodes):
+    def __init__(self, name, nodes):
         self.nodes = nodes
+        self.name = name
         self.exp_id = None
         try:
             self.exp_id = subprocess.check_output(
                     ["iotlab-experiment", "--jmespath", "@.id",
-                        "--format", "int", "submit", "-d", "30"] +
+                        "--format", "int", "submit", "-n", name, "-d", "30"] +
                     [node.exp_param for node in nodes],
                     stderr=subprocess.PIPE
                 ).strip().decode("utf-8")
@@ -88,6 +89,10 @@ class IoTLABExperiment(object):
             self.stop()
             raise IoTLABExperimentError(e.stderr.decode("utf-8"))
         self.exp_id = int(self.exp_id)
+
+    def __repr__(self):
+        return "IoTLABExperiment(name={}, exp_id={})".format(self.name,
+                                                             self.exp_id)
 
     def stop(self):
         if self.exp_id is not None:
