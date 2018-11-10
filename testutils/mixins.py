@@ -48,11 +48,6 @@ class GNRC:
 
 
 class PktBuf:
-    def extract_unused(self):
-        self.pexpect.sendline("pktbuf")
-        self.pexpect.expect("unused: ([0-9xa-f]+) ")
-        return self.pexpect.match.group(1)
-
     def is_empty(self):
         self.pexpect.sendline("pktbuf")
         self.pexpect.expect(r"packet buffer: "
