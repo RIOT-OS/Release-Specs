@@ -52,3 +52,22 @@ class PktBuf:
         self.pexpect.sendline("pktbuf")
         self.pexpect.expect("unused: ([0-9xa-f]+) ")
         return self.pexpect.match.group(1)
+
+    def is_empty(self):
+        self.pexpect.sendline("pktbuf")
+        self.pexpect.expect(r"packet buffer: "
+                            r"first byte: 0x(?P<first_byte>[0-9A-Fa-f]+), "
+                            r"last byte: 0x[0-9A-Fa-f]+ "
+                            r"\(size: (?P<size>\d+)\)")
+        exp_first_byte = int(self.pexpect.match.group("first_byte"), base=16)
+        exp_size = int(self.pexpect.match.group("size"))
+        exp = self.pexpect.expect([r"~ unused: 0x(?P<first_byte>[0-9A-Fa-f]+) "
+                                   r"\(next: ((\(nil\))|0), "
+                                   r"size: (?P<size>\d+)\) ~",
+                                   pexpect.TIMEOUT])
+        if exp == 0:
+            first_byte = int(self.pexpect.match.group("first_byte"), base=16)
+            size == int(self.pexpect.match.group("size"))
+            return (exp_first_byte == first_byte) and (exp_size == size)
+        else:
+            return False
