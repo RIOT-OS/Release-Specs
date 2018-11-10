@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     os.chdir(os.path.join(riotbase, "tests/gnrc_udp"))
 
-    bootstrap("native")
+    bootstrap("native", {"USEMODULE": "gnrc_pktbuf_cmd"})
     N = 3
     results = []
 
