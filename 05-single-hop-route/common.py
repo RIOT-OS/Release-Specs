@@ -30,9 +30,6 @@ def single_hop_run(source, dest, ip_src, ip_dest,
     source.reboot()
     dest.reboot()
 
-    buf_source_start = source.extract_unused()
-    buf_dest_start = dest.extract_unused()
-
     # Get useful information
     iface = source.get_first_iface()
     ip_src_ll = dest.get_ip_addr()
@@ -59,8 +56,5 @@ def single_hop_run(source, dest, ip_src, ip_dest,
 
     packet_loss = source.ping(
             count, ip_dest.split("/")[0], PAYLOAD_SIZE, DELAY)
-    buf_source_end = source.extract_unused()
-    buf_dest_end = dest.extract_unused()
 
-    return (packet_loss, buf_source_end == buf_source_start,
-            buf_dest_end == buf_dest_start)
+    return (packet_loss, source.is_empty(), dest.is_empty())
