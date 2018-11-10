@@ -52,6 +52,58 @@ class GNRC:
 
         return packet_loss
 
+class GNRC_UDP:
+    def udp_server_start(self, port):
+        self.pexpect.sendline("udp server start {}".format(port))
+        self.pexpect.expect_exact(
+                "Success: started UDP server on port {}".format(port)
+            )
+
+    def udp_server_stop(self):
+        self.pexpect.sendline("udp server stop")
+
+    def udp_server_check_output(self, count, delay_ms):
+        packets_lost = 0
+        for i in range(count):
+            exp = self.pexpect.expect([
+                   r"Packets received: \d+",
+                   r"PKTDUMP: data received:\n"
+                   r"~~ SNIP  0 - size:  \d+ byte, type: NETTYPE_UNDEF \(\d+\)\n"
+                   r".*\n"
+                   r"~~ SNIP  1 - size:   8 byte, type: NETTYPE_UDP \(\d+\)\n"
+                   r"   src-port:  \d+  dst-port:  \d+\n"
+                   r"   length: \d+  cksum: 0x[0-9A-Fa-f]+\n"
+                   r"~~ SNIP  2 - size:  40 byte, type: NETTYPE_IPV6 \(\d+\)\n"
+                   r".*\n"
+                   r"~~ SNIP  3 - size:  20 byte, type: NETTYPE_NETIF \(-1\)\n"
+                   r"if_pid: \d.*"
+                   r"~~ PKT    -  4 snips, total size:  \d+ byte",
+                   pexpect.TIMEOUT
+                ], timeout=(delay_ms / 1000) * 2)
+            if exp in [0, 1]:
+                print(".", end="", flush=True)
+            else:
+                packets_lost += 0
+                print("x", end="", flush=True)
+        return int((packets_lost / count) * 100)
+
+    def udp_send(self, dest_addr, port, payload, count=1, delay_ms=1000):
+        self.pexpect.sendline(
+                "udp send {} {} {} {} {}".format(
+                    dest_addr, port, payload, count, delay_ms * 1000))
+        try:
+            payload = int(payload)
+            bytes = payload
+        except ValueError:
+            bytes = len(payload)
+        for i in range(count):
+            exp = self.pexpect.expect([
+                    "Success: sent {} byte\(s\) to \[{}\]:{}".format(
+                        bytes, dest_addr, port),
+                    "Success: send {} byte to \[{}\]:{}".format(
+                        bytes, dest_addr, port)
+                ])
+
 
 class PktBuf:
     def is_empty(self):
