@@ -27,5 +27,6 @@ class Board:
         self.logger = None
 
 
-def bootstrap(board):
-    subprocess.check_call(["make", "BOARD={}".format(board), "clean", "all"])
+def bootstrap(board, env={}):
+    env.update(os.environ)
+    subprocess.check_call(["make", "BOARD={}".format(board), "clean", "all"], env=env)
