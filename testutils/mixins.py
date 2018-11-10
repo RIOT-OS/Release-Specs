@@ -32,8 +32,8 @@ class GNRC:
         packet_loss = None
         for i in range(count+1):
             exp = self.pexpect.expect(
-                    ["bytes from", "([\\d]+) packets transmitted, ([\\d]+) received \
-                     , ([\\d]+)% packet loss", "timeout",
+                    ["bytes from", "([\\d]+) packets transmitted, ([\\d]+) "
+                     "received, ([\\d]+)% packet loss", "timeout",
                      pexpect.TIMEOUT], timeout=10)
 
             if exp == 1:
