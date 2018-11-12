@@ -29,8 +29,8 @@ def task08(riotbase, runs=1):
         return
 
     try:
-        addrs = exp.nodes_addresses
-        iotlab_cmd = "make IOTLAB_NODE={} BOARD={board} term"
+        nodes = exp.nodes
+        iotlab_cmd = "make IOTLAB_NODE={} BOARD={} term"
         source = SixLoWPANNode(iotlab_cmd.format(nodes[0].addr, nodes[0].board))
         dest = SixLoWPANNode(iotlab_cmd.format(nodes[1].addr, nodes[1].board))
         results = []
