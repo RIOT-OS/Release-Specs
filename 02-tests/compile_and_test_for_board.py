@@ -79,64 +79,6 @@ LOG_HANDLER.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
 LOG_LEVELS = ('debug', 'info', 'warning', 'error', 'fatal', 'critical')
 
 
-def list_from_string(list_str=None):
-    """Get list of items from `list_str`
-
-    >>> list_from_string(None)
-    []
-    >>> list_from_string("")
-    []
-    >>> list_from_string("  ")
-    []
-    >>> list_from_string("a")
-    ['a']
-    >>> list_from_string("a  ")
-    ['a']
-    >>> list_from_string("a b  c")
-    ['a', 'b', 'c']
-    """
-    value = (list_str or '').split(' ')
-    return [v for v in value if v]
-
-
-def _strip_board_equal(board):
-    """Sanitizy board if given as BOARD=board.
-
-    Increase RIOT compatibility.
-    """
-    if board.startswith('BOARD='):
-        board = board.replace('BOARD=', '')
-    return board
-
-
-PARSER = argparse.ArgumentParser()
-PARSER.add_argument('riot_directory', help='RIOT directory to test')
-PARSER.add_argument('board', help='Board to test', type=_strip_board_equal)
-PARSER.add_argument('result_directory', nargs='?', default='results',
-                    help='Result directory, by default "results"')
-PARSER.add_argument(
-    '--applications', type=list_from_string,
-    help=('List of applications to test, overwrites default configuration of'
-          ' testing all applications'),
-)
-PARSER.add_argument(
-    '--applications-exclude', type=list_from_string,
-    help=('List of applications to exclude from tested applications.'
-          ' Also applied after "--applications".'),
-)
-PARSER.add_argument('--no-test', action='store_true', default=False,
-                    help='Disable executing tests')
-PARSER.add_argument('--loglevel', choices=LOG_LEVELS, default='info',
-                    help='Python logger log level, defauts to "info"')
-PARSER.add_argument('--incremental', action='store_true', default=False,
-                    help='Do not rerun successful compilation and tests')
-PARSER.add_argument('--clean-after', action='store_true', default=False,
-                    help='Clean after running each test')
-PARSER.add_argument(
-    '--jobs', '-j', type=int, default=None,
-    help="Parallel building (0 means not limit, like '--jobs')")
-
-
 class TestError(Exception):
     """Custom exception for a failed test.
 
@@ -553,6 +495,67 @@ def save_failure_summary(resultdir, summary):
 
     with open(outfile, 'w+', encoding='utf-8', errors='replace') as outputfd:
         outputfd.write(summary)
+
+
+# Parsing functions
+
+
+def list_from_string(list_str=None):
+    """Get list of items from `list_str`
+
+    >>> list_from_string(None)
+    []
+    >>> list_from_string("")
+    []
+    >>> list_from_string("  ")
+    []
+    >>> list_from_string("a")
+    ['a']
+    >>> list_from_string("a  ")
+    ['a']
+    >>> list_from_string("a b  c")
+    ['a', 'b', 'c']
+    """
+    value = (list_str or '').split(' ')
+    return [v for v in value if v]
+
+
+def _strip_board_equal(board):
+    """Sanitizy board if given as BOARD=board.
+
+    Increase RIOT compatibility.
+    """
+    if board.startswith('BOARD='):
+        board = board.replace('BOARD=', '')
+    return board
+
+
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument('riot_directory', help='RIOT directory to test')
+PARSER.add_argument('board', help='Board to test', type=_strip_board_equal)
+PARSER.add_argument('result_directory', nargs='?', default='results',
+                    help='Result directory, by default "results"')
+PARSER.add_argument(
+    '--applications', type=list_from_string,
+    help=('List of applications to test, overwrites default configuration of'
+          ' testing all applications'),
+)
+PARSER.add_argument(
+    '--applications-exclude', type=list_from_string,
+    help=('List of applications to exclude from tested applications.'
+          ' Also applied after "--applications".'),
+)
+PARSER.add_argument('--no-test', action='store_true', default=False,
+                    help='Disable executing tests')
+PARSER.add_argument('--loglevel', choices=LOG_LEVELS, default='info',
+                    help='Python logger log level, defauts to "info"')
+PARSER.add_argument('--incremental', action='store_true', default=False,
+                    help='Do not rerun successful compilation and tests')
+PARSER.add_argument('--clean-after', action='store_true', default=False,
+                    help='Clean after running each test')
+PARSER.add_argument(
+    '--jobs', '-j', type=int, default=None,
+    help="Parallel building (0 means not limit, like '--jobs')")
 
 
 def main():
