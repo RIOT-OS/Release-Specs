@@ -530,7 +530,8 @@ def _strip_board_equal(board):
     return board
 
 
-PARSER = argparse.ArgumentParser()
+PARSER = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 PARSER.add_argument('riot_directory', help='RIOT directory to test')
 PARSER.add_argument('board', help='Board to test', type=_strip_board_equal)
 PARSER.add_argument('result_directory', nargs='?', default='results',
