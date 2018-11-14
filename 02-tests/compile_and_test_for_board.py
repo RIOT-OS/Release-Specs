@@ -191,6 +191,9 @@ class RIOTApplication():
 
     MAKEFLAGS = ('RIOT_CI_BUILD=1', 'CC_NOCOLOR=1', '--no-print-directory')
 
+    COMPILE_TARGETS = ('clean', 'all',)
+    TEST_TARGETS = ('test',)
+
     def __init__(self, board, riotdir, appdir, resultdir):
         self.board = board
         self.riotdir = riotdir
@@ -300,7 +303,7 @@ class RIOTApplication():
         # Run compilation and flash+test
         # It raises TestError on error which is handled outside
 
-        compilation_cmd = ['clean', 'all']
+        compilation_cmd = list(self.COMPILE_TARGETS)
         if jobs is not None:
             compilation_cmd += ['--jobs']
             if jobs:
@@ -313,7 +316,7 @@ class RIOTApplication():
             if self.has_test():
                 setuptasks = collections.OrderedDict(
                     [('flash', ['flash-only'])])
-                self.make_with_outfile('test', ['test'],
+                self.make_with_outfile('test', self.TEST_TARGETS,
                                        save_output=True, setuptasks=setuptasks)
                 if clean_after:
                     self.clean()
@@ -554,6 +557,14 @@ PARSER.add_argument('--incremental', action='store_true', default=False,
                     help='Do not rerun successful compilation and tests')
 PARSER.add_argument('--clean-after', action='store_true', default=False,
                     help='Clean after running each test')
+
+PARSER.add_argument('--compile-targets', type=list_from_string,
+                    default=' '.join(RIOTApplication.COMPILE_TARGETS),
+                    help='List of make targets to compile')
+PARSER.add_argument('--test-targets', type=list_from_string,
+                    default=' '.join(RIOTApplication.TEST_TARGETS),
+                    help='List of make targets to run test')
+
 PARSER.add_argument(
     '--jobs', '-j', type=int, default=None,
     help="Parallel building (0 means not limit, like '--jobs')")
@@ -583,6 +594,10 @@ def main():
     logger.debug('app_dirs: %s', app_dirs)
     logger.debug('resultdir: %s', args.result_directory)
     board_result_directory = os.path.join(args.result_directory, args.board)
+
+    # Overwrite the compile/test targets from command line arguments
+    RIOTApplication.COMPILE_TARGETS = args.compile_targets
+    RIOTApplication.TEST_TARGETS = args.test_targets
 
     # List of applications for board
     applications = [RIOTApplication(board, args.riot_directory, app_dir,
