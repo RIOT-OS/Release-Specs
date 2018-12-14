@@ -10,7 +10,7 @@ class IoTLABNode(object):
             "samr21-xpro": {"archi": "samr21", "radio": "at86rf233"},
             "arduino-zero": {"archi": "arduino-zero", "radio": "xbee"},
         }
-    SITES = ["grenoble", "saclay"]
+    SITES = ["grenoble", "lille", "saclay"]
 
     def __init__(self, board="iotlab-m3", site="grenoble",
                  extra_modules=[]):
