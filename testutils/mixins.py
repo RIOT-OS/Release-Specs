@@ -120,7 +120,7 @@ class PktBuf:
                                    pexpect.TIMEOUT])
         if exp == 0:
             first_byte = int(self.pexpect.match.group("first_byte"), base=16)
-            size == int(self.pexpect.match.group("size"))
+            size = int(self.pexpect.match.group("size"))
             return (exp_first_byte == first_byte) and (exp_size == size)
         else:
             return False
