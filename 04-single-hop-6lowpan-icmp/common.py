@@ -23,9 +23,6 @@ def ping(source, dest, ip_dest, count, payload_size, delay, channel=26):
     source.reboot()
     dest.reboot()
 
-    buf_source_start = source.extract_unused()
-    buf_dest_start = dest.extract_unused()
-
     # Set channel
     iface = source.get_first_iface()
     source.set_chan(iface, channel)
@@ -33,11 +30,8 @@ def ping(source, dest, ip_dest, count, payload_size, delay, channel=26):
     dest.set_chan(iface, channel)
 
     packet_loss = source.ping(count, ip_dest.split("/")[0], payload_size, delay)
-    buf_source_end = source.extract_unused()
-    buf_dest_end = dest.extract_unused()
 
-    return packet_loss, buf_source_end==buf_source_start, \
-           buf_dest_end==buf_dest_start
+    return packet_loss, source.is_empty(), dest.is_empty()
 
 
 argparser = argparse.ArgumentParser()
