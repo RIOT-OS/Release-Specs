@@ -413,6 +413,7 @@ class RIOTApplication():
         output += 'Return value: %s\n' % err.returncode
         outfile = self._write_resultfile(name, 'failed', output)
 
+        self.logger.warning(output)
         self.logger.error('Error during %s, writing to %s', name, outfile)
         raise TestError(name, self, outfile)
 
