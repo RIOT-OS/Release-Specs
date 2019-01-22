@@ -132,3 +132,22 @@ a samr21-xpro node.
 ### Result
 
 <10% packets lost on the pinging node.
+
+Task #09 - ICMPv6 stress test
+=============================
+### Description
+
+Rapid ICMPv6 echo request/reply exchange from two iotlab-m3 nodes simultaneously
+to one iotlab-m3.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  200
+* Interval:               0ms
+* Payload:                1232B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+All nodes are still running, reachable, and the packet buffer is empty 3 seconds
+after completions (use module `gnrc_pktbuf_cmd`).
+Packet loss is irrelevant in this stress test.
