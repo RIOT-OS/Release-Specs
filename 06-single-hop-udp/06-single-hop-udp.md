@@ -47,7 +47,7 @@ Sending UDP from one native node to a non-existent neighbor.
 * Interval:               0us
 * Port:                   1337
 * Payload:                8B
-* Destination Address:    Non-existent Link local unicast (e.g fe80::bd:b7ec)
+* Destination Address:    Non-existent link local unicast (e.g fe80::bd:b7ec)
 
 ### Result
 
@@ -65,7 +65,7 @@ Sending UDP from one iotlab-m3 node to a non-existent neighbor.
 * Interval:               0us
 * Port:                   1337
 * Payload:                8B
-* Destination Address:    Non-existent Link local unicast (e.g fe80::bd:b7ec)
+* Destination Address:    Non-existent link local unicast (e.g fe80::bd:b7ec)
 
 ### Result
 
