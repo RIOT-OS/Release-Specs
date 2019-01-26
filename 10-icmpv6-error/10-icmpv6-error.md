@@ -325,7 +325,7 @@ headers as is possible within the given MTU.
 
 ### Result
 
->96% of the echo requests should be replied. There should only be at most one
+\>96% of the echo requests should be replied. There should only be at most one
 echo reply to each echo request.
 
 [scapy]: https://scapy.readthedocs.io/en/latest/
