@@ -138,11 +138,11 @@ misconfigured route on the native node from a Linux host.
 
 3. Add `beef::/64` route via TAP interface on RIOT side:
 
-        > nib route add 6 beef::/64 "<TAP interface link-local IPv6 address>"
+        > nib route add 7 beef::/64 "<TAP interface link-local IPv6 address>"
 
 4. Add `affe::/64` route via not existing node `fe80::1` on RIOT side:
 
-        > nib route add 6 affe::/64 "fe80::1"
+        > nib route add 8 affe::/64 "fe80::1"
 
 5. Send the UDP packet as specified.
 
@@ -325,7 +325,7 @@ headers as is possible within the given MTU.
 
 ### Result
 
->96% of the echo requests should be replied. There should only be at most one
+\>96% of the echo requests should be replied. There should only be at most one
 echo reply to each echo request.
 
 [scapy]: https://scapy.readthedocs.io/en/latest/
