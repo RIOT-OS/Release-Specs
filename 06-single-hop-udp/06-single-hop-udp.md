@@ -42,7 +42,6 @@ Task #03 - UDP on native (non-existent neighbor)
 
 Sending UDP from one native node to a non-existent neighbor.
 * Stack configuration:    IPv6 (default)
-* Channel:                26
 * Count:                  1000
 * Interval:               0us
 * Port:                   1337
