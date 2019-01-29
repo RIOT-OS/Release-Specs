@@ -133,8 +133,8 @@ a samr21-xpro node.
 
 <10% packets lost on the pinging node.
 
-Task #09 - ICMPv6 stress test
-=============================
+Task #09 - ICMPv6 stress test on iotlab-m3
+==========================================
 ### Description
 
 Rapid ICMPv6 echo request/reply exchange from two iotlab-m3 nodes simultaneously
