@@ -238,6 +238,7 @@ hop link but not the second hop link via a native node from a Linux host.
 ### Result
 
 An ICMPv6 packet too big (code: 0) message should be sent by the native node.
+The MTU field of the ICMPv6 packet too big message must have a value of 1280.
 The payload of the original packet carried in the ICMPv6 message should be
 truncated to fit the TAP interface's MTU.
 
