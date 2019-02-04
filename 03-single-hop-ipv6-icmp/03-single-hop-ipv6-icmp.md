@@ -45,7 +45,7 @@ ICMPv6 echo request/reply exchange between two native nodes.
 
 <1% packets lost on the pinging node.
 
-Task #4 - ICMPv6 stress test on native (1 hour)
+Task #04 - ICMPv6 stress test on native (1 hour)
 ================================================
 ### Description
 
