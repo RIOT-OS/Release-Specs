@@ -14,12 +14,11 @@ Task #02 - ICMPv6 echo between iotlab-m3 and Linux with 6LowPAN
 ICMPv6 echo request/reply exchange between an iotlab-m3 node running RIOT and
 a Raspberry Pi running Linux with 6LoWPAN support.
 
-Task #03 - ICMPv6 echo between iotlab-m3 and Contiki
-====================================================
+Task #03 - UDP exchange between iotlab-m3 and Contiki
+=====================================================
 ### Description
 
-ICMPv6 echo request/reply exchange between an iotlab-m3 node running RIOT and
-a Contiki node.
+UDP packet exchange between an iotlab-m3 node running RIOT and a Contiki node.
 
 Task #04 - ICMPv6 echo between iotlab-m3 and Internet host through Linux with 6LowPAN
 =====================================================================================
