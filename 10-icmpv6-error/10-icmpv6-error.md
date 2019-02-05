@@ -8,7 +8,7 @@ using link-layer frames with `sendp()`)*
 ```py
 sendp(Ether(dst=DST_HWADDR) / IPv6(src=SRC_IPV6, dst=DST_IPV6) / \
       UDP(dport=DST_PORT) / PAYLOAD_BYTE_STR,
-      iface="tapbr0", timeout=0)
+      iface="tapbr0")
 ```
 
 Testing procedure setup
