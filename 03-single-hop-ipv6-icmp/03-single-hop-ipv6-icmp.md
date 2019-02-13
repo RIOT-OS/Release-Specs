@@ -49,10 +49,28 @@ Task #04 - ICMPv6 stress test on native (1 hour)
 ================================================
 ### Description
 
-Rapid ICMPv6 echo request/reply exchange from 10 host ping applications
-simultaneously to one native node.
+Rapid ICMPv6 echo request/reply exchange from 10 host ping applications (same
+host, e.g. Linux host) simultaneously to one native node for 1 hour.
 * Stack configuration: IPv6 (default)
 * Count:                  Infinity
+* Interval:               0ms
+* Payload:                1452B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+All nodes are still running, reachable, and the packet buffer is empty 10
+seconds after completions (use module `gnrc_pktbuf_cmd`).
+Packet loss is irrelevant in this stress test.
+
+Task #04 - ICMPv6 stress test on native (neighbor cache stress)
+===============================================================
+### Description
+
+Rapid ICMPv6 echo request/reply exchange from 10 native nodes simultaneously to
+one native node.
+* Stack configuration: IPv6 (default)
+* Count:                  100000
 * Interval:               0ms
 * Payload:                1452B
 * Destination Address:    Link local unicast (fe80::.../64)
