@@ -63,7 +63,7 @@ All nodes are still running, reachable, and the packet buffer is empty 10
 seconds after completions (use module `gnrc_pktbuf_cmd`).
 Packet loss is irrelevant in this stress test.
 
-Task #04 - ICMPv6 stress test on native (neighbor cache stress)
+Task #05 - ICMPv6 stress test on native (neighbor cache stress)
 ===============================================================
 ### Description
 
