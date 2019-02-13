@@ -179,7 +179,7 @@ ST B-L072Z-LRWAN1 or any other STM32 L0/L1 Nucleo 64 with an Mbed LoRa shield.
       > loramac set nwkskey 00112233445566770011223344556677
       > loramac save
 
-- Reboot and verify OTAA parameters have been reloaded:
+- Reboot and verify ABP parameters have been reloaded:
 
       > reboot
       > loramac get deveui
