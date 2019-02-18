@@ -30,8 +30,8 @@ ICMPv6 echo request/reply exchange between two iotlab-m3 nodes over three hops
 with static routes.
 
 1. Follow Task 1 and 2 setup
-2. Ping node 4 from node 1, Node 1:`ping6 100 abcd::2 50 100`
-3. Ping node 1 from node 4, Node 4:`ping6 100 abcd::1 50 100`
+2. Ping node 4 from node 1, Node 1:`ping6 -c 100 -s 50 -i 100 abcd::2`
+3. Ping node 1 from node 4, Node 4:`ping6 -c 100 -s 50 -i 100 abcd::1`
 
 ### Result
 
@@ -87,8 +87,8 @@ ICMPv6 echo request/reply exchange between two iotlab-m3 nodes over three hops
 with RPL generated routes.
 
 1. Follow Task 3 and 4 setup
-2. Ping >3 hop node from root node, Node 1:`ping6 100 abcd::<other node global address> 50 100`
-2. Ping root node from other node, Node 4:`ping6 100 abcd::1 50 100`
+2. Ping >3 hop node from root node, Node 1:`ping6 -c 100 -s 50 -i 100 abcd::<other node global address>`
+2. Ping root node from other node, Node 4:`ping6 -c 100 -s 50 -i 100 abcd::1`
 
 ### Result
 
