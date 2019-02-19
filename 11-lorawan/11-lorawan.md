@@ -172,18 +172,14 @@ ST B-L072Z-LRWAN1 or any other STM32 L0/L1 Nucleo 64 with an Mbed LoRa shield.
 
 - Set ABP parameters and save them:
 
-      > loramac set deveui 0011223344556677
-      > loramac set appeui 0011223344556677
       > loramac set devaddr 00112233
       > loramac set appskey 00112233445566770011223344556677
       > loramac set nwkskey 00112233445566770011223344556677
       > loramac save
 
-- Reboot and verify OTAA parameters have been reloaded:
+- Reboot and verify ABP parameters have been reloaded:
 
       > reboot
-      > loramac get deveui
-      > loramac get appeui
       > loramac get devaddr
       > loramac get appskey
       > loramac get nwkskey
