@@ -70,3 +70,38 @@ Sending UDP from one iotlab-m3 node to a non-existent neighbor.
 
 No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
 Packet loss is irrelevant for this test.
+
+Task #05 - Empty UDP on native
+==============================
+### Description
+
+Sending UDP between two native nodes.
+* Stack configuration:    IPv6 (default)
+* Count:                  10
+* Interval:               100ms
+* Port:                   1337
+* Payload:                0B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<=10% packets lost on the receiving node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+
+Task #06 - Empty UDP on iotlab-m3
+=================================
+### Description
+
+Sending UDP between two iotlab-m3 nodes.
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  10
+* Interval:               100ms
+* Port:                   1337
+* Payload:                0B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<=10% packets lost on the receiving node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
