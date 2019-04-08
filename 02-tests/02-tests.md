@@ -6,7 +6,10 @@ and **automated** tests for one board, not the manual tests.
 
 ### Usage
 
-Run 02 `compile_and_test_for_board.py` script with your test board connected.
+If you are running task 01, first run {RIOTBASE}/dist/tools/tapsetup/tapsetup.
+
+Then run the `compile_and_test_for_board.py` script, with your test board
+connected if you are testing a board.
 
     ./compile_and_test_for_board.py path_to_riot_directory board_name [results]
 
