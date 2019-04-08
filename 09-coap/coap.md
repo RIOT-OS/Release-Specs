@@ -1,7 +1,11 @@
-## Goal: Send/Receive typical CoAP messages
+Summary
+=======
+
+These tests test send and receive of typical CoAP messages.
 
 Introduction
 ============
+
 With all of these tests, your confidence in the results will increase by
 watching the CoAP messages in Wireshark.
 

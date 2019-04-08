@@ -1,4 +1,7 @@
-## Goal: Check single-hop ICMP connectivity over IPv6
+Summary
+=======
+
+These tests perform single-hop 6LoWPAN ping tests between nodes in a number of scenarios.
 
 Task #01 - ICMPv6 link-local echo with iotlab-m3
 ================================================

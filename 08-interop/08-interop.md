@@ -1,4 +1,7 @@
-## Goal: Test interoperability of gnrc with different implementations
+Summary
+=======
+
+These tests test interoperability of gnrc with different implementations.
 
 Task #01 - ICMPv6 echo between native and Linux
 ===============================================

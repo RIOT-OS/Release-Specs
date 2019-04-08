@@ -1,7 +1,13 @@
-## Goal: Maintainers run the test suit on additional boards
+Summary
+=======
 
-Task #01 - Run tests on different hardwares
-===========================================
+This test is an optional extension to increase test coverage. It indicates that
+we should run test 02 for as many boards as possible. It compiles all
+applications and tests, and automatically runs all tests that only require the
+board.
+
+Task #01 - Run test 02 on additional hardware
+=============================================
 
 ### Description
 

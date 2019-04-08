@@ -1,4 +1,7 @@
-## Goal: Check static routing of ICMPv6 packets over a single hop
+Summary
+=======
+
+These tests check the static routing of ICMPv6 packets over a single hop.
 
 Task #01 - ICMPv6 echo unicast addresess on native (default route)
 ==================================================================

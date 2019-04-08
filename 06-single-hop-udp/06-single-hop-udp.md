@@ -1,4 +1,7 @@
-## Goal: Check single-hop UDP connectivity over IPv6
+Summary
+=======
+
+These tests check the single-hop UDP connectivity over IPv6.
 
 Task #01 - UDP on iotlab-m3
 ===========================

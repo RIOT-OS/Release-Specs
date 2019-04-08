@@ -1,4 +1,7 @@
-## Goal: Check single-hop ICMP connectivity over IPv6
+Summary
+=======
+
+These tests perform single hop IPv6 ping tests between native instances in a number of scenarios.
 
 Task #01 - ICMPv6 multicast echo on native
 ==========================================
