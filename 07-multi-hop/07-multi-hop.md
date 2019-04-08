@@ -1,4 +1,7 @@
-## Goal: Check multi-hop connectivity over IPv6
+Summary
+=======
+
+These tests check the multi-hop connectivity over IPv6.
 
 Task #01 - ICMPv6 echo on iotlab-m3 with three hops (static route)
 ==================================================================

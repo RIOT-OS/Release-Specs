@@ -1,6 +1,9 @@
-## Goal: Check single-hop ICMP connectivity over IPv6
+Summary
+=======
 
-*Note: This task requires to send some very specificly formated IPv6 packets. We
+These tests check single-hop ICMP connectivity over IPv6 using native.
+
+*Note: This task requires to send some very specifically formated IPv6 packets. We
 recommend to use [scapy] for the construction of those packets in those tests. A
 packet can be sent e.g. using (you will require root permission for sending
 using link-layer frames with `sendp()`)*
@@ -13,6 +16,7 @@ sendp(Ether(dst=DST_HWADDR) / IPv6(src=SRC_IPV6, dst=DST_IPV6) / \
 
 Testing procedure setup
 =======================
+
 All sub-tasks within this specification can be done using one `native` instance
 of the `gnrc_networking` example. For the testing process it is assumed running
 

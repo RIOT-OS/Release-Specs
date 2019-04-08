@@ -1,8 +1,8 @@
-## Goal: Perform test applications on various platforms and check that they run as expected
+Summary
+=======
 
-
-The `./compile_and_test_for_board.py` script can be used to run all compilation
-and **automated** tests for one board, not the manual tests.
+These tests compile all applications and tests, and automatically run all tests
+that only require the board, for a selection of individual boards.
 
 ### Usage
 

@@ -1,4 +1,7 @@
-## Goal: Verify LoRaWAN networking
+Summary
+=======
+
+These tests verify LoRaWAN networking.
 
 Task #01 - LoRaWAN example
 ==========================
@@ -124,7 +127,7 @@ The device doesn't hang: the shell is responsive after the send/receive is
 finished.
 
 
-Task #03 - LoRaWAN device parameters persistence
+Task #04 - LoRaWAN device parameters persistence
 ================================================
 
 ### Description
