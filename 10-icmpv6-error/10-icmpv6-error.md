@@ -1,4 +1,4 @@
-## Goal: Check single-hop ICMP connectivity over IPv6
+## Goal: Check ICMP error handling
 
 *Note: This task requires to send some very specificly formated IPv6 packets. We
 recommend to use [scapy] for the construction of those packets in those tests. A
