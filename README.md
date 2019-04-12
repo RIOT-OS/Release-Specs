@@ -32,13 +32,9 @@ The tests are listed below. Each "test" consists of a number of "tasks".
 | 07-multi-hop                  | Multi-hop connectivity over IPv6                                 |
 | 08-interop                    | Interoperability of gnrc with different implementations          |
 | 09-coap                       | Send and receive of typical CoAP messages                        |
-| 10-icmpv6-error               | Single-hop ICMP connectivity over IPv6 using native              |
+| 10-icmpv6-error               | ICMP error handling                                              |
 | 11-lorawan                    | LoRaWAN networking                                               |
 | 99-compile-and-test-one-board | Extension - Test 02 for as many extra boards as possible         |
-
-Currently, tests 01, 02 and 09 are mostly automated. There are also some
-automation scripts [here](https://github.com/RIOT-OS/Release-Specs/pull/79) for
-parts of tests 3-6.
 
 Directory structure
 -------------------
