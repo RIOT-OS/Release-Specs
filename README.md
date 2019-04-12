@@ -36,6 +36,10 @@ The tests are listed below. Each "test" consists of a number of "tasks".
 | 11-lorawan                    | LoRaWAN networking                                               |
 | 99-compile-and-test-one-board | Extension - Test 02 for as many extra boards as possible         |
 
+Automation of these tests is currently in progress, in this repository. Until
+merged, scripts in open PRs should be used judiciously, as they are not
+maintained to be specification compliant.
+
 Directory structure
 -------------------
 
