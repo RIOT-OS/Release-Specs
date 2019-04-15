@@ -40,7 +40,7 @@ ICMPv6 echo request/reply exchange between two nodes.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  500
-* Interval:               200ms
+* Interval:               300ms
 * Payload:                1kB
 * Destination Address:    Link local unicast (fe80::.../64)
 
