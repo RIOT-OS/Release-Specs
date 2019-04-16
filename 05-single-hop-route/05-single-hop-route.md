@@ -33,7 +33,7 @@ different prefix. A static default route has to be used
 advertisements for this task).
 * Stack configuration: IPv6 (default)
 * Count:                  100
-* Interval:               10ms
+* Interval:               300ms
 * Payload:                1kB
 * Sender address:         affe::1/120
 * Destination Address:    beef::1/64
@@ -76,7 +76,7 @@ router advertisements on both ends *beforehand* with `ifconfig <iface> -rtr_adv`
 otherwise default routes and address resolution will be auto-configured ).
 * Stack configuration: IPv6 (default)
 * Count:                  10
-* Interval:               10ms
+* Interval:               300ms
 * Payload:                1kB
 * Destination Address:    beef::1/64
 
