@@ -39,8 +39,8 @@ Task #03 - ICMPv6 echo with large payload
 ICMPv6 echo request/reply exchange between two nodes.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
-* Count:                  1000
-* Interval:               100ms
+* Count:                  500
+* Interval:               300ms
 * Payload:                1kB
 * Destination Address:    Link local unicast (fe80::.../64)
 
