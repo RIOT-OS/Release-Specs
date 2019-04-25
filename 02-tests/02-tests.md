@@ -2,8 +2,8 @@
 
 ### Usage
 
-Run `RIOT/dist/tools/compile_and_test_for_board/compile_and_test_for_board.py`
-script with your test board connected.
+Firstly, run the tapsetup tool in dist/tools/tapsetup. Then, Run 02
+`compile_and_test_for_board.py` script with your test board connected.
 
 See `RIOT/dist/tools/compile_and_test_for_board/README.md` and script `--help`
 for usage.
