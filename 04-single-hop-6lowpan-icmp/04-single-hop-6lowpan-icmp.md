@@ -8,7 +8,7 @@ ICMPv6 echo request/reply exchange between two iotlab-m3 nodes.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  1000
-* Interval:               10ms
+* Interval:               20ms
 * Payload:                0B
 * Destination Address:    Link local unicast (fe80::.../64)
 
@@ -108,7 +108,7 @@ a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                17
 * Count:                  1000
-* Interval:               100ms
+* Interval:               115ms
 * Payload:                50B
 * Destination Address:    ff02::1
 
