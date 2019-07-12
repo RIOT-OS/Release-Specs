@@ -108,7 +108,7 @@ a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                17
 * Count:                  1000
-* Interval:               115ms
+* Interval:               150ms
 * Payload:                50B
 * Destination Address:    ff02::1
 
