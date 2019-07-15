@@ -3,8 +3,8 @@
 ### Usage
 
 Firstly, run the tapsetup tool in `dist/tools/tapsetup` if you want to test for
-`native`. Then, Run `RIOT/dist/tools/compile_and_test_for_board.py` script with
-your test board connected.
+`native`. Then, run the `RIOT/dist/tools/compile_and_test_for_board.py` script
+with your test board connected.
 
 See `RIOT/dist/tools/compile_and_test_for_board/README.md` and script `--help`
 for usage.
