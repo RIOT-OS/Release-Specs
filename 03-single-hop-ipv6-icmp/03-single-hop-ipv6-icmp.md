@@ -52,7 +52,6 @@ This tests will require `CFLAGS=-DGNRC_IPV6_NIB_NUMOF=10` to run.
 
 Rapid ICMPv6 echo request/reply exchange from 10 host ping applications (same
 host, e.g. Linux host) simultaneously to one native node for 1 hour.
-
 * Stack configuration: IPv6 (default)
 * Count:                  Infinity
 * Interval:               0ms
