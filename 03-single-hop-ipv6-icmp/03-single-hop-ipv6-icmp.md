@@ -54,7 +54,7 @@ Rapid ICMPv6 echo request/reply exchange from 10 host ping applications (same
 host, e.g. Linux host) simultaneously to one native node for 1 hour.
 
 * Stack configuration: IPv6 (default)
-* Count:                  100000
+* Count:                  Infinity
 * Interval:               0ms
 * Payload:                1452B
 * Destination Address:    Link local unicast (fe80::.../64)
