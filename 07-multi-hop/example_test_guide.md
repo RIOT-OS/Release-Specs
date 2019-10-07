@@ -46,8 +46,8 @@ Sending UDP between two iotlab-m3 nodes over three hops with static routes.
 1. Follow Task 1 and 2 setup
 2. Start a udp server on node 1, Node 1:`udp server start 1234`
 3. Start a udp server on node 4, Node 4:`udp server start 4321`
-4. Send a packet to node 4 from node 1, Node 1:`udp send abcd::2 4321 50 100 100000`
-5. Send a packet to node 1 from node 4, Node 4:`udp send abcd::1 1234 50 100 100000`
+4. Send 100 packets to node 4 from node 1, Node 1:`udp send abcd::2 4321 50 100 100000`
+5. Send 100 packets to node 1 from node 4, Node 4:`udp send abcd::1 1234 50 100 100000`
 
 ### Result
 
@@ -102,8 +102,8 @@ Sending UDP between two iotlab-m3 nodes over three hops with RPL generated route
 1. Follow Task 3 and 4 setup
 2. Start a udp server on root node, Node 1:`udp server start 1234`
 3. Start a udp server on the other node, Node 4:`udp server start 4321`
-4. Send a packet to the other node from the root node, Node 1:`udp send abcd::<other node global address> 4321 50 100 100000`
-5. Send a packet to the other node from the root node, Node 4:`udp send abcd::1 1234 50 100 100000`
+4. Send 100 packets to the other node from the root node, Node 1:`udp send abcd::<other node global address> 4321 50 100 100000`
+5. Send 100 packets to the other node from the root node, Node 4:`udp send abcd::1 1234 50 100 100000`
 
 ### Result
 
