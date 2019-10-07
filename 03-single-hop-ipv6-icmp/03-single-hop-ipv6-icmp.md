@@ -80,3 +80,20 @@ one native node.
 All nodes are still running, reachable, and the packet buffer is empty 10
 seconds after completions (use module `gnrc_pktbuf_cmd`).
 Packet loss is irrelevant in this stress test.
+
+Task #06 - ICMPv6 link-local echo on native (IPv6 fragmentation)
+================================================================
+### Description
+
+ICMPv6 echo request/reply exchange between two native nodes (make sure module
+`gnrc_ipv6_ext_frag` is included and the packet buffer is large enough to handle
+both the fragmented and reassembled requests/replies).
+* Stack configuration: IPv6 (default)
+* Count:                  1000
+* Interval:               100ms
+* Payload:                2kB
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<1% packets lost on the pinging node.
