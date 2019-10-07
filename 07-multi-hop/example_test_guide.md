@@ -109,3 +109,20 @@ Sending UDP between two iotlab-m3 nodes over three hops with RPL generated route
 
 <10% packets lost on the pinging node.
 No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+
+Task #05 (Experimental) - UDP with large payload on iotlab-m3 with three hops (RPL route)
+=========================================================================================
+### Description
+
+Sending UDP between two iotlab-m3 nodes over three hops with RPL generated routes.
+
+1. Follow Task 3 and 4 setup
+2. Start a udp server on root node, Node 1:`udp server start 1234`
+3. Start a udp server on the other node, Node 4:`udp server start 4321`
+4. Send 60 packets to the other node from the root node, Node 1:`udp send abcd::<other node global address> 4321 2048 60 1000000`
+5. Send 60 packets to the other node from the root node, Node 4:`udp send abcd::1 1234 2048 60 1000000`
+
+### Result
+
+<10% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).

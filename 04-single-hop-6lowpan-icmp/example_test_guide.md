@@ -166,3 +166,16 @@ to one iotlab-m3.
 1. Ping from many srcs to the dest `ping6 -c 1000 -i 200 -s 1232 <ll_addr>`
 2. Record the packet loss and timings, it should be less then 10%
 3. check the packet buffer with `pktbuf`
+
+Task #10 (Exprimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
+============================================================================
+### Description
+
+ICMPv6 echo request/reply exchange between two nodes (make sure module
+`gnrc_ipv6_ext_frag` is included and the packet buffer is large enough to handle
+both the fragmented and reassembled requests/replies).
+1. Compile with `CFLAGS+=GNRC_PKTBUF_SIZE=8192` and
+   `USEMODULE += gnrc_ipv6_ext_frag`.
+2. Ping from the src to the dest `ping6 -c 200 -i 600 -s 2048 <ll_addr>`
+3. Record the packet loss and timings, it should be less then 10%
+4. check the packet buffer with `pktbuf`
