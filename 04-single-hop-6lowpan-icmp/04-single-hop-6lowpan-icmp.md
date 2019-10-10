@@ -151,3 +151,22 @@ to one iotlab-m3.
 All nodes are still running, reachable, and the packet buffer is empty 3 seconds
 after completions (use module `gnrc_pktbuf_cmd`).
 Packet loss is irrelevant in this stress test.
+
+Task #10 (Exprimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
+============================================================================
+### Description
+
+ICMPv6 echo request/reply exchange between two nodes (make sure module
+`gnrc_ipv6_ext_frag` is included and the packet buffer is large enough to handle
+both the fragmented and reassembled requests/replies).
+* Stack configuration:    6LoWPAN (default)
+* Channel:                26
+* Count:                  200
+* Interval:               600ms
+* Payload:                2kB
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+<10% packets lost on the pinging node.
+No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
