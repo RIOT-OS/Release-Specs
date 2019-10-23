@@ -164,8 +164,9 @@ Task #09 - ICMPv6 stress test on iotlab-m3
 Rapid ICMPv6 echo request/reply exchange from two iotlab-m3 nodes simultaneously
 to one iotlab-m3.
 1. Ping from many srcs to the dest `ping6 -c 1000 -i 200 -s 1232 <ll_addr>`
-2. Record the packet loss and timings, it should be less then 10%
-3. check the packet buffer with `pktbuf`
+2. check the packet buffer with `pktbuf`
+3. As long as there are no crashes and the `pktbuf` clears after some time it
+is OK.
 
 Task #10 (Exprimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
 ============================================================================
