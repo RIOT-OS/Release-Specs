@@ -125,7 +125,7 @@ a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  1000
-* Interval:               100ms
+* Interval:               350ms
 * Payload:                100B
 * Destination Address:    Link local unicast (fe80::.../64)
 
