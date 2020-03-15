@@ -113,3 +113,103 @@ task-02.02   2015-09-04   2eb21d8f9694146deca8c69cbc4a82acd62d395f   success
 ...
 
 ```
+
+`pytest` runner
+---------------
+
+To use [pytest] you need to install the [`riotctrl`][riotctrl] and
+[`iotlabcli`][iotlabcli] python packages:
+
+```sh
+pip install riotctrl iotlabcli
+```
+
+Furthermore the `PYTHONPATH` needs to include the `pythonlibs` of RIOT:
+
+```sh
+export PYTHONPATH=${RIOTBASE}/dist/pythonlibs:${PYTHONPATH}
+```
+
+By default experiments will be launched on [IoT-LAB saclay site] since it has
+most of the boards used in the release-specs.
+It can be changed by setting the `IOTLAB_SITE` environment variable.
+
+Make sure you can access the testbed frontend via SSH without providing a
+password, either by generating a dedicated key pair without password
+
+```sh
+ssh-keygen
+```
+
+and adding that to your SSH config
+
+```
+Host *.iot-lab.info
+    IdentityFile <generated private key>
+```
+
+or by configuring a dedicated `ssh-agent` (you might already have one provided
+by your OS, check with `env | grep SSH_AUTH_SOCK`)
+
+```sh
+eval $(ssh-agent)
+ssh-add
+```
+
+The environment variable `RIOTBASE` must be set to *absolute path* of the
+version of RIOT under test. E.g.
+
+```
+export RIOTBASE=$(readlink -f ../RIOT)
+```
+
+Some tests on the `native` platform need a certain number of TAP interfaces in a
+bridge or otherwise will be skipped. The most number of TAP interfaces to date
+is required for 3.5 "ICMPv6 stress test on native (neighbor cache
+stress)" (11 TAP interfaces) so to not skip that, all of them should be bridged.
+
+```sh
+sudo ${RIOTBASE}/dist/tools/tapsetup/tapsetup -c 11
+```
+
+```
+usage: pytest [--boards] [--hide-output] [--local] [--non-RC] [--self-test]
+
+optional arguments:
+  --boards              String list of boards to use for the test, can be
+                        IOTLAB_NODE or RIOT BOARDs.
+  --hide-output         Do not log output from nodes
+  --local               Use local boards, default=False (will use IoT-LAB unless
+                        all boards are native)
+  --non-RC              Runs test even if RIOT version under test is not an RC
+  --self-test           Tests the testutils rather than running the release
+                        tests
+```
+
+Running `tox` will do most of that for you
+
+```sh
+tox
+```
+
+Want to see what's going on? Run
+
+```sh
+tox -- --capture=tee-sys
+```
+
+To run only local tests, run
+
+```sh
+tox -- --local
+```
+
+To run only tests that require root permissions, run
+
+```sh
+sudo RIOTBASE=${RIOTBASE} tox -- -m sudo_only
+```
+
+[pytest]: https://pytest.org
+[riotctrl]: https://pypi.org/project/riotctrl/
+[IoT-LAB saclay site]: https://www.iot-lab.info/deployment/saclay/
