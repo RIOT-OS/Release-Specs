@@ -169,3 +169,123 @@ Task #10 - UDP between lwIP and emb6 on iotlab-m3
 Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
 node running RIOT with lwIP and an iotlab-m3 node running RIOT with emb6 (in
 both directions).
+
+Task #11 - UDP exchange between iotlab-m3 and Zephyr
+=====================================================
+### Description
+
+UDP packet exchange between an iotlab-m3 node running RIOT and a samr21-xpro
+node running Zephyr.
+
+### Testing procedure
+
+#### Setting up the Zephyr node
+
+1. Follow the
+['Getting Started'](https://docs.zephyrproject.org/latest/getting_started/index.html)
+guide on Zephyr's documentation.
+2. You will be using the `echo_server` example application. To compile and
+   flash, connect the samr21-xpro board and in zephyr's root directory run:
+
+   ```sh
+   west build -p auto -b atsamr21_xpro samples/net/sockets/echo_server -- -DOVERLAY_CONFIG=overlay-802154.conf
+   west flash
+   ```
+3. If everything is OK you should be able to connect to the serial output use
+   any terminal program. For example:
+   ```sh
+   minicom -D /dev/ttyACM0 -o
+   ```
+4. By pressing tab you should be able to see all available commands. Get the
+   node's IPv6 by running the following on its shell:
+
+   ```sh
+   # On samr21-xpro:zephyr node
+   uart:~$ net ipv6
+
+   IPv6 support                              : enabled
+   IPv6 fragmentation support                : disabled
+   Multicast Listener Discovery support      : enabled
+   Neighbor cache support                    : enabled
+   Neighbor discovery support                : enabled
+   Duplicate address detection (DAD) support : enabled
+   Router advertisement RDNSS option support : enabled
+   6lo header compression support            : enabled
+   Max number of IPv6 network interfaces in the system          : 1
+   Max number of unicast IPv6 addresses per network interface   : 3
+   Max number of multicast IPv6 addresses per network interface : 4
+   Max number of IPv6 prefixes per network interface            : 2
+
+   IPv6 addresses for interface 0x20007d60 (IEEE 802.15.4)
+   =======================================================
+   Type            State           Lifetime (sec)  Address
+   autoconf        preferred       infinite        fe80::d419:100:7ae4:9b3b/128
+   manual          preferred       infinite        2001:db8::1/128
+   ```
+
+   Similarly, to get the IEEE 802.15.4 PAN ID and channel, run:
+
+   ```sh
+   # On samr21-xpro:zephyr node
+   uart:~$ ieee802154 get_pan_id
+   PAN ID 43981 (0xabcd)
+
+   uart:~$ ieee802154 get_chan
+   Channel 26
+   ```
+
+#### Setting up the RIOT node
+
+1. Flash the [gnrc_networking] example or the [gnrc_udp] test to the iotlab-m3 board
+   test.
+2. Set the channel and PAN ID to the same values as the Zephyr node:
+   ```sh
+   # On iotlab-m3:riot node
+   > ifconfig 6 set chan 26
+   ifconfig 6 set chan 26
+   success: set channel on interface 6 to 26
+
+   > ifconfig 6 set pan_id 0xabcd
+   ifconfig 6 set pan_id 0xabcd
+   success: set network identifier on interface 6 to 0xabcd
+   ```
+3. The UDP echo server application on the Zephyr node will be listening on port
+   4242, and echoing to the source port of the incoming packet. As both
+   [gnrc_networking] example and [gnrc_udp] test applications use the
+   destination port as the source port for the `udp send` command, we need to
+   start a server on port 4242:
+
+   ```sh
+   # On iotlab-m3:riot node
+   > udp server start 4242
+   udp server start 4242
+   Success: started UDP server on port 4242
+   ```
+4. Send packets to the echo server in the Zephyr node, they should be echoed and
+   printed on the RIOT side. Zephyr node will inform of the received packet as
+   well on the shell.
+
+   ```sh
+   # On iotlab-m3:riot node
+   > udp send fe80::d419:100:7ae4:9b3b 4242 "RIOT Testing!"
+   udp send fe80::9c1a:100:42e5:9b3b 4242 "RIOT Testing!"
+   Success: sent 13 byte(s) to [fe80::9c1a:100:42e5:9b3b]:4242
+   PKTDUMP: data received:
+   ~~ SNIP  0 - size:  13 byte, type: NETTYPE_UNDEF (0)
+   00000000  52  49  4F  54  20  54  65  73  74  69  6E  67  21
+   ~~ SNIP  1 - size:   8 byte, type: NETTYPE_UDP (4)
+      src-port:  4242  dst-port:  4242
+      length: 21  cksum: 0xee9e
+   ~~ SNIP  2 - size:  40 byte, type: NETTYPE_IPV6 (2)
+   traffic class: 0x00 (ECN: 0x0, DSCP: 0x00)
+   flow label: 0x00000
+   length: 21  next header: 17  hop limit: 64
+   source address: fe80::9c1a:100:42e5:9b3b
+   destination address: fe80::30a9:fa65:106b:1114
+   ~~ SNIP  3 - size:  24 byte, type: NETTYPE_NETIF (-1)
+   if_pid: 7  rssi: -43  lqi: 255
+   flags: 0x0
+   src_l2addr: 9E:1A:01:00:42:E5:9B:3B
+   dst_l2addr: 32:A9:FA:65:10:6B:11:14
+   ~~ PKT    -  4 snips, total size:  85 byte
+   ```
