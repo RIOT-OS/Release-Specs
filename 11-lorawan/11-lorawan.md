@@ -124,7 +124,7 @@ The device doesn't hang: the shell is responsive after the send/receive is
 finished.
 
 
-Task #03 - LoRaWAN device parameters persistence
+Task #04 - LoRaWAN device parameters persistence
 ================================================
 
 ### Description
