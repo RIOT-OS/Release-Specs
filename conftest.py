@@ -193,6 +193,14 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
     elif modules is not None:
         node.env['USEMODULE'] = modules
+    if "USEMODULE" in node.env and \
+       os.environ.get('BUILD_IN_DOCKER', 0) == '1':
+        # workaround to inject USEMODULE into docker container
+        # see: https://github.com/RIOT-OS/RIOT/issues/14504
+        node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
+            node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '') +
+            " -e 'USEMODULE={}'".format(node.env['USEMODULE'])
+        )
     if cflags is not None:
         node.env['CFLAGS'] = cflags
     if port is not None:
