@@ -329,4 +329,25 @@ headers as is possible within the given MTU.
 \>96% of the echo requests should be replied. There should only be at most one
 echo reply to each echo request.
 
+Task #11 - Multicast destination address in triggering packet
+=============================================================
+### Description
+
+Solicit **Destination unreachable - port unreachable** by sending a UDP to a
+native node from a Linux host.
+* Stack configuration:  IPv6 (incl. ICMPv6 error)
+* UDP Port:             48879 (no server on native node)
+* UDP Payload:          0B
+* Sender Address:       Link local unicast (fe80::.../64)
+* Destination Address:  ff02::1
+
+### Testing procedure
+
+1. Send the UDP packet as specified.
+
+### Result
+
+An ICMPv6 destination unreachable (code: 4 - port unreachable) message should be
+sent by the native node.
+
 [scapy]: https://scapy.readthedocs.io/en/latest/
