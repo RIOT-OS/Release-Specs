@@ -60,6 +60,11 @@ following information must be given for each task:
 - a precise list of passing/failing criteria, so that there is no doubt if a
   task was successful or not
 
+#### Missing a test or wondering why it got replaced?
+
+The table in [REPLACED.md] documents for which release tests got deprecated and when
+they are to be replaced and by what.
+
 ### Test scripts and applications
 
 Each release specification should be accompanied by supporting scripts (and RIOT
