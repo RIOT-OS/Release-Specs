@@ -154,7 +154,11 @@ Link-local UDP over IPv6 packet exchange (payload length 8) between an iotlab-m3
 node running RIOT with GNRC and an iotlab-m3 node running RIOT with lwIP (in
 both directions).
 
-Task #09-#10 deprecated
+Task #09 - deprecated
+=====================
+
+Task #10 - deprecated
+=====================
 
 Task #11 - UDP exchange between iotlab-m3 and Zephyr
 =====================================================
