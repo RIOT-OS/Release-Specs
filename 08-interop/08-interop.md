@@ -69,8 +69,10 @@ UDP packet exchange between an iotlab-m3 node running RIOT and a Contiki node.
    EM RESET, and then releasing SELECT (there should be no LED blinking when
    you release RESET)
 7. Use `dist/tools/cc2538-bsl/cc2538-bsl.py` to flash the *Contiki* application
-   to the CC2538DK:
+   to the CC2538DK.
+   You first need to fetch it from upstream.
    ```sh
+   make -C examples/hello-world/ ${PWD}/dist/tools/cc2538-bsl/cc2538-bsl.py
    dist/tools/cc2538-bsl/cc2538-bsl.py -e -w -v -p /dev/ttyUSB1 \
         "<contiki repo>"/examples/cc2538dk/udp-ipv6-echo-server/udp-echo-server.bin
    ```
