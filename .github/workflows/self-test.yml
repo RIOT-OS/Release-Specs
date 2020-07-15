@@ -1,0 +1,50 @@
+name: Test testutils
+
+on:
+  push:
+    branches:
+      - master
+      - pytest-release-tests/feat/initial
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - name: Checkout Release-Specs
+      uses: actions/checkout@v2
+      with:
+        path: Release-Specs
+    - name: Checkout RIOT
+      uses: actions/checkout@v2
+      with:
+        repository: RIOT-OS/RIOT
+        fetch-depth: 1
+        path: RIOT
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Test with tox
+      run: |
+        # definition in env does not work since $GITHUB_WORKSPACE seems not to
+        # be accessible
+        export RIOTBASE="$GITHUB_WORKSPACE/RIOT"
+        cd Release-Specs
+        tox -- --doctest-modules --self-test \
+            --cov=testutils --cov-report term-missing \
+            --cov-config=testutils/.coveragerc \
+            --cov-fail-under=95
