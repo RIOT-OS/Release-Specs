@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - pytest-release-tests/feat/initial
     tags:
       - '*'
   pull_request:
