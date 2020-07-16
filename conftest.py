@@ -7,6 +7,7 @@ See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-f
 """     # noqa: E501
 
 import os
+import subprocess
 import sys
 from collections.abc import Iterable
 
@@ -19,7 +20,6 @@ from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
 
 IOTLAB_EXPERIMENT_DURATION = 120
 RIOTBASE = os.environ.get('RIOTBASE')
-DEVNULL = open(os.devnull, 'w')
 RUNNING_CTRLS = []
 RUNNING_EXPERIMENTS = []
 
@@ -218,7 +218,9 @@ def riot_ctrl(log_nodes, nodes, riotbase):
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
-        node.make_run(['flash'], stdout=DEVNULL, stderr=DEVNULL)
+        node.make_run(['flash'], check=True,
+                      stdout=None if log_nodes else subprocess.DEVNULL,
+                      stderr=None if log_nodes else subprocess.DEVNULL)
         termargs = {}
         if log_nodes:
             termargs["logfile"] = sys.stdout
