@@ -210,6 +210,22 @@ To run only tests that require root permissions, run
 sudo RIOTBASE=${RIOTBASE} tox -- -m sudo_only
 ```
 
+To run only a specific task you can use the `-k` option of `pytest`. It uses a
+simple logical syntax for pattern matching so e.g.
+
+```sh
+tox -- -k "spec03 and (task01 or task05)"
+```
+
+will run task 1 and 5 of spec 3. The `-k` option can be used multiple times.
+The expressions will be AND'd e.g.
+
+```sh
+tox -- -k spec03 -k "task01 or task05"
+```
+
+is identical to the first example.
+
 [pytest]: https://pytest.org
 [riotctrl]: https://pypi.org/project/riotctrl/
 [IoT-LAB saclay site]: https://www.iot-lab.info/deployment/saclay/
