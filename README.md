@@ -121,7 +121,7 @@ To use [pytest] you need to install the [`riotctrl`][riotctrl] and
 [`iotlabcli`][iotlabcli] python packages:
 
 ```sh
-pip install riotctrl iotlabcli
+pip install -r requirements.txt
 ```
 
 Furthermore the `PYTHONPATH` needs to include the `pythonlibs` of RIOT:
