@@ -150,7 +150,7 @@ def test_task01(riot_ctrl, log_nodes):
                          [pytest.param(['native'], True, 1),
                           pytest.param(['native'], False, 0)],
                          indirect=['nodes'])
-def test_task02(riot_ctrl, log_nodes, start_server, expected):
+def test_task02(riot_ctrl, start_server, expected):
     node = riot_ctrl(0, 'examples/gcoap', Shell, port=TAP)
 
     node_netif, _ = lladdr(node.ifconfig_list())
