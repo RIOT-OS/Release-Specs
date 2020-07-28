@@ -187,7 +187,7 @@ def nodes(local, request, boards):
         RUNNING_EXPERIMENTS.remove(exp)
 
 
-def update_env(node, modules=None, cflags=None, port=None):
+def update_env(node, modules=None, cflags=None, port=None, termflags=None):
     if not isinstance(modules, str) and \
        isinstance(modules, Iterable):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
@@ -197,6 +197,8 @@ def update_env(node, modules=None, cflags=None, port=None):
         node.env['CFLAGS'] = cflags
     if port is not None:
         node.env['PORT'] = port
+    if termflags is not None:
+        node.env['TERMFLAGS'] = termflags
 
 
 @pytest.fixture
@@ -209,12 +211,13 @@ def riot_ctrl(log_nodes, nodes, riotbase):
 
     # pylint: disable=R0913
     def ctrl(nodes_idx, application_dir, shell_interaction_cls,
-             board_type=None, modules=None, cflags=None, port=None):
+             board_type=None, modules=None, cflags=None, port=None,
+             termflags=None):
         if board_type is not None:
             node = next(n for n in nodes if n.board() == board_type)
         else:
             node = nodes[nodes_idx]
-        update_env(node, modules, cflags, port)
+        update_env(node, modules, cflags, port, termflags)
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
