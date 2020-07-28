@@ -163,9 +163,17 @@ def pktbuf(node):
     return res
 
 
-def lladdr(ifconfig_out):
+def first_netif_and_addr_by_scope(ifconfig_out, scope):
     netifs = PARSERS["ifconfig"].parse(ifconfig_out)
     key = next(iter(netifs))
     netif = netifs[key]
     return key, [addr["addr"] for addr in netif["ipv6_addrs"] if
-                 addr["scope"] == "link"][0]
+                 addr["scope"] == scope][0]
+
+
+def lladdr(ifconfig_out):
+    return first_netif_and_addr_by_scope(ifconfig_out, "link")
+
+
+def global_addr(ifconfig_out):
+    return first_netif_and_addr_by_scope(ifconfig_out, "global")

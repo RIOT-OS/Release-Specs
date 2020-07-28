@@ -177,3 +177,35 @@ def test_lladdr_no_lladdr():
 Iface  4  HWaddr: 6A:2E:4F:3D:DF:CB
           L2-PDU:1500  Source address length: 6
             """)
+
+
+def test_global_addr():
+    netif, global_addr = testutils.shell.global_addr("""
+Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
+          L2-PDU:1500  MTU:1500  HL:64  RTR
+          RTR_ADV
+          Source address length: 6
+          Link type: wired
+          inet6 addr: fe80::682e:4fff:fe3d:dfcb  scope: link  VAL
+          inet6 addr: 2001:db8::682e:4fff:fe3d:dfcb  scope: global  VAL
+          inet6 group: ff02::2
+          inet6 group: ff02::1
+          inet6 group: ff02::1:ff3d:dfcb
+            """)
+    assert netif == "6"
+    assert global_addr == "2001:db8::682e:4fff:fe3d:dfcb"
+
+
+def test_global_addr_no_global_addr():
+    with pytest.raises(IndexError):
+        testutils.shell.global_addr("""
+Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
+          L2-PDU:1500  MTU:1500  HL:64  RTR
+          RTR_ADV
+          Source address length: 6
+          Link type: wired
+          inet6 addr: fe80::682e:4fff:fe3d:dfcb  scope: link  VAL
+          inet6 group: ff02::2
+          inet6 group: ff02::1
+          inet6 group: ff02::1:ff3d:dfcb
+            """)
