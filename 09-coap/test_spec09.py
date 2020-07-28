@@ -74,6 +74,27 @@ class Shell(Ifconfig):
         return self.cmd(cmd, timeout=timeout, async_=async_)
 
 
+# pylint: disable=R0903
+class TimeResource(aiocoap.resource.Resource):
+    """Handle GET for clock time."""
+    # pylint: disable=W0613
+    async def render_get(self, request):
+        payload = datetime.datetime.now().\
+                strftime("%Y-%m-%d %H:%M").encode('ascii')
+        msg = aiocoap.Message(payload=payload)
+        # pylint: disable=E0237
+        msg.opt.content_format = 0
+        return msg
+
+
+async def coap_server():
+    # setup server resources
+    root = aiocoap.resource.Site()
+    root.add_resource(('time',), TimeResource())
+
+    return await aiocoap.Context.create_server_context(root)
+
+
 def setup_function(function):
     if function.__name__ in ["test_task01", "test_task02", "test_task05"]:
         host_netif = bridge(TAP)
@@ -138,20 +159,13 @@ def test_task02(riot_ctrl, log_nodes, start_server, expected):
     res = node.coap_get(HOST_ULA, 5683, "/time", confirmable=True)
     time.sleep(1)
     if start_server:
-        aiocoap_server = subprocess.Popen(
-            [os.path.join(SPEC_PATH, "server.py")],
-            stdout=None if log_nodes else subprocess.DEVNULL,
-            stderr=None if log_nodes else subprocess.DEVNULL,
-        )
-    try:
-        res = node.riotctrl.term.expect([
-            r"gcoap: timeout for msg ID \d+",
-            r"gcoap: response Success, code 2.05, \d+ bytes",
-        ], timeout=100)
-    finally:
-        if start_server:
-            aiocoap_server.terminate()
-            aiocoap_server.wait()
+        # kill server after 10 seconds, then it has enough time to respond to
+        # first retry
+        timeout_futures([coap_server()], timeout=10)
+    res = node.riotctrl.term.expect([
+        r"gcoap: timeout for msg ID \d+",
+        r"gcoap: response Success, code 2.05, \d+ bytes",
+    ], timeout=100)
     assert res == expected
 
 
@@ -255,24 +269,8 @@ def test_task05(riot_ctrl):
     node.ifconfig_add(node_netif, NODE_ULA)
     responses = []
 
-    # pylint: disable=R0903
-    class TimeResource(aiocoap.resource.Resource):
-        """Handle GET for clock time."""
-        # pylint: disable=W0613
-        async def render_get(self, request):
-            payload = datetime.datetime.now().\
-                    strftime("%Y-%m-%d %H:%M").encode('ascii')
-            msg = aiocoap.Message(payload=payload)
-            # pylint: disable=E0237
-            msg.opt.content_format = 0
-            return msg
-
     async def client_server(host):
-        # setup server resources
-        root = aiocoap.resource.Site()
-        root.add_resource(('time',), TimeResource())
-
-        context = await aiocoap.Context.create_server_context(root)
+        context = await coap_server()
 
         # pylint: disable=E1101
         msg = aiocoap.Message(code=aiocoap.GET,
