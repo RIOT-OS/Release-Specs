@@ -3,9 +3,10 @@ import time
 import pytest
 
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats
-from riotctrl_shell.netif import Ifconfig, IfconfigListParser
+from riotctrl_shell.netif import Ifconfig
 
-from testutils.shell import pktbuf, lladdr, global_addr, ping6, GNRCUDP
+from testutils.shell import pktbuf, lladdr, global_addr, ping6, GNRCUDP, \
+                            PARSERS
 
 
 APP = 'tests/gnrc_udp'
@@ -46,7 +47,7 @@ def statically_routed_nodes(riot_ctrl):
 
 @pytest.fixture
 def netif_parser():
-    return IfconfigListParser()
+    return PARSERS["ifconfig"]
 
 
 # pylint: disable=W0621
@@ -120,7 +121,6 @@ def rpl_nodes(riot_ctrl, netif_parser):
                          [pytest.param(['iotlab-m3', 'iotlab-m3',
                                         'iotlab-m3', 'iotlab-m3'])],
                          indirect=['nodes'])
-# pylint: disable=W0621
 def test_task01(statically_routed_nodes):
     pinger = statically_routed_nodes[0]
 
@@ -137,7 +137,6 @@ def test_task01(statically_routed_nodes):
                          [pytest.param(['iotlab-m3', 'iotlab-m3',
                                         'iotlab-m3', 'iotlab-m3'])],
                          indirect=['nodes'])
-# pylint: disable=W0621
 def test_task02(statically_routed_nodes):
     nodes = statically_routed_nodes
     for client, server, server_addr in [(nodes[0], nodes[-1], TO_ADDR),
@@ -160,8 +159,7 @@ def test_task02(statically_routed_nodes):
                          [pytest.param(['iotlab-m3', 'iotlab-m3',
                                         'iotlab-m3', 'iotlab-m3'])],
                          indirect=['nodes'])
-# pylint: disable=W0621
-def test_task03(rpl_nodes, netif_parser):
+def test_task03(rpl_nodes):
     pinger = rpl_nodes[-1]
 
     _, root_addr = global_addr(rpl_nodes[0].ifconfig_list())
@@ -178,8 +176,7 @@ def test_task03(rpl_nodes, netif_parser):
                          [pytest.param(['iotlab-m3', 'iotlab-m3',
                                         'iotlab-m3', 'iotlab-m3'])],
                          indirect=['nodes'])
-# pylint: disable=W0621
-def test_task04(rpl_nodes, netif_parser):
+def test_task04(rpl_nodes):
     nodes = rpl_nodes
     for client, server in [(nodes[0], nodes[-1]), (nodes[-1], nodes[0])]:
         server.udp_server_start(1337)
@@ -201,8 +198,7 @@ def test_task04(rpl_nodes, netif_parser):
                          [pytest.param(['iotlab-m3', 'iotlab-m3',
                                         'iotlab-m3', 'iotlab-m3'])],
                          indirect=['nodes'])
-# pylint: disable=W0621
-def test_task05(rpl_nodes, netif_parser):
+def test_task05(rpl_nodes):
     nodes = rpl_nodes
     for client, server in [(nodes[0], nodes[-1]), (nodes[-1], nodes[0])]:
         server.udp_server_start(1337)
