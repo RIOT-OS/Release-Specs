@@ -117,11 +117,21 @@ task-02.02   2015-09-04   2eb21d8f9694146deca8c69cbc4a82acd62d395f   success
 `pytest` runner
 ---------------
 
+Many of the specs have python script to run the tests automatically. By default
+experiments will be launched on [IoT-LAB saclay site] for tests that require
+non-`native` boards. The saclay site was chosen since it has most of the
+non-`native` boards used in the release-specs. Tests running on `native` will
+always be run locally on the executing machine.  Non-`native` can also be ran
+locally as long as the required `BOARD`s are available (see
+[local requirements](#local-requirements)).
+
+### Requirements
+
 To use [pytest] you need to install the [`riotctrl`][riotctrl] and
 [`iotlabcli`][iotlabcli] python packages:
 
 ```sh
-pip install riotctrl iotlabcli
+pip install -r requirements.txt
 ```
 
 Furthermore the `PYTHONPATH` needs to include the `pythonlibs` of RIOT:
@@ -130,9 +140,26 @@ Furthermore the `PYTHONPATH` needs to include the `pythonlibs` of RIOT:
 export PYTHONPATH=${RIOTBASE}/dist/pythonlibs:${PYTHONPATH}
 ```
 
-By default experiments will be launched on [IoT-LAB saclay site] since it has
-most of the boards used in the release-specs.
-It can be changed by setting the `IOTLAB_SITE` environment variable.
+The environment variable `RIOTBASE` must be set to *absolute path* of the
+version of RIOT under test. E.g.
+
+```
+export RIOTBASE=$(readlink -f ../RIOT)
+```
+
+Some tests on the `native` platform need a certain number of TAP interfaces in a
+bridge or otherwise will be skipped. The most number of TAP interfaces to date
+is required for 3.5 "ICMPv6 stress test on native (neighbor cache
+stress)" (11 TAP interfaces) so to not skip that, all of them should be bridged.
+
+```sh
+sudo ${RIOTBASE}/dist/tools/tapsetup/tapsetup -c 11
+```
+
+#### Iot-LAB Requirements
+
+The site on which to run the experiments can be changed by setting the
+`IOTLAB_SITE` environment variable.
 
 Make sure you can access the testbed frontend via SSH without providing a
 password, either by generating a dedicated key pair without password
@@ -156,21 +183,26 @@ eval $(ssh-agent)
 ssh-add
 ```
 
-The environment variable `RIOTBASE` must be set to *absolute path* of the
-version of RIOT under test. E.g.
+#### Local Requirements
 
-```
-export RIOTBASE=$(readlink -f ../RIOT)
-```
+To be able to run tests locally the following requirements must be fulfilled:
 
-Some tests on the `native` platform need a certain number of TAP interfaces in a
-bridge or otherwise will be skipped. The most number of TAP interfaces to date
-is required for 3.5 "ICMPv6 stress test on native (neighbor cache
-stress)" (11 TAP interfaces) so to not skip that, all of them should be bridged.
+- udev rules mapping every `BOARD` to a specific `PORT`, e.g.: `/dev/tty${BOARD}`.
+- `makefile` included in `RIOT_MAKEFILES_GLOBAL_PRE` that sets `DEBUG_ADAPTER_ID`
+  and `PORT` for each `BOARD`.
 
-```sh
-sudo ${RIOTBASE}/dist/tools/tapsetup/tapsetup -c 11
-```
+See [multiple boards udev] for a detailed walkthrough.
+
+##### Limitations
+
+- Currently only tests that run on different `BOARD`s will work out of the box,
+  it would currently require setting an additional variable to identify each
+  `BOARD`, see [multiple boards udev].
+
+Future work could integrate a yml file that holds the configuration, [rjl] might
+be a good reference.
+
+### Usage
 
 ```
 usage: pytest [--boards] [--hide-output] [--local] [--non-RC] [--self-test]
@@ -229,3 +261,5 @@ is identical to the first example.
 [pytest]: https://pytest.org
 [riotctrl]: https://pypi.org/project/riotctrl/
 [IoT-LAB saclay site]: https://www.iot-lab.info/deployment/saclay/
+[multiple boards udev]: http://riot-os.org/api/advanced-build-system-tricks.html#multiple-boards-udev
+[rjl]: https://github.com/haukepetersen/rjl
