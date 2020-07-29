@@ -1,6 +1,7 @@
 import sys
 import time
 
+import pexpect
 import pexpect.replwrap
 import pytest
 
@@ -103,18 +104,23 @@ def test_task04(riot_ctrl, log_nodes):
     ping_cmd = get_ping_cmd()
 
     futures = []
-    for pinger in pingers:
-        if log_nodes:
-            pinger.child.logfile = sys.stdout
-        out = pinger.run_command("{ping_cmd} -f -s 1452 {pinged_addr}"
-                                 # pipe to /dev/null because output can go into
-                                 # MiB of data ;-)
-                                 " 2>&1 > /dev/null"
-                                 .format(ping_cmd=ping_cmd,
-                                         pinged_addr=pinged_addr),
-                                 async_=True, timeout=60 * 60)
-        futures.append(out)
-    timeout_futures(futures, 60 * 60)
+    try:
+        for pinger in pingers:
+            if log_nodes:
+                pinger.child.logfile = sys.stdout
+            out = pinger.run_command("{ping_cmd} -f -s 1452 {pinged_addr}"
+                                     # pipe to /dev/null because output can go
+                                     # into MiB of data ;-)
+                                     " 2>&1 > /dev/null"
+                                     .format(ping_cmd=ping_cmd,
+                                             pinged_addr=pinged_addr),
+                                     async_=True, timeout=60 * 60)
+            futures.append(out)
+        timeout_futures(futures, 60 * 60)
+    finally:
+        for pinger in pingers:
+            # interrupt prevailing `ping6`s
+            pinger.child.sendintr()
 
     time.sleep(60)
     assert pktbuf(node).is_empty()
@@ -172,9 +178,6 @@ def test_task06(riot_ctrl):
 
     res = ping6(pinger, pinged_addr,
                 count=1000, interval=100, packet_size=2048)
-    if 1 <= res['stats']['packet_loss'] < 100:
-        pytest.xfail("1 <= packet_loss < 100; "
-                     "this test is prone to fail in CI.")
     assert res['stats']['packet_loss'] < 1
     time.sleep(60)
 
