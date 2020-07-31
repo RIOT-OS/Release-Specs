@@ -206,6 +206,7 @@ be a good reference.
 
 ```
 usage: pytest [--boards] [--hide-output] [--local] [--non-RC] [--self-test]
+              [--log-file-fmt=[LOG_FILE_FMT]]
 
 optional arguments:
   --boards              String list of boards to use for the test, can be
@@ -216,6 +217,16 @@ optional arguments:
   --non-RC              Runs test even if RIOT version under test is not an RC
   --self-test           Tests the testutils rather than running the release
                         tests
+  --log-file-fmt=[LOG_FILE_FMT]
+                        Format for the log file name. The available variables
+                        are: `module`: The module (=specXX) of the test,
+                        `function`: The function (=taskXX) of the test, `node`:
+                        Name of the node (on IoT-LAB the URL of the node,
+                        locally board name + port), `time`: UNIX timestamp at
+                        creation time. If the provided argument is an empty
+                        string the format will be
+                        '{module}-{function}-{node}-{time}.log' and stored in
+                        the current work directory
 ```
 
 Running `tox` will do most of that for you

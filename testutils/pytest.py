@@ -32,6 +32,26 @@ def list_from_string(list_str=None):
     return [v for v in value if v]
 
 
+def log_file_fmt(fmt_str=None):
+    """Get defaulted format string
+
+    >>> import os
+    >>> log_file_fmt(None)
+    >>> os.path.basename(log_file_fmt(''))
+    '{module}-{function}-{node}-{time}.log'
+    >>> log_file_fmt('foobar')
+    'foobar'
+    >>> log_file_fmt('{module}-{function}-{time}-{node}')
+    '{module}-{function}-{time}-{node}'
+    """
+    if fmt_str is not None:
+        if len(fmt_str) > 0:
+            return fmt_str
+        return os.path.join(os.getcwd(),
+                            "{module}-{function}-{node}-{time}.log")
+    return None
+
+
 def check_ssh():
     user, _ = IoTLABExperiment.user_credentials()
     if user is None:
