@@ -153,10 +153,10 @@ def boards(request):
 def get_namefmt(request):
     name_fmt = {}
     if request.module:
-        name_fmt["module"] = request.module.__name__.replace("test_", "-")
+        name_fmt["module"] = request.module.__name__.replace("test_", "")
     if request.function:
         name_fmt["function"] = request.function.__name__ \
-                               .replace("test_", "-")
+                               .replace("test_", "")
     return name_fmt
 
 
@@ -184,7 +184,7 @@ def nodes(local, request, boards):
         name_fmt = get_namefmt(request)
         # Start IoT-LAB experiment if requested
         exp = IoTLABExperiment(
-            name="RIOT-release-test{module}{function}".format(**name_fmt),
+            name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
             site=os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
         RUNNING_EXPERIMENTS.append(exp)
