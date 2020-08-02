@@ -13,7 +13,7 @@ import pytest
 from riotctrl.shell import ShellInteractionParser
 from riotctrl_shell.netif import Ifconfig
 
-from testutils.asyncio import timeout_futures
+from testutils.asyncio import timeout_futures, wait_for_futures
 from testutils.native import bridge, interface_exists, \
                              ip_addr_add, ip_addr_del
 from testutils.shell import lladdr
@@ -156,12 +156,17 @@ def test_task02(riot_ctrl, start_server, expected):
     node_netif, _ = lladdr(node.ifconfig_list())
     node.ifconfig_add(node_netif, NODE_ULA)
 
+    async def run_task02_server():
+        server = await coap_server()
+        # kill server after 10 seconds, then it has enough time to respond to
+        # first retry
+        await asyncio.sleep(10)
+        await server.shutdown()
+
     res = node.coap_get(HOST_ULA, 5683, "/time", confirmable=True)
     time.sleep(1)
     if start_server:
-        # kill server after 10 seconds, then it has enough time to respond to
-        # first retry
-        timeout_futures([coap_server()], timeout=10)
+        wait_for_futures([run_task02_server()])
     res = node.riotctrl.term.expect([
         r"gcoap: timeout for msg ID \d+",
         r"gcoap: response Success, code 2.05, \d+ bytes",
@@ -289,6 +294,7 @@ def test_task05(riot_ctrl):
 
             req.observation.cancel()
             break
+        await context.shutdown()
 
     timeout_futures([client_server('[{}]'.format(NODE_ULA))], timeout=2)
     node.riotctrl.term.expect(r"gcoap: response Success, code 2.05, \d+ bytes")
