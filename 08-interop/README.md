@@ -281,3 +281,188 @@ guide on Zephyr's documentation.
    dst_l2addr: 32:A9:FA:65:10:6B:11:14
    ~~ PKT    -  4 snips, total size:  85 byte
    ```
+   
+Task #12 - GNRC Border Router with WiFi uplink to the Internet
+==============================================================
+### Description
+
+This test will ensure RIOT can connect to a real IPv6 enabled WiFi network and
+share the uplink connection with constrained nodes.
+
+An esp* board with the `gnrc_border_router` connects to your WiFi.
+The module `sock_dns` is used to resolve domain names.
+
+Two network interfaces are configured:
+
+ - a 802.11 WiFi interface used as uplink
+ - a proprietary `esp_now` interface as 6LoWPAN downlink
+ 
+ Materials
+---------
+
+You'll need:
+
+ - a pair of esp8266/esp32 boards
+ - 2.4 GHz WiFi network with an IPv6 uplink
+ - to make sure prefix delegation (IA_PD) is enabled in your router's DHCPv6 server
+   (On the popular Fritz!Box line of routers this can be enabled in the
+   Network -> Network Settings -> IPv6 Addresses menu. On [OpenWRT](https://openwrt.org/docs/guide-user/network/ipv6/start) it should be enabled by default)
+
+### Details
+
+Flash the `gnrc_border_router` example onto one of the esp* boards.
+Use the `sock_dns` module to enable name resolution.
+The credentials for the WiFi network will be passed on the command line.
+Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
+
+```
+USEMODULE=sock_dns make -C examples/gnrc_border_router BOARD=esp<...> UPLINK=wifi WIFI_SSID=<your_ssd> WIFI_PASS=<your_password> PORT=<port> flash term
+```
+
+### Result
+
+RIOT should be able to connect to your WiFi network and configure a global address on both interfaces
+
+```
+2020-08-02 20:38:20,346 # Iface  11  HWaddr: EC:FA:BC:5F:82:91  Channel: 6  Link: up 
+2020-08-02 20:38:20,349 #           L2-PDU:1500  MTU:1492  HL:255  RTR  
+2020-08-02 20:38:20,352 #           Source address length: 6
+2020-08-02 20:38:20,355 #           Link type: wireless
+2020-08-02 20:38:20,360 #           inet6 addr: fe80::eefa:bcff:fe5f:8291  scope: link  VAL
+2020-08-02 20:38:20,368 #           inet6 addr: 2001:16b8:453f:1f00:eefa:bcff:fe5f:8291  scope: global  VAL
+2020-08-02 20:38:20,371 #           inet6 group: ff02::2
+2020-08-02 20:38:20,374 #           inet6 group: ff02::1
+2020-08-02 20:38:20,377 #           inet6 group: ff02::1:ff5f:8291
+2020-08-02 20:38:20,377 #           
+2020-08-02 20:38:20,382 # Iface  10  HWaddr: EE:FA:BC:5F:82:91  Channel: 6 
+2020-08-02 20:38:20,385 #           L2-PDU:249  MTU:1280  HL:64  RTR  
+2020-08-02 20:38:20,390 #           RTR_ADV  6LO  Source address length: 6
+2020-08-02 20:38:20,393 #           Link type: wireless
+2020-08-02 20:38:20,399 #           inet6 addr: fe80::ecfa:bcff:fe5f:8291  scope: link  VAL
+2020-08-02 20:38:20,404 #           inet6 addr: 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291  scope: global  VAL
+2020-08-02 20:38:20,407 #           inet6 group: ff02::2
+2020-08-02 20:38:20,410 #           inet6 group: ff02::1
+2020-08-02 20:38:20,416 #           inet6 group: ff02::1:ff5f:8291
+```
+
+You should be able to ping global addresses (requires a working IPv6 uplink on your network)
+
+```
+2020-08-02 20:35:27,462 # ping6 2600::
+2020-08-02 20:35:27,672 # 12 bytes from 2600::: icmp_seq=0 ttl=50 time=203.340 ms
+2020-08-02 20:35:28,607 # 12 bytes from 2600::: icmp_seq=1 ttl=50 time=139.033 ms
+2020-08-02 20:35:29,608 # 12 bytes from 2600::: icmp_seq=2 ttl=50 time=140.839 ms
+2020-08-02 20:35:29,609 # 
+2020-08-02 20:35:29,611 # --- 2600:: PING statistics ---
+2020-08-02 20:35:29,616 # 3 packets transmitted, 3 packets received, 0% packet loss
+2020-08-02 20:35:29,621 # round-trip min/avg/max = 139.033/161.070/203.340 ms
+```
+
+Valid DNS names should get resolved too
+
+```
+2020-08-02 20:35:37,927 # ping6 riot-os.org
+2020-08-02 20:35:38,075 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=56 time=33.071 ms
+2020-08-02 20:35:39,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=56 time=34.129 ms
+2020-08-02 20:35:40,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=56 time=33.182 ms
+2020-08-02 20:35:40,076 # 
+2020-08-02 20:35:40,078 # --- riot-os.org PING statistics ---
+2020-08-02 20:35:40,084 # 3 packets transmitted, 3 packets received, 0% packet loss
+2020-08-02 20:35:40,088 # round-trip min/avg/max = 33.071/33.460/34.129 ms
+```
+
+Task #13 - GNRC Networking
+==========================
+### Description
+
+A second esp* board will connect to the border router from Task #12 using 6LoWPAN/`esp_now`.
+It should be able to access hosts on the internet.
+
+### Details
+
+Flash the `gnrc_networking` example onto the second esp* board.
+Use the `sock_dns` module to enable name resolution.
+Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
+
+```
+USEMODULE=sock_dns make -C examples/gnrc_networking BOARD=esp<…> PORT=<port> flash term
+```
+
+### Result
+
+RIOT should connect to the border router and obtain a global address.
+Make sure both boards operate on the same `esp_now` channel.
+
+```
+2020-08-02 20:45:02,898 # Iface  9  HWaddr: 3C:71:BF:9E:13:FD  Channel: 6 
+2020-08-02 20:45:02,902 #           L2-PDU:249  MTU:1280  HL:64  RTR  
+2020-08-02 20:45:02,906 #           RTR_ADV  6LO  Source address length: 6
+2020-08-02 20:45:02,909 #           Link type: wireless
+2020-08-02 20:45:02,914 #           inet6 addr: fe80::3e71:bfff:fe9e:13fd  scope: link  VAL
+2020-08-02 20:45:02,921 #           inet6 addr: 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd  scope: global  VAL
+2020-08-02 20:45:02,924 #           inet6 group: ff02::2
+2020-08-02 20:45:02,927 #           inet6 group: ff02::1
+2020-08-02 20:45:02,930 #           inet6 group: ff02::1:ff9e:13fd
+2020-08-02 20:45:02,931 #           
+2020-08-02 20:45:02,934 #           Statistics for Layer 2
+2020-08-02 20:45:02,937 #             RX packets 0  bytes 0
+2020-08-02 20:45:02,942 #             TX packets 0 (Multicast: 0)  bytes 214
+2020-08-02 20:45:02,945 #             TX succeeded 3 errors 0
+2020-08-02 20:45:02,947 #           Statistics for IPv6
+2020-08-02 20:45:02,950 #             RX packets 3  bytes 312
+2020-08-02 20:45:02,955 #             TX packets 4 (Multicast: 2)  bytes 264
+2020-08-02 20:45:02,958 #             TX succeeded 4 errors 0
+```
+
+You should be able to reach the border router using it's global address
+
+```
+2020-08-02 20:45:41,423 #  ping6 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291
+2020-08-02 20:45:41,439 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=0 ttl=64 time=8.020 ms
+2020-08-02 20:45:42,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=1 ttl=64 time=7.252 ms
+2020-08-02 20:45:43,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=2 ttl=64 time=6.779 ms
+2020-08-02 20:45:43,438 # 
+2020-08-02 20:45:43,443 # --- 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291 PING statistics ---
+2020-08-02 20:45:43,449 # 3 packets transmitted, 3 packets received, 0% packet loss
+2020-08-02 20:45:43,453 # round-trip min/avg/max = 6.779/7.350/8.020 ms
+```
+
+You should be able to reach a global address on the internet
+
+```
+2020-08-02 20:45:49,052 #  ping6 2600::
+2020-08-02 20:45:49,200 # 12 bytes from 2600::: icmp_seq=0 ttl=49 time=143.513 ms
+2020-08-02 20:45:50,200 # 12 bytes from 2600::: icmp_seq=1 ttl=49 time=143.223 ms
+2020-08-02 20:45:51,199 # 12 bytes from 2600::: icmp_seq=2 ttl=49 time=142.450 ms
+2020-08-02 20:45:51,200 # 
+2020-08-02 20:45:51,202 # --- 2600:: PING statistics ---
+2020-08-02 20:45:51,207 # 3 packets transmitted, 3 packets received, 0% packet loss
+2020-08-02 20:45:51,212 # round-trip min/avg/max = 142.450/143.062/143.513 ms
+``` 
+
+DNS names should also get resolved
+
+```
+2020-08-02 20:45:57,277 #  ping6 riot-os.org
+2020-08-02 20:45:57,330 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=55 time=35.999 ms
+2020-08-02 20:45:58,335 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=55 time=40.993 ms
+2020-08-02 20:45:59,328 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=55 time=34.089 ms
+2020-08-02 20:45:59,329 # 
+2020-08-02 20:45:59,331 # --- riot-os.org PING statistics ---
+2020-08-02 20:45:59,336 # 3 packets transmitted, 3 packets received, 0% packet loss
+2020-08-02 20:45:59,340 # round-trip min/avg/max = 34.089/37.027/40.993 ms
+```
+
+And finally, you should be able to reach the 6LoWPAN node from any IPv6 host from your local network.
+
+```
+% ping -c3 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd
+PING 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd(2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd) 56 data bytes
+64 bytes from 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd: icmp_seq=1 ttl=63 time=11.0 ms
+64 bytes from 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd: icmp_seq=2 ttl=63 time=9.08 ms
+64 bytes from 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd: icmp_seq=3 ttl=63 time=10.5 ms
+
+--- 2001:16b8:453f:1ff0:3e71:bfff:fe9e:13fd ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2002ms
+rtt min/avg/max/mdev = 9.077/10.192/10.997/0.814 ms
+```
