@@ -187,7 +187,7 @@ def get_namefmt(request):
 
 
 @pytest.fixture
-def nodes(local, request, boards):
+def nodes(local, request, boards, record_property):
     """
     Provides the nodes for a test as a list of RIOTCtrl objects
     """
@@ -215,6 +215,7 @@ def nodes(local, request, boards):
             site=os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
         RUNNING_EXPERIMENTS.append(exp)
         exp.start(duration=IOTLAB_EXPERIMENT_DURATION)
+        record_property("exp_id", exp.exp_id)
         yield ctrls
         exp.stop()
         RUNNING_EXPERIMENTS.remove(exp)
@@ -243,7 +244,9 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
 
 
 @pytest.fixture
-def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
+# pylint: disable=R0913
+def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request,
+              record_property):
     """
     Factory to create RIOTCtrl objects from list nodes provided by nodes
     fixture
@@ -288,6 +291,18 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
         factory_ctrls.append(node)
         return shell_interaction_cls(node)
 
+    record_property(
+        "riot_commit",
+        subprocess.check_output(
+            ["git", "-C", riotbase, "log", "--oneline", "--decorate", "-1"]
+        ).decode().strip()
+    )
+    record_property(
+        "release_specs_commit",
+        subprocess.check_output(
+            ["git", "-C", os.getcwd(), "log", "--oneline", "--decorate", "-1"]
+        ).decode().strip()
+    )
     yield ctrl
 
     for node in factory_ctrls:
