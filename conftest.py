@@ -14,6 +14,7 @@ from collections.abc import Iterable
 import pytest
 from riotctrl.ctrl import RIOTCtrl
 
+import testutils.github
 import testutils.pytest
 from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
 
@@ -90,6 +91,12 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(iotlab_creds_mark)
         if rc_only_mark and "rc_only" in item.keywords:
             item.add_marker(rc_only_mark)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_logreport(report):
+    yield
+    testutils.github.update_issue(report)
 
 
 def pytest_keyboard_interrupt(excinfo):
