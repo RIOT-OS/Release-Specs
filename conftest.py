@@ -6,9 +6,11 @@ Central pytest definitions.
 See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
 """     # noqa: E501
 
+import re
 import os
 import subprocess
 import sys
+import time
 from collections.abc import Iterable
 
 import pytest
@@ -50,6 +52,19 @@ def pytest_addoption(parser):
     parser.addoption(
         "--self-test", action="store_true", default=False,
         help="Tests the testutils rather than running the release tests",
+    )
+    parser.addoption(
+        "--log-file-fmt", nargs="?", default=None,
+        type=testutils.pytest.log_file_fmt,
+        help="Format for the log file name. The available variables are: "
+             "`module`: The module (=specXX) of the test, "
+             "`function`: The function (=taskXX) of the test, "
+             "`node`: Name of the node (on IoT-LAB the URL of the node, "
+             "locally board name + port), "
+             "`time`: UNIX timestamp at creation time. "
+             "If the provided argument is an empty string the format will be "
+             "'{module}-{function}-{node}-{time}.log' and stored in the "
+             "current work directory"
     )
 
 
@@ -124,6 +139,17 @@ def log_nodes(request):
 
 
 @pytest.fixture
+def log_file_fmt(request):
+    """
+    Show output of nodes
+
+    :return: True if output of nodes should be shown, False otherwise
+    """
+    # use reverse, since from outside we most of the time _want_ to log
+    return request.config.getoption("--log-file-fmt")
+
+
+@pytest.fixture
 def local(request):
     """
     Use local boards
@@ -153,10 +179,10 @@ def boards(request):
 def get_namefmt(request):
     name_fmt = {}
     if request.module:
-        name_fmt["module"] = request.module.__name__.replace("test_", "-")
+        name_fmt["module"] = request.module.__name__.replace("test_", "")
     if request.function:
         name_fmt["function"] = request.function.__name__ \
-                               .replace("test_", "-")
+                               .replace("test_", "")
     return name_fmt
 
 
@@ -184,7 +210,7 @@ def nodes(local, request, boards):
         name_fmt = get_namefmt(request)
         # Start IoT-LAB experiment if requested
         exp = IoTLABExperiment(
-            name="RIOT-release-test{module}{function}".format(**name_fmt),
+            name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
             site=os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
         RUNNING_EXPERIMENTS.append(exp)
@@ -217,7 +243,7 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
 
 
 @pytest.fixture
-def riot_ctrl(log_nodes, nodes, riotbase):
+def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
     """
     Factory to create RIOTCtrl objects from list nodes provided by nodes
     fixture
@@ -233,6 +259,21 @@ def riot_ctrl(log_nodes, nodes, riotbase):
         else:
             node = nodes[nodes_idx]
         update_env(node, modules, cflags, port, termflags)
+        # if the nodes are not logged, there is no sense in logging to a file
+        # so check if nodes are logged as well as if they should be logged to a
+        # file
+        if log_nodes and log_file_fmt:
+            if node.env.get("IOTLAB_NODE"):
+                node_name = node.env["IOTLAB_NODE"]
+            else:
+                node_name = "{}-{}".format(
+                    node.board(), re.sub(r'\W+', '-', node.env["PORT"]))
+            node.env["TERMLOG"] = os.path.join(
+                os.getcwd(), log_file_fmt.format(
+                    node=node_name, time=int(time.time()),
+                    **get_namefmt(request)
+                )
+            )
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
