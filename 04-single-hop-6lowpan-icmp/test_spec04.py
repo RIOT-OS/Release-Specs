@@ -1,6 +1,5 @@
 import time
 
-import pexpect
 import pytest
 
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCPktbufStats
@@ -110,19 +109,17 @@ def test_task04(riot_ctrl):
     pinger_netif, _ = lladdr(pinger.ifconfig_list())
     pinger.ifconfig_set(pinger_netif, "channel", 26)
 
+    # enforce reconnect to pinged's terminal as connection to it in the IoT-LAB
+    # sometimes get's lost silently in the CI after the 15 min of pinging
+    # see https://github.com/RIOT-OS/Release-Specs/issues/189
+    pinged.stop_term()
     res = ping6(pinger, pinged_addr,
                 count=10000, interval=100, packet_size=100)
     assert res['stats']['packet_loss'] < 10
 
+    pinged.start_term()
+    assert pktbuf(pinged).is_empty()
     assert pktbuf(pinger).is_empty()
-    try:
-        assert pktbuf(pinged).is_empty()
-    except pexpect.TIMEOUT:
-        pytest.xfail(
-            "pktbuf of pinged node is not submitted reliably on the CI for "
-            "some reason. "
-            "See https://github.com/RIOT-OS/Release-Specs/pull/181"
-            "#issuecomment-667517820")
 
 
 @pytest.mark.local_only
