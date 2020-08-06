@@ -10,8 +10,8 @@ import aiocoap
 import aiocoap.resource
 import pytest
 
-from riotctrl.shell import ShellInteractionParser
 from riotctrl_shell.netif import Ifconfig
+from riotctrl_shell.cord_ep import CordEp, CordEpRegistrationInfoParser
 
 from testutils.asyncio import timeout_futures, wait_for_futures
 from testutils.native import bridge, interface_exists, \
@@ -28,42 +28,7 @@ TAP = 'tap0'
 pytestmark = pytest.mark.rc_only()
 
 
-# pylint: disable=R0903
-class CordEPRegisterParser(ShellInteractionParser):
-    # TODO: provide upstream
-    def __init__(self):
-        self.comps = {
-            "rdaddr": re.compile(r"RD address:\s+"
-                                 r"(?P<rdaddr>coaps?://"
-
-                                 r"\[[0-9a-f:]+(%\S+)?\]:\d+)"),
-            "epname": re.compile(r"ep name:\s+(?P<epname>.+)$"),
-            "ltime": re.compile(r"lifetime:\s+(?P<ltime>\d+)s$"),
-            "regif": re.compile(r"reg if:\s+(?P<regif>\S+)$"),
-            "location": re.compile(r"location:\s+(?P<location>\S+)$"),
-        }
-
-    def parse(self, cmd_output):
-        res = {}
-        for line in cmd_output.splitlines():
-            for key, comp in self.comps.items():
-                m = comp.search(line)
-                if m is not None:
-                    try:
-                        res[key] = int(m.group(key))
-                    except ValueError:
-                        res[key] = m.group(key)
-        return res
-
-
-class Shell(Ifconfig):
-    # TODO: provide cord_ep and coap? ShellInteraction upstream
-    def cord_ep_register(self, addr, port=None, timeout=-1, async_=False):
-        cmd = "cord_ep register [{addr}]".format(addr=addr)
-        if port is not None:
-            cmd += ":{port:d}".format(port=port)
-        return self.cmd(cmd, timeout=timeout, async_=async_)
-
+class Shell(Ifconfig, CordEp):
     # pylint: disable=R0913
     def coap_get(self, addr, port, resource, confirmable=False, timeout=-1,
                  async_=False):
@@ -126,8 +91,8 @@ def test_task01(riot_ctrl, log_nodes):
         stderr=None if log_nodes else subprocess.DEVNULL,
     )
     try:
-        res = node.cord_ep_register(HOST_ULA)
-        parser = CordEPRegisterParser()
+        res = node.cord_ep_register("[{}]".format(HOST_ULA))
+        parser = CordEpRegistrationInfoParser()
         core_reg = parser.parse(res)
         if core_reg["ltime"] > 300:
             pytest.xfail("CoRE RD lifetime is configured for {}s (> 5min). "
