@@ -97,7 +97,7 @@ def test_task01(riot_ctrl, log_nodes):
         if core_reg["ltime"] > 300:
             pytest.xfail("CoRE RD lifetime is configured for {}s (> 5min). "
                          "That's way to long for a test!"
-                         .format(core_reg["ltiem"]))
+                         .format(core_reg["ltime"]))
         time.sleep(core_reg["ltime"])
     finally:
         aiocoap_rd.terminate()
