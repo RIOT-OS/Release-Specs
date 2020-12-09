@@ -223,7 +223,8 @@ def test_task07(riot_ctrl, log_nodes):
     node = riot_ctrl(0, APP, Shell,
                      cflags="-DCONFIG_GNRC_IPV6_NIB_SLAAC=1 "
                             "-DCONFIG_GNRC_IPV6_NIB_QUEUE_PKT=1",
-                     termflags="-z [::]:17755", modules="socket_zep",
+                     termflags="-z [::]:17755",
+                     modules="socket_zep netdev_tap",
                      port=TAP)
     host_netif = bridge(TAP)
     host_lladdr = get_link_local(host_netif)
