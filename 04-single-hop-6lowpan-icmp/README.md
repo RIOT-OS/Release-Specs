@@ -152,8 +152,8 @@ All nodes are still running, reachable, and the packet buffer is empty 3 seconds
 after completions (use module `gnrc_pktbuf_cmd`).
 Packet loss is irrelevant in this stress test.
 
-Task #10 (Exprimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
-============================================================================
+Task #10 (Experimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
+=============================================================================
 ### Description
 
 ICMPv6 echo request/reply exchange between two nodes (make sure module
