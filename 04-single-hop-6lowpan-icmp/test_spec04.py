@@ -1,3 +1,4 @@
+import subprocess
 import time
 
 import pytest
@@ -284,5 +285,109 @@ def test_task10(riot_ctrl):
     assert res['stats']['packet_loss'] < 10
 
     time.sleep(60)
+    assert pktbuf(pinged).is_empty()
+    assert pktbuf(pinger).is_empty()
+
+
+@pytest.mark.iotlab_creds
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes',
+                         [pytest.param(['nrf52840dk', 'iotlab-m3',
+                                        'iotlab-m3'])],
+                         indirect=['nodes'])
+def test_task11(riot_ctrl):
+    try:
+        nodes = (
+            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(2, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        )
+    except subprocess.CalledProcessError:
+        pytest.xfail(
+            "Experimental task. See also "
+            # pylint: disable=C0301
+            "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-758522278"  # noqa: E501
+        )
+
+    pinged = nodes[0]
+    pingers = nodes[1:]
+
+    pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
+    pinged.ifconfig_set(pinged_netif, "channel", 26)
+    assert pinged_addr.startswith("fe80::")
+    for pinger in pingers:
+        pinger_netif, _ = lladdr(pinger.ifconfig_list())
+        pinger.ifconfig_set(pinger_netif, "channel", 26)
+
+    futures = []
+    for pinger in nodes[1:]:
+        out = pinger.ping6(pinged_addr,
+                           count=200, interval=0, packet_size=1232,
+                           async_=True)
+        futures.append(out)
+    wait_for_futures(futures)
+
+    time.sleep(60)
+    for node in nodes:
+        # add print to know which node's packet buffer is not empty on error
+        print("check pktbuf on", node.riotctrl.env.get("PORT"))
+        assert pktbuf(node).is_empty()
+
+
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes',
+                         [pytest.param(['iotlab-m3', 'nrf52840dk'])],
+                         indirect=['nodes'])
+def test_task12(riot_ctrl):
+    try:
+        pinger, pinged = (
+            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        )
+    except subprocess.CalledProcessError:
+        pytest.xfail(
+            "Experimental task. See also "
+            # pylint: disable=C0301
+            "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-758522278"  # noqa: E501
+        )
+    pinged_netif, _ = lladdr(pinged.ifconfig_list())
+    pinged.ifconfig_set(pinged_netif, "channel", 17)
+    pinger_netif, _ = lladdr(pinger.ifconfig_list())
+    pinger.ifconfig_set(pinger_netif, "channel", 17)
+
+    res = ping6(pinger, "ff02::1",
+                count=1000, interval=100, packet_size=50)
+    assert res['stats']['packet_loss'] < 10
+
+    assert pktbuf(pinged).is_empty()
+    assert pktbuf(pinger).is_empty()
+
+
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes',
+                         [pytest.param(['iotlab-m3', 'nrf52840dk'])],
+                         indirect=['nodes'])
+def test_task13(riot_ctrl):
+    try:
+        pinger, pinged = (
+            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        )
+    except subprocess.CalledProcessError:
+        pytest.xfail(
+            "Experimental task. See also "
+            # pylint: disable=C0301
+            "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-758522278"  # noqa: E501
+        )
+    pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
+    pinged.ifconfig_set(pinged_netif, "channel", 26)
+    assert pinged_addr.startswith("fe80::")
+    pinger_netif, _ = lladdr(pinger.ifconfig_list())
+    pinger.ifconfig_set(pinger_netif, "channel", 26)
+
+    res = ping6(pinger, pinged_addr,
+                count=1000, interval=100, packet_size=100)
+    assert res['stats']['packet_loss'] < 10
+
     assert pktbuf(pinged).is_empty()
     assert pktbuf(pinger).is_empty()
