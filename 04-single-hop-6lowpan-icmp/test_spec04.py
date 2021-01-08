@@ -123,16 +123,23 @@ def test_task04(riot_ctrl):
     assert pktbuf(pinger).is_empty()
 
 
-@pytest.mark.local_only
-# nodes passed to riot_ctrl fixture
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['samr21-xpro', 'remote-revb'])],
-                         indirect=['nodes'])
+@pytest.mark.iotlab_creds
+# nodes and iotlab_site passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes, iotlab_site',
+                         [pytest.param(['samr21-xpro', 'firefly'], "lille")],
+                         indirect=['nodes', 'iotlab_site'])
 def test_task05(riot_ctrl):
-    pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-    )
+    try:
+        pinger, pinged = (
+            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        )
+    except subprocess.CalledProcessError:
+        pytest.xfail(
+            "Experimental task. See also "
+            # pylint: disable=C0301
+            "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-756756109"  # noqa: E501
+        )
     pinged_netif, _ = lladdr(pinged.ifconfig_list())
     pinged.ifconfig_set(pinged_netif, "channel", 17)
     pinger_netif, _ = lladdr(pinger.ifconfig_list())
@@ -146,16 +153,23 @@ def test_task05(riot_ctrl):
     assert pktbuf(pinger).is_empty()
 
 
-@pytest.mark.local_only
-# nodes passed to riot_ctrl fixture
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['samr21-xpro', 'remote-revb'])],
-                         indirect=['nodes'])
+@pytest.mark.iotlab_creds
+# nodes and iotlab_site passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes, iotlab_site',
+                         [pytest.param(['samr21-xpro', 'firefly'], "lille")],
+                         indirect=['nodes', 'iotlab_site'])
 def test_task06(riot_ctrl):
-    pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-    )
+    try:
+        pinger, pinged = (
+            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        )
+    except subprocess.CalledProcessError:
+        pytest.xfail(
+            "Experimental task. See also "
+            # pylint: disable=C0301
+            "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-758522278"  # noqa: E501
+        )
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
     pinged.ifconfig_set(pinged_netif, "channel", 26)
     assert pinged_addr.startswith("fe80::")

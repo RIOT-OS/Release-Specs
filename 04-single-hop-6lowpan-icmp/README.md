@@ -65,12 +65,12 @@ ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 
 <10% packets lost on the pinging node.
 
-Task #05 (Experimental) - ICMPv6 multicast echo with samr21-xpro/remote
+Task #05 (Experimental) - ICMPv6 multicast echo with samr21-xpro/cc2538
 =======================================================================
 ### Description
 
-ICMPv6 echo request/reply exchange between  a Zolertia Remote node (CC2538) and
-a samr21-xpro node.
+ICMPv6 echo request/reply exchange between a CC2538 (e.g Zolertia Remote,
+Firefly) and a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                17
 * Count:                  1000
@@ -82,12 +82,12 @@ a samr21-xpro node.
 
 <10% packets lost on the pinging node.
 
-Task #06 (Experimental) - ICMPv6 link-local echo with samr21-xpro/remote
-========================================================================
+Task #06 (Experimental)- ICMPv6 link-local echo with samr21-xpro/cc2538
+=======================================================================
 ### Description
 
-ICMPv6 echo request/reply exchange between a Zolertia Remote node (CC2538) and
-a samr21-xpro node.
+ICMPv6 echo request/reply exchange between a CC2538 (e.g Zolertia Remote,
+Firefly) and a samr21-xpro node.
 * Stack configuration:    6LoWPAN (default)
 * Channel:                26
 * Count:                  1000
