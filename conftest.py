@@ -176,6 +176,18 @@ def boards(request):
     return request.config.getoption("--boards")
 
 
+@pytest.fixture
+def iotlab_site(request):
+    """
+    IoT-LAB site where the nodes are reserved.
+    If not specified by a test, it's fetched from the IOTLAB_SITE environment
+    variable or falls back to DEFAULT_SITE.
+    """
+
+    return getattr(request, "param",
+                   os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
+
+
 def get_namefmt(request):
     name_fmt = {}
     if request.module:
@@ -187,7 +199,7 @@ def get_namefmt(request):
 
 
 @pytest.fixture
-def nodes(local, request, boards):
+def nodes(local, request, boards, iotlab_site):
     """
     Provides the nodes for a test as a list of RIOTCtrl objects
     """
@@ -212,7 +224,7 @@ def nodes(local, request, boards):
         exp = IoTLABExperiment(
             name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
-            site=os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
+            site=iotlab_site)
         RUNNING_EXPERIMENTS.append(exp)
         exp.start(duration=IOTLAB_EXPERIMENT_DURATION)
         yield ctrls
