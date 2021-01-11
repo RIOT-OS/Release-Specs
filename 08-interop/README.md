@@ -291,6 +291,7 @@ share the uplink connection with constrained nodes.
 
 An esp* board with the `gnrc_border_router` connects to your WiFi.
 The module `sock_dns` is used to resolve domain names.
+The module `gnrc_ipv6_nib_dns` is used to distribute DNS information through router advertisements.
 
 Two network interfaces are configured:
 
@@ -311,12 +312,12 @@ You'll need:
 ### Details
 
 Flash the `gnrc_border_router` example onto one of the esp* boards.
-Use the `sock_dns` module to enable name resolution.
+Use the `sock_dns` and `gnrc_ipv6_nib_dns` modules to enable name resolution.
 The credentials for the WiFi network will be passed on the command line.
 Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
 
 ```
-USEMODULE=sock_dns make -C examples/gnrc_border_router BOARD=esp<...> UPLINK=wifi WIFI_SSID=<your_ssd> WIFI_PASS=<your_password> PORT=<port> flash term
+USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/gnrc_border_router BOARD=esp<...> UPLINK=wifi WIFI_SSID=<your_ssd> WIFI_PASS=<your_password> PORT=<port> flash term
 ```
 
 ### Result
@@ -381,11 +382,11 @@ It should be able to access hosts on the internet.
 ### Details
 
 Flash the `gnrc_networking` example onto the second esp* board.
-Use the `sock_dns` module to enable name resolution.
+Use the `sock_dns` and `gnrc_ipv6_nib_dns` modules to enable name resolution.
 Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
 
 ```
-USEMODULE=sock_dns make -C examples/gnrc_networking BOARD=esp<…> PORT=<port> flash term
+USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/gnrc_networking BOARD=esp<…> PORT=<port> flash term
 ```
 
 ### Result
