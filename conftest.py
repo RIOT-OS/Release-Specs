@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import time
+
 from collections.abc import Iterable
 
 import pytest
@@ -19,6 +20,9 @@ from riotctrl.ctrl import RIOTCtrl
 import testutils.github
 import testutils.pytest
 from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
+
+from testutils.pytest import get_required_envvar
+from testutils import ttn
 
 
 IOTLAB_EXPERIMENT_DURATION = 120
@@ -125,6 +129,55 @@ def pytest_keyboard_interrupt(excinfo):
         child.stop_term()
     for exp in RUNNING_EXPERIMENTS:
         exp.stop()
+
+
+@pytest.fixture
+def app_id(request):
+    return ttn.APP_ID
+
+
+@pytest.fixture
+def dev_id(request):
+    if request.param == "otaa":
+        return ttn.DEVICE_ID
+
+    return ttn.DEVICE_ID_ABP
+
+
+@pytest.fixture
+def appkey(request):
+    return get_required_envvar("LORAWAN_APP_KEY")
+
+
+@pytest.fixture
+def appeui(request):
+    return ttn.APPEUI
+
+
+@pytest.fixture
+def deveui(request):
+    return ttn.DEVEUI
+
+
+@pytest.fixture
+def devaddr(request):
+    return ttn.DEVADDR
+
+
+@pytest.fixture
+def nwkskey(request):
+    return get_required_envvar("LORAWAN_NWK_SKEY")
+
+
+@pytest.fixture
+def appskey(request):
+    return get_required_envvar("LORAWAN_APP_SKEY")
+
+
+@pytest.fixture
+def mqtt_descriptor(request):
+    with ttn.TTNClient() as client:
+        yield client
 
 
 @pytest.fixture
