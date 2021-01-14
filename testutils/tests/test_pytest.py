@@ -1,3 +1,4 @@
+import os
 import pytest
 
 import testutils.pytest
@@ -63,3 +64,12 @@ def test_check_rc(monkeypatch, output, only_rc_allowed, expect_func):
     monkeypatch.setattr(testutils.pytest.subprocess, "check_output",
                         lambda *args, **kwargs: output)
     assert expect_func(testutils.pytest.check_rc(only_rc_allowed))
+
+
+def test_get_required_envvar():
+    os.environ['foo'] = 'bar'
+    assert testutils.pytest.get_required_envvar('foo') == 'bar'
+    del os.environ['foo']
+    with pytest.raises(RuntimeError) as error:
+        testutils.pytest.get_required_envvar('foo')
+    assert str(error.value) == "Missing foo env variable"
