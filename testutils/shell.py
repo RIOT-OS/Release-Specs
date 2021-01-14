@@ -70,6 +70,35 @@ class GNRCUDPClientSendParser(ShellInteractionParser):
         return res
 
 
+class GNRCLoRaWANSend(ShellInteraction):
+    """
+    Shell interaction for
+
+    - $RIOTBASE/examples/gnrc_lorawan
+
+    As the `send` shell command is application specific, a central
+    ShellInteraction in `riotctrl_shell` does not make much sense
+    """
+
+    @ShellInteraction.check_term
+    def send(self, netif, payload, timeout=-1, async_=False):
+        res = self.cmd("send {} \"{}\"".format(netif, payload),
+                       timeout=timeout, async_=async_)
+
+        recv_downlink = False
+        for line in res.splitlines():
+            if re.match("PKTDUMP", line):
+                recv_downlink = True
+
+            if re.match("Success", line):
+                return recv_downlink
+
+        raise RuntimeError(res)
+
+    def check_downlink_message(self):
+        pass
+
+
 class GNRCUDP(ShellInteraction):
     """
     Shell interaction for
@@ -163,6 +192,12 @@ def pktbuf(node):
     return res
 
 
+def ifconfig(node, netif=None):
+    out = node.ifconfig_list(netif=netif)
+    res = PARSERS["ifconfig"].parse(out)
+    return res
+
+
 def first_netif_and_addr_by_scope(ifconfig_out, scope):
     netifs = PARSERS["ifconfig"].parse(ifconfig_out)
     key = next(iter(netifs))
@@ -177,3 +212,15 @@ def lladdr(ifconfig_out):
 
 def global_addr(ifconfig_out):
     return first_netif_and_addr_by_scope(ifconfig_out, "global")
+
+
+def lorawan_netif(node):
+    netif = ifconfig(node)
+
+    iface = None
+    for k in netif:
+        if "sf" in netif[k]:
+            iface = int(k)
+            break
+
+    return iface
