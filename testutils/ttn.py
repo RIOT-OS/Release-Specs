@@ -56,3 +56,7 @@ class TTNClient:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.client.loop_stop()
+
+    def publish_to_dev(self, app_id, dev_id, **kwargs):
+        self.client.publish("{}/devices/{}/down".format(app_id, dev_id),
+                            json.dumps(kwargs))
