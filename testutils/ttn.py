@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import base64
 
 import paho.mqtt.client as mqtt
 from testutils.pytest import get_required_envvar
@@ -57,6 +58,10 @@ class TTNClient:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.mqtt.loop_stop()
 
-    def publish_to_dev(self, app_id, dev_id, **kwargs):
-        self.mqtt.publish("{}/devices/{}/down".format(app_id, dev_id),
+    def publish_to_dev(self, dev_id, **kwargs):
+        self.mqtt.publish("{}/devices/{}/down".format(APP_ID, dev_id),
                           json.dumps(kwargs))
+
+    def last_uplink_payload(self):
+        message = base64.b64decode(self.userdata["msg"]["payload_raw"])
+        return message.decode('ascii')
