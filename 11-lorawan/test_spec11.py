@@ -32,7 +32,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     assert node.send(iface, APP_PAYLOAD) is True
     time.sleep(LORAWAN_DUTY_CYCLE_TIME)
 
-    assert ttn_client.last_uplink_payload() == APP_PAYLOAD
+    assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
     # Enable confirmable messages
     node.ifconfig_flag(iface, "ack_req", enable=True)
@@ -40,7 +40,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     # Send a message. In this case we shouldn't receive a downlink.
     assert node.send(iface, APP_PAYLOAD) is False
 
-    assert ttn_client.last_uplink_payload() == APP_PAYLOAD
+    assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
 
 @pytest.mark.iotlab_creds
