@@ -38,10 +38,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
     - name: Test with tox
+      env:
+        RIOTBASE: ${{ github.workspace }}/RIOT
       run: |
-        # definition in env does not work since $GITHUB_WORKSPACE seems not to
-        # be accessible
-        export RIOTBASE="$GITHUB_WORKSPACE/RIOT"
         pyenv="py$(echo "${{ matrix.python-version }}" | tr -d .)"
         cd Release-Specs
         tox -e "test,${pyenv},flake8,pylint" -- --doctest-modules --self-test \
