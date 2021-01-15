@@ -42,21 +42,21 @@ class TTNClient:
         client = mqtt.Client()
         client.on_connect = on_connect
         client.on_message = on_message
-        self.client = client
+        self.mqtt = client
         self.userdata = {}
 
     def __enter__(self):
-        self.client.user_data_set(self.userdata)
-        self.client.tls_set()
+        self.mqtt.user_data_set(self.userdata)
+        self.mqtt.tls_set()
         password = get_required_envvar("LORAWAN_DL_KEY")
-        self.client.username_pw_set(APP_ID, password=password)
-        self.client.connect('eu.thethings.network', 8883, 60)
-        self.client.loop_start()
+        self.mqtt.username_pw_set(APP_ID, password=password)
+        self.mqtt.connect('eu.thethings.network', 8883, 60)
+        self.mqtt.loop_start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.client.loop_stop()
+        self.mqtt.loop_stop()
 
     def publish_to_dev(self, app_id, dev_id, **kwargs):
-        self.client.publish("{}/devices/{}/down".format(app_id, dev_id),
+        self.mqtt.publish("{}/devices/{}/down".format(app_id, dev_id),
                             json.dumps(kwargs))
