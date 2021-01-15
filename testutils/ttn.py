@@ -34,9 +34,8 @@ def on_message(client, userdata, msg):
     data = json.loads(msg.payload)
     if re.search("up", topic):
         userdata.msg.append(data)
-    else:
-        print("BIEN WN!")
-        userdata.ack.append(data)
+    elif re.search("down", topic):
+        userdata.ack = True
 
 
 class TTNClient:
@@ -46,7 +45,7 @@ class TTNClient:
         client.on_message = on_message
         self.mqtt = client
         self.msg = []
-        self.ack = []
+        self.ack = False
 
     def __enter__(self):
         self.mqtt.user_data_set(self)
@@ -70,3 +69,6 @@ class TTNClient:
             return base64.b64decode(base64_payload).decode('ascii')
         except IndexError as err:
             raise RuntimeError("Uplink queue empty") from err
+
+    def downlink_ack_received(self):
+        return self.ack
