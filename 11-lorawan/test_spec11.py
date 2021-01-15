@@ -18,7 +18,7 @@ class Shell(Ifconfig, GNRCLoRaWANSend):
     pass
 
 
-def run_lw_test(node, client, userdata, iface, app_id, dev_id):
+def run_lw_test(node, ttn_client, iface, app_id, dev_id):
     # Disable confirmable messages
     node.ifconfig_flag(iface, "ack_req", enable=False)
 
@@ -26,7 +26,7 @@ def run_lw_test(node, client, userdata, iface, app_id, dev_id):
     dl_data = {"payload_raw": DOWNLINK_PAYLOAD, "port": APP_PORT,
                "confirmed": True}
 
-    client.publish("{}/devices/{}/down".format(app_id, dev_id),
+    ttn_client.mqtt.publish("{}/devices/{}/down".format(app_id, dev_id),
                    json.dumps(dl_data))
 
     # Send a message. The send function will return True if the downlink is
@@ -34,7 +34,7 @@ def run_lw_test(node, client, userdata, iface, app_id, dev_id):
     assert node.send(iface, APP_PAYLOAD) is True
     time.sleep(3)
 
-    message = base64.b64decode(userdata["msg"]["payload_raw"])
+    message = base64.b64decode(ttn_client.userdata["msg"]["payload_raw"])
     assert message.decode('ascii') == APP_PAYLOAD
 
     # Enable confirmable messages
@@ -43,7 +43,7 @@ def run_lw_test(node, client, userdata, iface, app_id, dev_id):
     # Send a message. In this case we shouldn't receive a downlink.
     assert node.send(iface, APP_PAYLOAD) is False
 
-    message = base64.b64decode(userdata["msg"]["payload_raw"])
+    message = base64.b64decode(ttn_client.userdata["msg"]["payload_raw"])
     assert message.decode('ascii') == APP_PAYLOAD
 
 
@@ -55,9 +55,6 @@ def run_lw_test(node, client, userdata, iface, app_id, dev_id):
 def test_task05(riot_ctrl, ttn_client, app_id, dev_id, deveui,
                 appeui, appkey):
     node = riot_ctrl(0, APP, Shell)
-
-    client = ttn_client.client
-    userdata = ttn_client.userdata
 
     iface = lorawan_netif(node)
     assert iface
@@ -79,7 +76,7 @@ def test_task05(riot_ctrl, ttn_client, app_id, dev_id, deveui,
     netif = ifconfig(node, iface)
     assert netif[str(iface)]["link"] == "up"
 
-    run_lw_test(node, client, userdata, iface, app_id, dev_id)
+    run_lw_test(node, ttn_client, iface, app_id, dev_id)
 
 
 @pytest.mark.iotlab_creds
@@ -90,9 +87,6 @@ def test_task05(riot_ctrl, ttn_client, app_id, dev_id, deveui,
 def test_task06(riot_ctrl, ttn_client, app_id, dev_id,
                 devaddr, nwkskey, appskey):
     node = riot_ctrl(0, APP, Shell)
-
-    client = ttn_client.client
-    userdata = ttn_client.userdata
 
     iface = lorawan_netif(node)
     assert iface
@@ -115,4 +109,4 @@ def test_task06(riot_ctrl, ttn_client, app_id, dev_id,
     netif = ifconfig(node, iface)
     assert netif[str(iface)]["link"] == "up"
 
-    run_lw_test(node, client, userdata, iface, app_id, dev_id)
+    run_lw_test(node, ttn_client, iface, app_id, dev_id)
