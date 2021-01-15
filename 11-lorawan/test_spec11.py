@@ -41,6 +41,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     assert node.send(iface, APP_PAYLOAD) is False
 
     assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
+    assert ttn_client.downlink_ack_received()
 
 
 @pytest.mark.iotlab_creds
