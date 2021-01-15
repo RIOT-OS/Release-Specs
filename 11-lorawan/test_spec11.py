@@ -3,7 +3,6 @@ import pytest
 from testutils.shell import GNRCLoRaWANSend, ifconfig, lorawan_netif
 from riotctrl_shell.netif import Ifconfig
 import base64
-import json
 
 APP = 'examples/gnrc_lorawan'
 pytestmark = pytest.mark.rc_only()
@@ -26,8 +25,7 @@ def run_lw_test(node, ttn_client, iface, app_id, dev_id):
     dl_data = {"payload_raw": DOWNLINK_PAYLOAD, "port": APP_PORT,
                "confirmed": True}
 
-    ttn_client.mqtt.publish("{}/devices/{}/down".format(app_id, dev_id),
-                   json.dumps(dl_data))
+    ttn_client.publish_to_dev(dl_data)
 
     # Send a message. The send function will return True if the downlink is
     # receives (as expected)
