@@ -59,4 +59,4 @@ class TTNClient:
 
     def publish_to_dev(self, app_id, dev_id, **kwargs):
         self.mqtt.publish("{}/devices/{}/down".format(app_id, dev_id),
-                            json.dumps(kwargs))
+                          json.dumps(kwargs))
