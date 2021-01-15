@@ -175,7 +175,7 @@ def appskey():
 
 
 @pytest.fixture
-def mqtt_client():
+def ttn_client():
     with ttn.TTNClient() as client:
         yield client
 
