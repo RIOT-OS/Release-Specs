@@ -132,11 +132,6 @@ def pytest_keyboard_interrupt(excinfo):
 
 
 @pytest.fixture
-def app_id():
-    return ttn.APP_ID
-
-
-@pytest.fixture
 def dev_id(request):
     if request.param == "otaa":
         return ttn.DEVICE_ID
