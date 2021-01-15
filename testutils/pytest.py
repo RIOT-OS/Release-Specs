@@ -115,5 +115,5 @@ def get_required_envvar(envvar):
     """
     try:
         return os.environ[envvar]
-    except KeyError:
-        raise RuntimeError("Missing {} in env variables".format(envvar))
+    except KeyError as err:
+        raise RuntimeError("Missing {} env variable".format(envvar)) from err
