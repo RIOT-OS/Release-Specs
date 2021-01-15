@@ -132,7 +132,7 @@ def pytest_keyboard_interrupt(excinfo):
 
 
 @pytest.fixture
-def app_id(request):
+def app_id():
     return ttn.APP_ID
 
 
@@ -145,37 +145,37 @@ def dev_id(request):
 
 
 @pytest.fixture
-def appkey(request):
+def appkey():
     return get_required_envvar("LORAWAN_APP_KEY")
 
 
 @pytest.fixture
-def appeui(request):
+def appeui():
     return ttn.APPEUI
 
 
 @pytest.fixture
-def deveui(request):
+def deveui():
     return ttn.DEVEUI
 
 
 @pytest.fixture
-def devaddr(request):
+def devaddr():
     return ttn.DEVADDR
 
 
 @pytest.fixture
-def nwkskey(request):
+def nwkskey():
     return get_required_envvar("LORAWAN_NWK_SKEY")
 
 
 @pytest.fixture
-def appskey(request):
+def appskey():
     return get_required_envvar("LORAWAN_APP_SKEY")
 
 
 @pytest.fixture
-def mqtt_descriptor(request):
+def mqtt_descriptor():
     with ttn.TTNClient() as client:
         yield client
 
