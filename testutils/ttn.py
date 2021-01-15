@@ -33,9 +33,10 @@ def on_message(client, userdata, msg):
     topic = msg.topic
     data = json.loads(msg.payload)
     if re.search("up", topic):
-        userdata["msg"] = data
+        userdata.msg.append(data)
     else:
-        userdata["ack"] = data
+        print("BIEN WN!")
+        userdata.ack.append(data)
 
 
 class TTNClient:
@@ -44,10 +45,11 @@ class TTNClient:
         client.on_connect = on_connect
         client.on_message = on_message
         self.mqtt = client
-        self.userdata = {}
+        self.msg = []
+        self.ack = []
 
     def __enter__(self):
-        self.mqtt.user_data_set(self.userdata)
+        self.mqtt.user_data_set(self)
         self.mqtt.tls_set()
         password = get_required_envvar("LORAWAN_DL_KEY")
         self.mqtt.username_pw_set(APP_ID, password=password)
@@ -62,6 +64,9 @@ class TTNClient:
         self.mqtt.publish("{}/devices/{}/down".format(APP_ID, dev_id),
                           json.dumps(kwargs))
 
-    def last_uplink_payload(self):
-        message = base64.b64decode(self.userdata["msg"]["payload_raw"])
-        return message.decode('ascii')
+    def pop_uplink_payload(self):
+        try:
+            base64_payload = self.msg.pop()["payload_raw"]
+            return base64.b64decode(base64_payload).decode('ascii')
+        except IndexError as err:
+            raise RuntimeError("Uplink queue empty") from err
