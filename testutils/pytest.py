@@ -113,7 +113,7 @@ def get_required_envvar(envvar):
     """
     Returns the value of an environment variable. Raise RuntimeError otherwise.
     """
-    res = os.environ.get(envvar)
-    if not res:
+    try:
+        return os.environ[envvar]
+    except KeyError:
         raise RuntimeError("Missing {} in env variables".format(envvar))
-    return res
