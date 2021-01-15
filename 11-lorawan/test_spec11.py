@@ -52,12 +52,12 @@ def run_lw_test(node, client, userdata, iface, app_id, dev_id):
 @pytest.mark.parametrize('nodes,dev_id',
                          [pytest.param(['b-l072z-lrwan1'], "otaa")],
                          indirect=['nodes', 'dev_id'])
-def test_task05(riot_ctrl, mqtt_client, app_id, dev_id, deveui,
+def test_task05(riot_ctrl, ttn_client, app_id, dev_id, deveui,
                 appeui, appkey):
     node = riot_ctrl(0, APP, Shell)
 
-    client = mqtt_client.client
-    userdata = mqtt_client.userdata
+    client = ttn_client.client
+    userdata = ttn_client.userdata
 
     iface = lorawan_netif(node)
     assert iface
@@ -87,12 +87,12 @@ def test_task05(riot_ctrl, mqtt_client, app_id, dev_id, deveui,
 @pytest.mark.parametrize('nodes,dev_id',
                          [pytest.param(['b-l072z-lrwan1'], "abp")],
                          indirect=['nodes', 'dev_id'])
-def test_task06(riot_ctrl, mqtt_client, app_id, dev_id,
+def test_task06(riot_ctrl, ttn_client, app_id, dev_id,
                 devaddr, nwkskey, appskey):
     node = riot_ctrl(0, APP, Shell)
 
-    client = mqtt_client.client
-    userdata = mqtt_client.userdata
+    client = ttn_client.client
+    userdata = ttn_client.userdata
 
     iface = lorawan_netif(node)
     assert iface
