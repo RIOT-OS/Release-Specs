@@ -72,6 +72,8 @@ applications if needed), that enable to execute it's tasks to the highest degree
 of automation possible. The long-term goal is the complete automated execution
 of all tasks, though there might be some cases where this is not achievable...
 
+[REPLACED.md]: ./REPLACED.md
+
 Tracking
 --------
 
