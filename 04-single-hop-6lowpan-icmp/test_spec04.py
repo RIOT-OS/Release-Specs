@@ -348,6 +348,7 @@ def test_task11(riot_ctrl):
         assert pktbuf(node).is_empty()
 
 
+@pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['iotlab-m3', 'nrf52840dk'])],
@@ -377,6 +378,7 @@ def test_task12(riot_ctrl):
     assert pktbuf(pinger).is_empty()
 
 
+@pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['iotlab-m3', 'nrf52840dk'])],
