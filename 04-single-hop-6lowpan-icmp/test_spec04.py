@@ -1,5 +1,4 @@
 import subprocess
-import time
 
 import pytest
 
@@ -7,7 +6,7 @@ from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
 
 from testutils.asyncio import wait_for_futures
-from testutils.shell import ping6, pktbuf, lladdr
+from testutils.shell import ping6, lladdr, check_pktbuf
 
 
 APP = 'examples/gnrc_networking'
@@ -40,8 +39,7 @@ def test_task01(riot_ctrl):
                 count=1000, interval=20, packet_size=0)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -64,8 +62,7 @@ def test_task02(riot_ctrl):
                 count=1000, interval=100, packet_size=50)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -89,8 +86,7 @@ def test_task03(riot_ctrl):
                 count=500, interval=300, packet_size=1024)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -119,8 +115,7 @@ def test_task04(riot_ctrl):
     assert res['stats']['packet_loss'] < 10
 
     pinged.start_term()
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -149,8 +144,7 @@ def test_task05(riot_ctrl):
                 count=1000, interval=100, packet_size=50)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -180,8 +174,7 @@ def test_task06(riot_ctrl):
                 count=1000, interval=100, packet_size=100)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.local_only
@@ -204,8 +197,7 @@ def test_task07(riot_ctrl):
                 count=1000, interval=100, packet_size=50)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.local_only
@@ -229,8 +221,7 @@ def test_task08(riot_ctrl):
                 count=1000, interval=350, packet_size=100)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -264,11 +255,7 @@ def test_task09(riot_ctrl):
         futures.append(out)
     wait_for_futures(futures)
 
-    time.sleep(60)
-    for node in nodes:
-        # add print to know which node's packet buffer is not empty on error
-        print("check pktbuf on", node.riotctrl.env.get("PORT"))
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -298,9 +285,7 @@ def test_task10(riot_ctrl):
         )
     assert res['stats']['packet_loss'] < 10
 
-    time.sleep(60)
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -341,11 +326,7 @@ def test_task11(riot_ctrl):
         futures.append(out)
     wait_for_futures(futures)
 
-    time.sleep(60)
-    for node in nodes:
-        # add print to know which node's packet buffer is not empty on error
-        print("check pktbuf on", node.riotctrl.env.get("PORT"))
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -374,8 +355,7 @@ def test_task12(riot_ctrl):
                 count=1000, interval=100, packet_size=50)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -405,5 +385,4 @@ def test_task13(riot_ctrl):
                 count=1000, interval=100, packet_size=100)
     assert res['stats']['packet_loss'] < 10
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
