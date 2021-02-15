@@ -1,12 +1,10 @@
-import time
-
 import pytest
 
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
 
 from testutils.native import bridged
-from testutils.shell import ping6, pktbuf, lladdr
+from testutils.shell import ping6, lladdr, check_pktbuf
 
 
 APP = 'examples/gnrc_networking'
@@ -43,8 +41,7 @@ def test_task01(riot_ctrl):
                 count=100, interval=10, packet_size=1024)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.iotlab_creds
@@ -69,9 +66,7 @@ def test_task02(riot_ctrl):
                 count=100, interval=300, packet_size=1024)
     assert res['stats']['packet_loss'] < 10
 
-    time.sleep(10)
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -99,8 +94,7 @@ def test_task03(riot_ctrl):
                 count=10, interval=10, packet_size=1024)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -127,5 +121,4 @@ def test_task04(riot_ctrl):
                 count=10, interval=300, packet_size=1024)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
