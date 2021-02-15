@@ -1,12 +1,10 @@
-import time
-
 import pytest
 
 from riotctrl_shell.gnrc import GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
 
 from testutils.native import bridged
-from testutils.shell import pktbuf, lladdr, GNRCUDP
+from testutils.shell import lladdr, GNRCUDP, check_pktbuf
 
 
 APP = 'tests/gnrc_udp'
@@ -43,9 +41,7 @@ def test_task01(riot_ctrl):
         assert packet_loss < 5
         server.udp_server_stop()
 
-    time.sleep(10)
-    assert pktbuf(nodes[0]).is_empty()
-    assert pktbuf(nodes[1]).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -74,9 +70,7 @@ def test_task02(riot_ctrl):
         assert packet_loss < 5
         server.udp_server_stop()
 
-    time.sleep(10)
-    assert pktbuf(nodes[0]).is_empty()
-    assert pktbuf(nodes[1]).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.skipif(not bridged(["tap0"]),
@@ -88,9 +82,7 @@ def test_task03(riot_ctrl):
     node = riot_ctrl(0, APP, Shell, port="tap0")
     node.udp_client_send("fe80::db:b7ec", 1337, count=1000,
                          delay_ms=0, payload=8)
-    time.sleep(10)
-    assert pktbuf(node).is_empty()
-    assert pktbuf(node).is_empty()
+    check_pktbuf(node)
 
 
 @pytest.mark.iotlab_creds
@@ -101,9 +93,7 @@ def test_task04(riot_ctrl):
     node = riot_ctrl(0, APP, Shell)
     node.udp_client_send("fe80::db:b7ec", 1337, count=1000,
                          delay_ms=0, payload=8)
-    time.sleep(10)
-    assert pktbuf(node).is_empty()
-    assert pktbuf(node).is_empty()
+    check_pktbuf(node)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -129,8 +119,7 @@ def test_task05(riot_ctrl):
         assert packet_loss <= 10
         server.udp_server_stop()
 
-    assert pktbuf(nodes[0]).is_empty()
-    assert pktbuf(nodes[1]).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -158,5 +147,4 @@ def test_task06(riot_ctrl):
         assert packet_loss <= 10
         server.udp_server_stop()
 
-    assert pktbuf(nodes[0]).is_empty()
-    assert pktbuf(nodes[1]).is_empty()
+    check_pktbuf(*nodes)
