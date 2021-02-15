@@ -15,6 +15,18 @@ from riotctrl_shell.tests.common import init_ctrl
 
 import testutils.shell
 
+STRING_PKTBUF_EMPTY = """
+packet buffer: first byte: 0x5660dce0, last byte: 0x5660fce0 (size: 8192)
+  position of last byte used: 1792
+~ unused: 0x5660dce0 (next: (nil), size: 8192) ~
+"""
+
+STRING_PKTBUF_NOT_EMPTY = """
+packet buffer: first byte: 0x5660dce0, last byte: 0x5660fce0 (size: 8192)
+  position of last byte used: 1792
+~ unused: 0x5660de00 (next: (nil), size: 7904) ~
+"""
+
 
 class ExpectMockSpawn(riotctrl_shell.tests.common.MockSpawn):
     def __init__(self, *args, **kwargs):
@@ -134,10 +146,7 @@ def test_ping6():
 
 
 def test_pktbuf_empty():
-    ctrl = init_ctrl(output="""
-packet buffer: first byte: 0x5660dce0, last byte: 0x5660fce0 (size: 8192)
-  position of last byte used: 1792
-~ unused: 0x5660dce0 (next: (nil), size: 8192) ~""")
+    ctrl = init_ctrl(output=STRING_PKTBUF_EMPTY)
     shell = riotctrl_shell.gnrc.GNRCPktbufStats(ctrl)
     pktbuf_res = testutils.shell.pktbuf(shell)
     assert pktbuf_res
@@ -145,10 +154,7 @@ packet buffer: first byte: 0x5660dce0, last byte: 0x5660fce0 (size: 8192)
 
 
 def test_pktbuf_not_empty():
-    ctrl = init_ctrl(output="""
-packet buffer: first byte: 0x5660dce0, last byte: 0x5660fce0 (size: 8192)
-  position of last byte used: 1792
-~ unused: 0x5660de00 (next: (nil), size: 7904) ~""")
+    ctrl = init_ctrl(output=STRING_PKTBUF_NOT_EMPTY)
     shell = riotctrl_shell.gnrc.GNRCPktbufStats(ctrl)
     pktbuf_res = testutils.shell.pktbuf(shell)
     assert pktbuf_res
@@ -209,3 +215,30 @@ Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           inet6 group: ff02::1
           inet6 group: ff02::1:ff3d:dfcb
             """)
+
+
+def test_check_pktbuf_empty(monkeypatch):
+    requested_secs = []
+    nodes = []
+
+    def sleep(secs):
+        requested_secs.append(secs)
+
+    ctrl = init_ctrl(output=STRING_PKTBUF_EMPTY)
+    nodes.append(riotctrl_shell.gnrc.GNRCPktbufStats(ctrl))
+
+    ctrl = init_ctrl(output=STRING_PKTBUF_NOT_EMPTY)
+    nodes.append(riotctrl_shell.gnrc.GNRCPktbufStats(ctrl))
+
+    monkeypatch.setattr("time.sleep", sleep)
+    testutils.shell.check_pktbuf(nodes[0], wait=10)
+
+    assert len(requested_secs) == 1
+    assert requested_secs.pop() == 10
+
+    testutils.shell.check_pktbuf(nodes[0], nodes[0], wait=0)
+
+    assert len(requested_secs) == 0
+
+    with pytest.raises(AssertionError):
+        testutils.shell.check_pktbuf(*nodes)

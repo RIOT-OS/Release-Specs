@@ -6,6 +6,7 @@ ShellInteractionParsers
 
 import math
 import re
+import time
 
 import pexpect
 from riotctrl.shell import ShellInteraction, ShellInteractionParser
@@ -177,3 +178,10 @@ def lladdr(ifconfig_out):
 
 def global_addr(ifconfig_out):
     return first_netif_and_addr_by_scope(ifconfig_out, "global")
+
+
+def check_pktbuf(*nodes, wait=10):
+    if wait:
+        time.sleep(wait)
+    for n in nodes:
+        assert pktbuf(n).is_empty()
