@@ -84,7 +84,7 @@ def test_task01(riot_ctrl, log_nodes):
 
     node_netif, _ = lladdr(node.ifconfig_list())
     node.ifconfig_add(node_netif, NODE_ULA)
-
+    # pylint: disable=R1732
     aiocoap_rd = subprocess.Popen(
         ["aiocoap-rd"],
         stdout=None if log_nodes else subprocess.DEVNULL,
