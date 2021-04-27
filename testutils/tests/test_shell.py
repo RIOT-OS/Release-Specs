@@ -10,6 +10,7 @@ import pexpect
 import pytest
 
 import riotctrl_shell.gnrc
+import riotctrl_shell.netif
 import riotctrl_shell.tests.common
 from riotctrl_shell.tests.common import init_ctrl
 
@@ -242,3 +243,85 @@ def test_check_pktbuf_empty(monkeypatch):
 
     with pytest.raises(AssertionError):
         testutils.shell.check_pktbuf(*nodes)
+
+
+def test_ifconfig():
+    ctrl = init_ctrl(output="""
+ifconfig
+Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4/5  Link: up
+           TX-Power: 14dBm  State: SLEEP  Demod margin.: 0  Num gateways.: 0
+          IQ_INVERT
+          RX_SINGLE  OTAA  L2-PDU:2559
+          """)  # noqa: E501
+    shell = riotctrl_shell.netif.Ifconfig(ctrl)
+    res = testutils.shell.ifconfig(shell)
+    assert len(res) == 1
+    assert '3' in res
+
+
+def test_lorawan_netif_None():
+    ctrl = init_ctrl(output="""
+ifconfig
+Iface  7  HWaddr: 76:F5:98:9F:40:22
+          L2-PDU:1500  MTU:1500  HL:64  RTR
+          Source address length: 6
+          Link type: wired
+          inet6 addr: fe80::74f5:98ff:fe9f:4022  scope: link  VAL
+          inet6 addr: fe80::2  scope: link  VAL
+          inet6 group: ff02::2
+          inet6 group: ff02::1
+          inet6 group: ff02::1:ff9f:4022
+          inet6 group: ff02::1:ff00:2
+          """)
+    shell = riotctrl_shell.netif.Ifconfig(ctrl)
+    res = testutils.shell.lorawan_netif(shell)
+    assert res is None
+
+
+def test_lorawan_netif_no_lorawan():
+    ctrl = init_ctrl(output="""
+ifconfig
+Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4/5  Link: up
+           TX-Power: 14dBm  State: SLEEP  Demod margin.: 0  Num gateways.: 0
+          IQ_INVERT
+          RX_SINGLE  OTAA  L2-PDU:2559
+          """)  # noqa: E501
+    shell = riotctrl_shell.netif.Ifconfig(ctrl)
+    res = testutils.shell.lorawan_netif(shell)
+    assert res == 3
+
+
+def test_gnrc_lorawan_send_success():
+    ctrl = init_ctrl(output="""
+send 3 "Hello RIOT!" 2
+Successfully sent packet
+""")
+    shell = testutils.shell.GNRCLoRaWANSend(ctrl)
+    res = shell.send(3, "Hello RIOT!")
+    assert res is False
+
+
+def test_gnrc_lorawan_send_success_downlink():
+    ctrl = init_ctrl(output="""
+send 3 "Hello RIOT!" 2
+PKTDUMP: data received:
+~~ SNIP  0 - size:   4 byte, type: NETTYPE_LORAWAN (1)
+00000000  AA  AA  AA  AA
+~~ PKT    -  1 snips, total size:   4 byte
+Successfully sent packet
+""")
+    shell = testutils.shell.GNRCLoRaWANSend(ctrl)
+    res = shell.send(3, "Hello RIOT!")
+    assert res is True
+
+
+def test_gnrc_lorawan_send_fail():
+    LORAWAN_FAIL_TO_SEND = """
+send 3 "Hello RIOT!" 4
+Error sending packet: (status: -116)
+"""
+    ctrl = init_ctrl(output=LORAWAN_FAIL_TO_SEND)
+    shell = testutils.shell.GNRCLoRaWANSend(ctrl)
+    with pytest.raises(RuntimeError) as error:
+        shell.send(3, "Hello RIOT!")
+    assert str(error.value) == LORAWAN_FAIL_TO_SEND

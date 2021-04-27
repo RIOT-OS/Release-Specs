@@ -64,7 +64,8 @@ def test_get_repo_error(caplog):
     class MockGithub():
         # pylint: disable=R0201,W0613
         def get_repo(self, name):
-            raise testutils.github.GithubException(404, data="I am not repo")
+            raise testutils.github.GithubException(404, "I am not repo",
+                                                   None)
 
     with caplog.at_level(logging.ERROR):
         assert not testutils.github.get_repo(MockGithub())
@@ -116,7 +117,8 @@ def test_get_rc_tracking_issue_error(caplog):
     class MockRepo():
         # pylint: disable=R0201,W0613
         def get_issues(self, *args, **kwargs):
-            raise testutils.github.GithubException(403, "You don't get issues")
+            raise testutils.github.GithubException(403, "You don't get issues",
+                                                   None)
 
     rc = {"release": "2456.13", "candidate": "RC74"}
     repo = MockRepo()
@@ -180,7 +182,7 @@ def test_mark_task_done_error1(caplog, raiser):
 
     # pylint: disable=W0613
     def _raise(*args, **kwargs):
-        raise testutils.github.GithubException(404, "This went wrong")
+        raise testutils.github.GithubException(404, "This went wrong", None)
 
     issue = MockIssue(" - [ ] foobar")
     setattr(issue, raiser, _raise)
@@ -199,7 +201,8 @@ def test_mark_task_done_error2(caplog):
 
         @property
         def body(self):
-            raise testutils.github.GithubException(404, "This went wrong")
+            raise testutils.github.GithubException(404, "This went wrong",
+                                                   None)
 
         # pylint: disable=W0613
         def edit(self, body, *args, **kwargs):
@@ -372,7 +375,7 @@ def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
 
         # pylint: disable=R0201,W0613
         def create_comment(self, comment):
-            raise testutils.github.GithubException(300, "Nope")
+            raise testutils.github.GithubException(300, "Nope", None)
 
     monkeypatch.setattr(testutils.github.os, "environ", {})
     report = _get_mock_report(outcome, longrepr, sections)
@@ -511,7 +514,7 @@ def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
     if task is None:
         # pylint: disable=W0613
         def _raise(*args, **kwargs):
-            raise testutils.github.GithubException(420, "Fail!")
+            raise testutils.github.GithubException(420, "Fail!", None)
         monkeypatch.setattr(testutils.github, "find_task_text", _raise)
     else:
         monkeypatch.setattr(testutils.github, "find_task_text",

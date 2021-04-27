@@ -107,3 +107,13 @@ def check_rc(only_rc_allowed):
             reason="RIOT version under test is not a release candidate"
         )
     return rc_only_mark
+
+
+def get_required_envvar(envvar):
+    """
+    Returns the value of an environment variable. Raise RuntimeError otherwise.
+    """
+    try:
+        return os.environ[envvar]
+    except KeyError as err:
+        raise RuntimeError("Missing {} env variable".format(envvar)) from err
