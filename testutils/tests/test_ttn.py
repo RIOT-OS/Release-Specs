@@ -108,7 +108,7 @@ class MockMQTTClient:
 
 @pytest.fixture(autouse=True)
 def replace_mqtt(monkeypatch):
-    monkeypatch.setenv("LORAWAN_DL_KEY", "dl_key")
+    monkeypatch.setenv("TTN_DL_KEY", "dl_key")
     monkeypatch.setattr(testutils.ttn, "mqtt", MockMQTTClient)
 
 

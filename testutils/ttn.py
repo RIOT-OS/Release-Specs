@@ -6,12 +6,9 @@ import base64
 import paho.mqtt.client as mqtt
 from testutils.pytest import get_required_envvar
 
-APP_ID = os.environ.get("TTN_APP_ID", "11-lorawan")
-DEVICE_ID = os.environ.get("TTN_DEV_ID", "riot_lorawan_1")
+APP_ID = os.environ.get("TTN_APP_ID", "riot-test")
+DEVICE_ID = os.environ.get("TTN_DEV_ID", "riot-examples-lorawan-otaa")
 DEVICE_ID_ABP = os.environ.get("TTN_DEV_ID_ABP", "riot_lorawan_1_abp")
-DEVEUI = os.environ.get("DEVEUI", "009E40529364FBE6")
-APPEUI = os.environ.get("APPEUI", "70B3D57ED003B26A")
-DEVADDR = os.environ.get("DEVADDR", "26011EB0")
 
 
 def on_connect(client, userdata, flags, rc):
@@ -50,7 +47,12 @@ class TTNClient:
     def __enter__(self):
         self.mqtt.user_data_set(self)
         self.mqtt.tls_set()
-        password = get_required_envvar("LORAWAN_DL_KEY")
+        try:
+            password = get_required_envvar("TTN_DL_KEY")
+        except RuntimeError:
+            # Deprecated, keep old name as long as RIOT-OS/RIOT release
+            # test github action is configured to use the old name
+            password = get_required_envvar("LORAWAN_DL_KEY")
         self.mqtt.username_pw_set(APP_ID, password=password)
         self.mqtt.connect('eu.thethings.network', 8883, 60)
         self.mqtt.loop_start()
