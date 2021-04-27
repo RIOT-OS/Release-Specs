@@ -306,6 +306,17 @@ tox -- -k spec03 -k "task01 or task05"
 
 is identical to the first example.
 
+##### Using an env file to keep persistent environment variables
+
+Most tests require a set of user specific environment variable (path to
+RIOTBASE, LoRaWAN keys, etc). In order to keep these variables persistent, a
+.devdata.env file can be place in the root directory. For that, please make
+a copy of ".devdata.env.sample" and modify accordingly:
+
+```sh
+cp .devdata.env.sample .devdata.env
+```
+
 [pytest]: https://pytest.org
 [riotctrl]: https://pypi.org/project/riotctrl/
 [IoT-LAB saclay site]: https://www.iot-lab.info/deployment/saclay/
