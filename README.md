@@ -185,6 +185,41 @@ eval $(ssh-agent)
 ssh-add
 ```
 
+#### The Things Network Requirements
+
+To be able to run the automatic tests in spec [11-lorawan] a valid TTN account
+is required, and an application needs to be created with a device configure to
+do `OTAA` and another configured to do `ABP`.
+
+- [Create a TTN account]
+- [Add an application]. Take note of:
+  - Application ID as `TTN_APP_ID`
+- [Register your device], one for `ABP` and a second for `OTAA`. Take note of:
+  - ABP device ID as `TTN_DEV_ID_ABP`
+  - OTAA device ID as `TTN_DEV_ID`
+- Personalize a first device for OTAA (this is the default configuration).
+  Take note of:
+  - Device EUI as `DEVEUI`
+  - Application EUI as `APPEUI`
+  - App Key as `APPKEY`
+- [Personalize device for ABP] and disable **Frame counter checks** to avoid
+  having to reset the frame counters before every test run. Take note of:
+  - Device Address as `DEVADDR`
+  - Network Session Key as `NWKSKEY`
+  - App Session Key as `APPSKEY`
+- [Add an access key] to be able to use the MQTT API, the key must at least have
+  access to `messages`. Take note of:
+  - Access Key as `TTN_DL_KEY`
+
+The listed variables need to be set in the environment.
+
+[11-lorawan]: 11-lorawan/test_spec11.py
+[Create a TTN account]: https://www.thethingsnetwork.org/docs/devices/node/quick-start/#create-an-account
+[Add an application]: https://www.thethingsnetwork.org/docs/applications/add/
+[Register your device]: https://www.thethingsnetwork.org/docs/devices/node/quick-start/#register-your-device
+[Personalize device for ABP]: https://www.thethingsnetwork.org/docs/devices/registration/#personalize-device-for-abp
+[Add an access key]: https://www.thethingsnetwork.org/docs/applications/mqtt/quick-start/index.html#credentials
+
 #### Local Requirements
 
 To be able to run tests locally the following requirements must be fulfilled:
