@@ -277,10 +277,12 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
+        print("-------------------------------------------before flash")
         node.make_run(['flash'], check=True,
                       stdout=None if log_nodes else subprocess.DEVNULL,
                       stderr=None if log_nodes else subprocess.DEVNULL)
         termargs = {}
+        print("-------------------------------------------after flash")
         if log_nodes:
             termargs["logfile"] = sys.stdout
         RUNNING_CTRLS.append(node)

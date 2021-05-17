@@ -3,5 +3,6 @@ iotlabcli
 pygithub
 pytest
 pytest-cov
-riotctrl
 scapy
+pyserial
+pexpect
