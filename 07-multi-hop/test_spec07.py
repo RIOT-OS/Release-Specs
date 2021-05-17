@@ -5,8 +5,8 @@ import pytest
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
 
-from testutils.shell import pktbuf, lladdr, global_addr, ping6, GNRCUDP, \
-                            PARSERS
+from testutils.shell import lladdr, global_addr, ping6, GNRCUDP, \
+                            PARSERS, check_pktbuf
 
 
 APP = 'tests/gnrc_udp'
@@ -126,9 +126,7 @@ def test_task01(statically_routed_nodes):
 
     res = ping6(pinger, TO_ADDR, count=100, packet_size=50, interval=100)
     assert res["stats"]["packet_loss"] < 20
-    time.sleep(10)
-    for node in statically_routed_nodes:
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*statically_routed_nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -148,9 +146,7 @@ def test_task02(statically_routed_nodes):
         packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
         assert packet_loss < 10
         server.udp_server_stop()
-    time.sleep(10)
-    for node in statically_routed_nodes:
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*statically_routed_nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -165,9 +161,7 @@ def test_task03(rpl_nodes):
     _, root_addr = global_addr(rpl_nodes[0].ifconfig_list())
     res = ping6(pinger, root_addr, count=100, packet_size=50, interval=100)
     assert res["stats"]["packet_loss"] < 20
-    time.sleep(10)
-    for node in rpl_nodes:
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*rpl_nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -187,9 +181,7 @@ def test_task04(rpl_nodes):
         packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
         assert packet_loss < 10
         server.udp_server_stop()
-    time.sleep(10)
-    for node in rpl_nodes:
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*rpl_nodes)
 
 
 @pytest.mark.iotlab_creds
@@ -216,6 +208,4 @@ def test_task05(rpl_nodes):
             )
         assert packet_loss < 10
         server.udp_server_stop()
-    time.sleep(10)
-    for node in rpl_nodes:
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*rpl_nodes)

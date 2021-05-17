@@ -66,7 +66,7 @@ def test_task08(riot_ctrl):
     _, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
     assert gnrc_addr.startswith("fe80::")
     res = lwip_node.cmd("ifconfig")
-    m = re.search(r"inet6\s+(?P<addr>fe80:[0-9a-f:]+)", res)
+    m = re.search(r"inet6 addr:\s+(?P<addr>fe80:[0-9a-f:]+)", res)
     assert m is not None
     lwip_addr = m.group("addr")
 

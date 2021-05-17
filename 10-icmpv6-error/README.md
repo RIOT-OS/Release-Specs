@@ -219,9 +219,10 @@ hop link but not the second hop link via a native node from a Linux host.
         # ip route add affe::/64 via "<native link local IPv6 address>" \
                 dev tapbr0
 
-3. Compile `gnrc_networking` for `native` with `socket_zep` module
+3. Compile `gnrc_networking` for `native` with both `socket_zep` and
+   `netdev_tap` module
 
-        $ GNRC_NETIF_NUMOF=2 USEMODULE=socket_zep \
+        $ GNRC_NETIF_NUMOF=2 USEMODULE="socket_zep netdev_tap" \
           CFLAGS=-DGNRC_IPV6_NIB_CONF_SLAAC=1 TERMFLAGS="-z [::]:17755 tap0" \
             make -C examples/gnrc_networking clean all term
 

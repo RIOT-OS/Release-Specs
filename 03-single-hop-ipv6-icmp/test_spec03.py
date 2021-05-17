@@ -1,5 +1,4 @@
 import sys
-import time
 
 import pexpect
 import pexpect.replwrap
@@ -10,7 +9,7 @@ from riotctrl_shell.netif import Ifconfig
 
 from testutils.asyncio import wait_for_futures, timeout_futures
 from testutils.native import bridged, bridge, get_ping_cmd, interface_exists
-from testutils.shell import ping6, pktbuf, lladdr
+from testutils.shell import ping6, lladdr, check_pktbuf
 
 
 APP = 'tests/gnrc_udp'
@@ -37,8 +36,7 @@ def test_task01(riot_ctrl):
     res = ping6(pinger, "ff02::1", count=1000, packet_size=0, interval=10)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -60,8 +58,7 @@ def test_task02(riot_ctrl):
                 count=1000, interval=100, packet_size=1024)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -83,8 +80,7 @@ def test_task03(riot_ctrl):
                 count=3600, interval=1000, packet_size=1024)
     assert res['stats']['packet_loss'] < 1
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)
 
 
 @pytest.mark.skipif(not interface_exists("tap0"),
@@ -122,8 +118,7 @@ def test_task04(riot_ctrl, log_nodes):
             # interrupt prevailing `ping6`s
             pinger.child.sendintr()
 
-    time.sleep(60)
-    assert pktbuf(node).is_empty()
+    check_pktbuf(node)
 
 
 @pytest.mark.xfail(reason="See https://github.com/RIOT-OS/RIOT/issues/12565")
@@ -154,11 +149,7 @@ def test_task05(nodes, riot_ctrl):
         futures.append(finish_task05(pinger, out))
     wait_for_futures(futures)
 
-    time.sleep(120)
-    for node in reversed(nodes):
-        # add print to know which node's packet buffer is not empty on error
-        print("check pktbuf on", node.riotctrl.env.get("PORT"))
-        assert pktbuf(node).is_empty()
+    check_pktbuf(*nodes)
 
 
 @pytest.mark.skipif(not bridged(["tap0", "tap1"]),
@@ -179,7 +170,5 @@ def test_task06(riot_ctrl):
     res = ping6(pinger, pinged_addr,
                 count=1000, interval=100, packet_size=2048)
     assert res['stats']['packet_loss'] < 1
-    time.sleep(60)
 
-    assert pktbuf(pinged).is_empty()
-    assert pktbuf(pinger).is_empty()
+    check_pktbuf(pinged, pinger)

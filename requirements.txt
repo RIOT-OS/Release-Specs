@@ -7,3 +7,5 @@ riotctrl
 scapy
 pyserial
 pexpect
+paho-mqtt
+

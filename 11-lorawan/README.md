@@ -188,3 +188,115 @@ ST B-L072Z-LRWAN1 or any other STM32 L0/L1 Nucleo 64 with an Mbed LoRa shield.
 
 The erase subcommand correctly erases stored parameters. All saved parameters
 are correctly reloaded after a reboot.
+
+Task #05 - GNRC LoRaWAN (Over The Air Activation)
+=================================================
+
+### Description
+
+GNRC LoRaWAN is able to join a LoRaWAN network using Over The Air Activation and
+send/receive LoRaWAN frames.
+
+### Testing procedure
+
+- Build and flash the `examples/gnrc_lorawan`
+
+      $ make BOARD=<board> -C examples/gnrc_lorawan flash term
+
+- Configure the device EUI, application EUI, application the `ifconfig` command
+
+      > ifconfig <lw_if> set deveui 0011223344556677
+      > ifconfig <lw_if> set appeui 0011223344556677
+      > ifconfig <lw_if> set appkey 00112233445566778899AABBCCDDEEFF
+
+- Configure join method to OTAA
+      > ifconfig <lw_if> otaa
+
+- Trigger the join procedure
+      > ifconfig <lw_if> up
+
+- Wait for the OTAA procedure to finish (usually around 6 seconds). After that,
+  `ifconfig` should report that the interface is up (Link: up)
+      > ifconfig <lw_if>
+
+- Schedule a confirmable downlink message to this node (port 2). This is done
+  in the Network Server (if using TTN, this is available in the Overview tab
+  of the device)
+
+- Configure GNRC LoRaWAN to send unconfirmed messages.
+      > ifconfig <lw_if> -ack_req
+
+- Send a message using the `send` command
+      > send <lw_if> "This is an unconfirmed RIOT message!"
+
+- After 2 seconds the downlink message should be shown in the RIOT shell.
+
+- Configure GNRC LoRaWAN to send confirmed messages.
+      > ifconfig <lw_if> ack_req
+
+- Send a message using the `send` command
+      > send <lw_if> "This is a confirmed RIOT message!"
+
+### Result
+
+GNRC LoRAWAN should be able to send and receive data from the Network Server.
+Both send functions should print `Successfully sent packet`
+The Network Server should notify the reception of an ACK (carried with the
+frame right after the node receives data)
+
+Task #06 - GNRC LoRaWAN (ABP)
+=============================
+
+### Description
+
+GNRC LoRaWAN is able to join a LoRaWAN network using Activation By
+Personalization  and send/receive LoRaWAN frames.
+
+### Testing procedure
+
+- Build and flash the `examples/gnrc_lorawan`
+
+      $ make BOARD=<board> -C examples/gnrc_lorawan flash term
+
+- Configure the DevAddr, Network SKey and App SKey using the `ifconfig` command.
+  The RX2 DataRate is also set. In the case of TTN, this value is 3.
+
+      > ifconfig <lw_if> set addr 0011223344556677
+      > ifconfig <lw_if> set nwkskey 00112233445566778899AABBCCDDEEFF
+      > ifconfig <lw_if> set appskey 00112233445566778899AABBCCDDEEFF
+      > ifconfig <lw_if> set rx2_dr 3
+
+- Configure join method to ABP
+      > ifconfig <lw_if> -otaa
+
+- Trigger the join procedure
+      > ifconfig <lw_if> up
+
+- The `ifconfig` command should immediately report `Link: up`.
+  interface.
+      > ifconfig <lw_if>
+
+- Schedule a confirmable downlink message to this node (port 2). This is done
+  in the Network Server (if using TTN, this is available in the Overview tab
+  of the device)
+
+- Configure GNRC LoRaWAN to send unconfirmed messages.
+      > ifconfig <lw_if> -ack_req
+
+- Send a message using the `send` command
+      > send <lw_if> "This is an unconfirmed RIOT message!"
+
+- After 2 seconds the downlink message should be shown in the RIOT shell.
+
+- Configure GNRC LoRaWAN to send confirmed messages.
+      > ifconfig <lw_if> ack_req
+
+- Send a message using the `send` command
+      > send <lw_if> "This is a confirmed RIOT message!"
+
+### Result
+
+GNRC LoRAWAN should be able to send and receive data from the Network Server.
+Both send functions should print `Successfully sent packet`
+The Network Server should notify the reception of an ACK (carried with the
+frame right after the node receives data)

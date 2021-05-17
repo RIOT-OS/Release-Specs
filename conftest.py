@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import time
+
 from collections.abc import Iterable
 
 import pytest
@@ -19,6 +20,9 @@ from riotctrl.ctrl import RIOTCtrl
 import testutils.github
 import testutils.pytest
 from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
+
+from testutils.pytest import get_required_envvar
+from testutils import ttn
 
 
 IOTLAB_EXPERIMENT_DURATION = 120
@@ -128,6 +132,50 @@ def pytest_keyboard_interrupt(excinfo):
 
 
 @pytest.fixture
+def dev_id(request):
+    if request.param == "otaa":
+        return ttn.DEVICE_ID
+
+    return ttn.DEVICE_ID_ABP
+
+
+@pytest.fixture
+def appkey():
+    return get_required_envvar("APPKEY")
+
+
+@pytest.fixture
+def appeui():
+    return ttn.APPEUI
+
+
+@pytest.fixture
+def deveui():
+    return ttn.DEVEUI
+
+
+@pytest.fixture
+def devaddr():
+    return ttn.DEVADDR
+
+
+@pytest.fixture
+def nwkskey():
+    return get_required_envvar("NWKSKEY")
+
+
+@pytest.fixture
+def appskey():
+    return get_required_envvar("APPSKEY")
+
+
+@pytest.fixture
+def ttn_client():
+    with ttn.TTNClient() as client:
+        yield client
+
+
+@pytest.fixture
 def log_nodes(request):
     """
     Show output of nodes
@@ -176,6 +224,18 @@ def boards(request):
     return request.config.getoption("--boards")
 
 
+@pytest.fixture
+def iotlab_site(request):
+    """
+    IoT-LAB site where the nodes are reserved.
+    If not specified by a test, it's fetched from the IOTLAB_SITE environment
+    variable or falls back to DEFAULT_SITE.
+    """
+
+    return getattr(request, "param",
+                   os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
+
+
 def get_namefmt(request):
     name_fmt = {}
     if request.module:
@@ -187,7 +247,7 @@ def get_namefmt(request):
 
 
 @pytest.fixture
-def nodes(local, request, boards):
+def nodes(local, request, boards, iotlab_site):
     """
     Provides the nodes for a test as a list of RIOTCtrl objects
     """
@@ -212,7 +272,7 @@ def nodes(local, request, boards):
         exp = IoTLABExperiment(
             name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
-            site=os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
+            site=iotlab_site)
         RUNNING_EXPERIMENTS.append(exp)
         exp.start(duration=IOTLAB_EXPERIMENT_DURATION)
         yield ctrls
