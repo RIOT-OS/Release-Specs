@@ -3,6 +3,7 @@ iotlabcli
 pygithub
 pytest
 pytest-cov
+pytest-rerunfailures
 riotctrl
 scapy
 paho-mqtt

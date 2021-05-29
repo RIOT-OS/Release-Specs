@@ -18,6 +18,7 @@ class Shell(Ifconfig, GNRCICMPv6Echo, GNRCPktbufStats):
     pass
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -42,6 +43,7 @@ def test_task01(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -65,6 +67,7 @@ def test_task02(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -89,6 +92,7 @@ def test_task03(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -118,6 +122,7 @@ def test_task04(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes and iotlab_site passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes, iotlab_site',
@@ -147,6 +152,7 @@ def test_task05(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes and iotlab_site passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes, iotlab_site',
@@ -329,6 +335,7 @@ def test_task11(riot_ctrl):
     check_pktbuf(*nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -358,6 +365,7 @@ def test_task12(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',

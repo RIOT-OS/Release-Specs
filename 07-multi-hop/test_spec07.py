@@ -115,6 +115,7 @@ def rpl_nodes(riot_ctrl, netif_parser):
     return nodes
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to statically_routed_nodes for riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -129,6 +130,7 @@ def test_task01(statically_routed_nodes):
     check_pktbuf(*statically_routed_nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to statically_routed_nodes for riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -149,6 +151,7 @@ def test_task02(statically_routed_nodes):
     check_pktbuf(*statically_routed_nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to rpl_nodes for riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -164,6 +167,7 @@ def test_task03(rpl_nodes):
     check_pktbuf(*rpl_nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to rpl_nodes for riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
