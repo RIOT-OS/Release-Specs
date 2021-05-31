@@ -52,6 +52,7 @@ def test_task01(riot_ctrl, log_nodes):
     assert res["stats"]["packet_loss"] < 1
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',

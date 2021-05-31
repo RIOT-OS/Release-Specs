@@ -44,6 +44,7 @@ def test_task01(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['iotlab-m3', 'iotlab-m3'])],

@@ -15,6 +15,7 @@ class Shell(Ifconfig, GNRCPktbufStats, GNRCUDP):
     pass
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -44,6 +45,7 @@ def test_task01(riot_ctrl):
     check_pktbuf(*nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes',
@@ -122,6 +124,7 @@ def test_task05(riot_ctrl):
     check_pktbuf(*nodes)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=30)
 @pytest.mark.iotlab_creds
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['iotlab-m3', 'iotlab-m3'])],
