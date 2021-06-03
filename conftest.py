@@ -281,6 +281,7 @@ def nodes(local, request, boards, iotlab_site):
 
 
 def update_env(node, modules=None, cflags=None, port=None, termflags=None):
+    node.env['QUIETER'] = '1'
     if not isinstance(modules, str) and \
        isinstance(modules, Iterable):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
