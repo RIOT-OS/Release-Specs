@@ -257,11 +257,12 @@ def nodes(local, request, boards, iotlab_site):
     only_native = all(b.startswith("native") for b in boards)
     for board in boards:
         if local or only_native or IoTLABExperiment.valid_board(board):
-            env = {'BOARD': '{}'.format(board)}
+            env = {'BOARD': '{}'.format(board), 'QUIETER': '1'}
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
-                'IOTLAB_NODE': '{}'.format(board)
+                'IOTLAB_NODE': '{}'.format(board),
+                'QUIETER': '1',
             }
         ctrls.append(RIOTCtrl(env=env))
     if local or only_native:
@@ -281,7 +282,6 @@ def nodes(local, request, boards, iotlab_site):
 
 
 def update_env(node, modules=None, cflags=None, port=None, termflags=None):
-    node.env['QUIETER'] = '1'
     if not isinstance(modules, str) and \
        isinstance(modules, Iterable):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
