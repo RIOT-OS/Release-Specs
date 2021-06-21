@@ -13,6 +13,7 @@ class Shell(IEEE802154Phy):
     pass
 
 
+@pytest.mark.local_only
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['remote-revb', 'remote-revb'])],
                          indirect=['nodes'])
@@ -23,18 +24,19 @@ def test_task01(riot_ctrl):
     )
     sender.ieee802154_tx_mode("direct")
     receiver.ieee802154_tx_mode("direct")
-    receiver_addr = receiver.ieee802154_print_addr()
-    sender_addr = sender.ieee802154_print_addr()
+    receiver_addr = receiver.ieee802154_get_phy()
+    sender_addr = sender.ieee802154_get_phy()
     for i in range(11, 27):
         sender.ieee802154_config_phy(PHY_MODE, i, 0)
         receiver.ieee802154_config_phy(PHY_MODE, i, 0)
         sleep(1)
-        sender.ieee802154_txtspam(receiver_addr, 1, 0)
+        sender.ieee802154_txtspam(receiver_addr, 10, 1, 0, 0)
         sleep(1)
         receiver.ieee802154_check_last_packet(sender_addr, i)
         sleep(0.5)
 
 
+@pytest.mark.local_only
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['remote-revb', 'remote-revb'])],
                          indirect=['nodes'])
@@ -45,10 +47,11 @@ def test_task02(riot_ctrl):
     )
     sender.ieee802154_tx_mode("direct")
     receiver.ieee802154_tx_mode("direct")
-    receiver_addr = receiver.ieee802154_print_addr()
-    sender.ieee802154_txtspam(receiver_addr, 5, 1000)
+    receiver_addr = receiver.ieee802154_get_phy()
+    sender.ieee802154_txtspam(receiver_addr, 10, 5, 1000, 0)
 
 
+@pytest.mark.local_only
 @pytest.mark.parametrize('nodes',
                          [pytest.param(['remote-revb', 'remote-revb'])],
                          indirect=['nodes'])
@@ -59,8 +62,8 @@ def test_task03(riot_ctrl):
     )
     sender.ieee802154_tx_mode("direct")
     receiver.ieee802154_tx_mode("direct")
-    receiver_addr = receiver.ieee802154_print_addr()
-    receiver.ieee802154_reply()
-    sender.ieee802154_txtsnd(receiver_addr, 1)
+    receiver_addr = receiver.ieee802154_get_phy()
+    receiver.ieee802154_reply(1)
+    sender.ieee802154_txtsnd(receiver_addr, 10, 0)
     sleep(1)
     sender.ieee802154_check_last_packet(receiver_addr, DEFAULT_CHANNEL)
