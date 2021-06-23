@@ -33,6 +33,7 @@ def test_task01(riot_ctrl):
         riot_ctrl(1, APP, Shell, port='tap1'),
     )
 
+    assert False
     res = ping6(pinger, "ff02::1", count=1000, packet_size=0, interval=10)
     assert res['stats']['packet_loss'] < 1
 
