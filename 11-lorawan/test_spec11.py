@@ -2,6 +2,7 @@ import time
 import pytest
 from riotctrl_shell.netif import Ifconfig
 from testutils.shell import GNRCLoRaWANSend, ifconfig, lorawan_netif
+from testutils.shell import check_pktbuf
 
 APP = 'examples/gnrc_lorawan'
 pytestmark = pytest.mark.rc_only()
@@ -42,6 +43,8 @@ def run_lw_test(node, ttn_client, iface, dev_id):
 
     assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
     assert ttn_client.downlink_ack_received()
+
+    check_pktbuf(node)
 
 
 @pytest.mark.iotlab_creds
