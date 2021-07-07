@@ -3,6 +3,8 @@ import re
 
 import pytest
 
+from bs4 import BeautifulSoup
+
 import testutils.github
 
 
@@ -26,7 +28,7 @@ def test_check_rc(monkeypatch, caplog, output, expected):
     "nodeid,expected",
     [("foobar", None),
      ("03-single-hop-ipv6-icmp/test_spec87.py::test_task642[nodes0]",
-      {"spec": 87, "task": 642})]
+      {"spec": 87, "task": 642, "params": "nodes0"})]
 )
 def test_get_task(caplog, nodeid, expected):
     with caplog.at_level(logging.WARNING):
@@ -254,7 +256,7 @@ def test_find_task_text2():
     """
     task_line, task = testutils.github.find_task_text(
         issue_body,
-        {"spec": 5, "task": 2}
+        {"spec": 5, "task": 2, "params": "nodes0"}
     )
     assert "- [x] [Task #02 Let's not make this complicated]" \
            "(This-isn't-even-a-URL)" in task_line
@@ -265,6 +267,26 @@ def test_find_task_text2():
 
 
 def test_find_task_text3():
+    issue_body = """
+        - [x] [03-fantasy](coap://what?) (this is just for you ;-))
+      - [ ] [Task #02 We don't want this](out)
+    - [x] [05-this-is-us](http://example.org) ))))) sonic
+      - [x] [Task #02 Let's not make this complicated](This-isn't-even-a-URL))
+    """
+    task_line, task = testutils.github.find_task_text(
+        issue_body,
+        {"spec": 5, "task": 2, "params": "nodes0-foobar"}
+    )
+    assert "- [x] [Task #02 Let's not make this complicated]" \
+           "(This-isn't-even-a-URL)" in task_line
+    assert len(task) == 6
+    assert task["params"] == "foobar"
+    assert task["done"]
+    assert len(task["spec"]) == 4
+    assert task["spec"]["done"]
+
+
+def test_find_task_text4():
     issue_body = "foobar"
     task_line, task = testutils.github.find_task_text(
         issue_body,
@@ -272,6 +294,170 @@ def test_find_task_text3():
     )
     assert task_line is None
     assert task is None
+
+
+class MockComment():
+    def __eq__(self, other):
+        return self._body == other.body
+
+    def __init__(self, body):
+        self._body = body
+
+    def __str__(self):
+        return self._body
+
+    @property
+    def body(self):
+        return self._body
+
+    def edit(self, body):
+        self._body = body
+
+
+def _github():
+    # pylint: disable=R0903
+    class MockUser():
+        @property
+        def login(self):
+            return "user"
+
+    # pylint: disable=R0903
+    class MockGithub():
+        # pylint: disable=R0201
+        def get_user(self):
+            return MockUser()
+    return MockGithub()
+
+
+@pytest.mark.parametrize(
+    'comments, exp',
+    [([], None),
+     ([MockComment("test")], None),
+     ([MockComment(
+             testutils.github.STICKY_COMMENT_COMMENT.format(user="user")
+      )],
+      MockComment(
+          testutils.github.STICKY_COMMENT_COMMENT.format(user="user")
+     ))]
+)
+def test_find_previous_comment(comments, exp):
+    class MockIssue():              # pylint: disable=R0903
+        def get_comments(self):     # pylint: disable=R0201
+            return comments
+
+    assert testutils.github.find_previous_comment(_github(),
+                                                  MockIssue()) == exp
+
+
+def test_create_comment(caplog):
+    class MockIssue():              # pylint: disable=R0903
+        def __init__(self):
+            self.comment = None
+
+        def create_comment(self, comment):
+            self.comment = MockComment(comment)
+            return self.comment
+
+    with caplog.at_level(logging.ERROR):
+        comment = testutils.github.create_comment(_github(), MockIssue())
+    assert caplog.text == ""
+    assert comment is not None
+    assert comment.body == "<h1>Test Report</h1>\n\n" + \
+        testutils.github.STICKY_COMMENT_COMMENT.format(user="user") + """
+<table>
+  <thead>
+    <tr><th></th><th>Task</th><th>Outcome</th></tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+"""
+
+
+def test_create_comment_error(caplog):
+    class MockIssue():              # pylint: disable=R0903
+        def create_comment(self, comment):  # pylint: disable=R0201
+            raise testutils.github.GithubException(300, "Nope", None)
+
+    with caplog.at_level(logging.ERROR):
+        comment = testutils.github.create_comment(_github(), MockIssue())
+    assert 'Unable to comment: ' in caplog.text
+    assert comment is None
+
+
+# SimpleBeautifulSoup
+class SBS4(BeautifulSoup):          # pylint: disable=W0223
+    def __init__(self, soup):
+        super().__init__(soup, "html.parser")
+
+
+@pytest.mark.parametrize(
+    "tbody,task,exp,exp_errs",
+    [
+        ("", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+        }, [("foobar", "http://example.org", ":-)", SBS4("blafoo"))],
+            None),
+        ("<tr></tr>", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+        }, [
+            ("foobar", "http://example.org", ":-)", SBS4("blafoo"))
+        ], ["Unexpected table format in "]),
+        ("<tr><td>:-(</td><td>test</td><td>snafoo</td></tr>", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+        }, [
+            ("foobar", "http://example.org", ":-)", SBS4("blafoo")),
+        ], ["Unexpected table format in "]),
+        ("<tr><td>:-(</td><td><a>test</a></td><td>snafoo</td></tr>", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+        }, [
+            ("foobar", "http://example.org", ":-)", SBS4("blafoo")),
+        ], ["Unexpected table format in "]),
+        ("<tr><td>:-(</td><td><a href='https://example.org/2'>test</a></td>" +
+         "<td>snafoo</td></tr>", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+         }, [
+            ("foobar", "http://example.org", ":-)", SBS4("blafoo")),
+            ("test", "https://example.org/2", ":-(", SBS4("snafoo")),
+         ], None),
+        ("<tr><td>:-(</td><td><a href='https://example.org/2'>foobar</a>" +
+         "</td><td>snafoo</td></tr>", {
+            "title": " foobar",
+            "url": "http://example.org",
+            "emoji": ":-)",
+            "outcome": SBS4("blafoo"),
+         }, [
+            ("foobar", "http://example.org", ":-)", SBS4("blafoo")),
+         ], None),
+    ]
+)
+def test_get_tasks(caplog, tbody, task, exp, exp_errs):
+    tbody = SBS4(
+        '<table><tbody>{}</tbody></table>'.format(tbody)
+    ).find('tbody')
+    with caplog.at_level(logging.ERROR):
+        tasks = testutils.github.get_tasks(MockComment("foobar"), tbody, task)
+    assert exp == tasks
+    if exp_errs:
+        for exp_err in exp_errs:
+            assert exp_err in caplog.text
+    else:
+        assert caplog.text == ""
 
 
 def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
@@ -299,6 +485,72 @@ def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
 
 
 @pytest.mark.parametrize(
+    'comment_body,exp_errs',
+    [
+        ("<tbody></tbody>", None),
+        ("<table></table>", "Unable to find table body in "),
+    ]
+)
+def test_update_comment(monkeypatch, caplog, comment_body, exp_errs):
+    # patch environment variables to not include run URL when run in Github
+    # Action
+    monkeypatch.setattr(testutils.github.os, "environ", {})
+    comment = MockComment(comment_body)
+    with caplog.at_level(logging.ERROR):
+        testutils.github.update_comment(
+            _get_mock_report("passed"), comment,
+            {
+                'spec': {'spec': 1},
+                'name': 'foobar',
+                'url': 'http://example.org'
+            }
+        )
+    if exp_errs:
+        assert comment.body == "<table></table>"
+        for exp_err in exp_errs:
+            assert exp_err in caplog.text
+    else:
+        assert comment.body == """<tbody>
+ <tr>
+  <td>
+   ✔
+  </td>
+  <td>
+   <a href="http://example.org">
+    01. foobar
+   </a>
+  </td>
+  <td>
+   <strong>
+    PASSED
+   </strong>
+  </td>
+ </tr>
+</tbody>"""
+        assert caplog.text == ""
+
+
+def test_update_comment_edit_error(caplog):
+    class MockCommentEditError(MockComment):
+        def edit(self, body):   # pylint: disable=R0201
+            raise testutils.github.GithubException(300, "Nope", None)
+
+    comment_body = "<tbody><tr><td>foobar</td></tr></tbody>"
+    comment = MockCommentEditError(comment_body)
+    with caplog.at_level(logging.ERROR):
+        testutils.github.update_comment(
+            _get_mock_report("passed"), comment,
+            {
+                'spec': {'spec': 1},
+                'name': 'foobar',
+                'url': 'http://example.org'
+            }
+        )
+    assert "Unable to update comment: " in caplog.text
+    assert comment.body == comment_body
+
+
+@pytest.mark.parametrize(
     "outcome,longrepr,sections,task,env",
     [("passed", None, [("foobar", "blafoo"), ("snafu", "ruined!")],
       {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
@@ -312,7 +564,15 @@ def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
       {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
+     ("skipped", ("test", 5, "not loaded"), [("foobar", "blafoo")],
+      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
+       "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", "Foos rho dah", [("foobar", "blafoo")],
+      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
+       "GITHUB_SERVER_URL": "https://example.org"}),
+     ("skipped", ("test", 5, "not loaded"), None,
       {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
@@ -327,31 +587,31 @@ def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
 )
 # pylint: disable=R0913
 def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
-    # pylint: disable=R0903
     class MockIssue():
         def __init__(self):
             self.comment = None
 
         def create_comment(self, comment):
-            self.comment = comment
-            return comment
+            self.comment = MockComment(comment)
+            return self.comment
 
+        def get_comments(self):
+            if self.comment:
+                return [self.comment]
+            return []
+
+    # pylint: disable=R0903
     monkeypatch.setattr(testutils.github.os, "environ", env)
     report = _get_mock_report(outcome, longrepr=longrepr, sections=sections)
     issue = MockIssue()
-    assert testutils.github.make_comment(report, issue, task) is not None
-    assert "{:02}".format(task["spec"]["spec"]) in issue.comment
-    assert task["name"] in issue.comment
-    assert task["url"] in issue.comment
+    assert testutils.github.make_comment(report, issue, task, _github()) \
+        is not None
+    assert "{:02}".format(task["spec"]["spec"]) in issue.comment.body
+    assert task["name"] in issue.comment.body
+    assert task["url"] in issue.comment.body
     for key in env:
-        assert env[key] in issue.comment
-    assert outcome.upper() in issue.comment
-    assert not longrepr or "Failures" in issue.comment
-    assert not longrepr or longrepr in issue.comment
-    if sections is not None:
-        for title, body in sections:
-            assert title in issue.comment
-            assert body in issue.comment
+        assert env[key] in issue.comment.body
+    assert outcome.upper() in issue.comment.body
 
 
 @pytest.mark.parametrize(
@@ -378,10 +638,13 @@ def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
             raise testutils.github.GithubException(300, "Nope", None)
 
     monkeypatch.setattr(testutils.github.os, "environ", {})
+    monkeypatch.setattr(testutils.github, "find_previous_comment",
+                        lambda *args: None)
     report = _get_mock_report(outcome, longrepr, sections)
     issue = MockIssue()
     with caplog.at_level(logging.ERROR):
-        assert testutils.github.make_comment(report, issue, task) is None
+        assert testutils.github.make_comment(report, issue, task, _github()) \
+                is None
     assert "Unable to comment:" in caplog.text
 
 
@@ -397,109 +660,92 @@ def _mock_update_issue():
     return MockIssue()
 
 
-def _github():
-    # pylint: disable=R0903
-    class MockUser():
-        @property
-        def login(self):
-            return "user"
-
-    # pylint: disable=R0903
-    class MockGithub():
-        # pylint: disable=R0201
-        def get_user(self):
-            return MockUser()
-    return MockGithub()
-
-
 @pytest.mark.parametrize(
     "when,outcome,tested_task,rc,github,repo,issue,task,log,comment_error,"
-    "exp_commented,exp_marked",
+    "exp_marked",
     [
         # configure monkeypatched functions progressively to get further and
         # further in update_issue()
         ("setup", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("blafoo", {"done": False, "url": "t::test"}),
-         None, False, False, False),
+         None, False, False),
         ("call", "skipped", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("blafoo", {"done": False, "url": "t::test"}),
-         None, False, False, False),
+         None, False, False),
         ("call", "passed", None, {"release": "2020.07", "candidate": "RC1"},
          _github(), "Repo", _mock_update_issue(),
-         ("blafoo", {"done": False, "url": "t::test"}), None, False, False,
-         False),
+         ("blafoo", {"done": False, "url": "t::test"}), None, False, False),
         ("call", "passed", {"spec": 1, "task": 1}, None, _github(), "Repo",
          _mock_update_issue(), ("blafoo", {"done": False, "url": "t::test"}),
-         None, False, False, False),
+         None, False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, None, "Repo",
          _mock_update_issue(), ("blafoo", {"done": False, "url": "t::test"}),
-         None, False, False, False),
+         None, False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), None,
          _mock_update_issue(), ("blafoo", {"done": False, "url": "t::test"}),
-         None, False, False, False),
+         None, False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          None, ("blafoo", {"done": False, "url": "t::test"}), None, False,
-         False, False),
+         False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), (None, {"done": False, "url": "t::test"}),
-         "Unable to find task 1.1 in the tracking issue", False, False, False),
+         "Unable to find task 1.1 in the tracking issue", False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("blafoo", None),
-         "Unable to find task 1.1 in the tracking issue", False, False, False),
+         "Unable to find task 1.1 in the tracking issue", False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), (None, None),
-         "Unable to find task 1.1 in the tracking issue", False, False, False),
+         "Unable to find task 1.1 in the tracking issue", False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), None,    # Fire GithubException
-         "Unable to get issue text of Mock issue", False, False, False),
+         "Unable to get issue text of Mock issue", False, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("foobar", {"done": True, "url": "t::test"}),
-         "Task 1.1 is already marked done in the tracking issue", False, False,
+         "Task 1.1 is already marked done in the tracking issue", False,
          False),
         ("call", "failed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("foobar", {"done": False, "url": "t::test"}),
-         # commented but not marked as task failed
-         None, False, True, False),
+         # not marked task as failed
+         None, False, False),
         ("call", "failed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("foobar", {"done": False, "url": "t::test"}),
-         # commented but comment failed and but not marked as task failed
-         None, True, True, False),
+         # comment failed and not marked task as failed
+         None, True, False),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("foobar", {"done": False, "url": "t::test"}),
-         # commented and marked as task passed
-         None, False, True, True),
+         # marked as task passed
+         None, False, True),
         ("call", "passed", {"spec": 1, "task": 1},
          {"release": "2020.07", "candidate": "RC1"}, _github(), "Repo",
          _mock_update_issue(), ("foobar", {"done": False, "url": "t::test"}),
-         # commented but comment failed and marked as task passed
-         None, True, True, True),
+         # comment failed and marked as task passed
+         None, True, True),
     ]
 )
 # pylint: disable=R0913,R0914
 def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
                       github, repo, issue, task, log, comment_error,
-                      exp_commented, exp_marked):
-    # pylint: disable=R0903
+                      exp_marked):
+    # pylint: disable=R0903,W0621
     class MockComment():
         @property
         def html_url(self):
             return "t::test"
 
     task_marked_done = False
-    commented = False
     # monkeypatch ALL the functions with parameter values!
     monkeypatch.setattr(testutils.github, "get_task",
                         lambda *args, **kwargs: tested_task)
@@ -522,8 +768,6 @@ def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
 
     # pylint: disable=W0613
     def comment(*args, **kwargs):
-        nonlocal commented
-        commented = True
         if comment_error:
             return None
         return MockComment()
@@ -544,4 +788,3 @@ def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
     else:
         assert not caplog.text
     assert task_marked_done == exp_marked
-    assert commented == exp_commented
