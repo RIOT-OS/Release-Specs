@@ -1,11 +1,16 @@
 import logging
 import re
+import subprocess
 
 import pytest
 
 from bs4 import BeautifulSoup
 
 import testutils.github
+
+from .test_git import config_repo
+
+# pylint: disable=too-many-lines
 
 
 @pytest.mark.parametrize(
@@ -14,7 +19,7 @@ import testutils.github
      (b"tag: 2042.06-RC13", {"release": "2042.06", "candidate": "RC13"})]
 )
 def test_check_rc(monkeypatch, caplog, output, expected):
-    monkeypatch.setattr(testutils.github.subprocess, "check_output",
+    monkeypatch.setattr(subprocess, "check_output",
                         lambda *args, **kwargs: output)
     with caplog.at_level(logging.WARNING):
         assert testutils.github.get_rc() == expected
@@ -22,6 +27,17 @@ def test_check_rc(monkeypatch, caplog, output, expected):
         assert "Not a release candidate" in caplog.text
     else:
         assert "Not a release candidate" not in caplog.text
+
+
+def test_check_rc_error(monkeypatch, caplog):
+    def mock_log(*args, **kwargs):
+        raise testutils.github.GitError(returncode=42, cmd="don't panic")
+
+    monkeypatch.setattr(testutils.github.Git, "log", mock_log)
+    with caplog.at_level(logging.ERROR):
+        assert testutils.github.get_rc() is None
+    assert "don't panic" in caplog.text
+    assert '42' in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -314,7 +330,7 @@ class MockComment():
         self._body = body
 
 
-def _github():
+def _github(user_class=None):
     # pylint: disable=R0903
     class MockUser():
         @property
@@ -325,7 +341,9 @@ def _github():
     class MockGithub():
         # pylint: disable=R0201
         def get_user(self):
-            return MockUser()
+            if user_class is None:
+                return MockUser()
+            return user_class()
     return MockGithub()
 
 
@@ -349,7 +367,7 @@ def test_find_previous_comment(comments, exp):
                                                   MockIssue()) == exp
 
 
-def test_create_comment(caplog):
+def test_create_comment(monkeypatch, caplog):
     class MockIssue():              # pylint: disable=R0903
         def __init__(self):
             self.comment = None
@@ -358,6 +376,8 @@ def test_create_comment(caplog):
             self.comment = MockComment(comment)
             return self.comment
 
+    # isolate from test environment
+    monkeypatch.setattr(testutils.github.os, "environ", {})
     with caplog.at_level(logging.ERROR):
         comment = testutils.github.create_comment(_github(), MockIssue())
     assert caplog.text == ""
@@ -485,32 +505,9 @@ def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
 
 
 @pytest.mark.parametrize(
-    'comment_body,exp_errs',
+    'comment_body,env,gist_id,exp_body,exp_errs',
     [
-        ("<tbody></tbody>", None),
-        ("<table></table>", "Unable to find table body in "),
-    ]
-)
-def test_update_comment(monkeypatch, caplog, comment_body, exp_errs):
-    # patch environment variables to not include run URL when run in Github
-    # Action
-    monkeypatch.setattr(testutils.github.os, "environ", {})
-    comment = MockComment(comment_body)
-    with caplog.at_level(logging.ERROR):
-        testutils.github.update_comment(
-            _get_mock_report("passed"), comment,
-            {
-                'spec': {'spec': 1},
-                'name': 'foobar',
-                'url': 'http://example.org'
-            }
-        )
-    if exp_errs:
-        assert comment.body == "<table></table>"
-        for exp_err in exp_errs:
-            assert exp_err in caplog.text
-    else:
-        assert comment.body == """<tbody>
+        ("<tbody></tbody>", {}, None, """<tbody>
  <tr>
   <td>
    ✔
@@ -526,15 +523,197 @@ def test_update_comment(monkeypatch, caplog, comment_body, exp_errs):
    </strong>
   </td>
  </tr>
-</tbody>"""
+</tbody>""", None),
+        ("<table></table>", {}, None, "<table></table>",
+         "Unable to find table body in "),
+        ("<h1>The title</h1><tbody></tbody>", {}, None, """<h1>
+ The title
+</h1>
+<tbody>
+ <tr>
+  <td>
+   ✔
+  </td>
+  <td>
+   <a href="http://example.org">
+    01. foobar
+   </a>
+  </td>
+  <td>
+   <strong>
+    PASSED
+   </strong>
+  </td>
+ </tr>
+</tbody>""", None),
+        ("<h1>The title</h1><tbody></tbody>", {
+            "GITHUB_RUN_ID": "1275479086",
+            "GITHUB_REPOSITORY": "test/foobar",
+            "GITHUB_SERVER_URL": "https://example.org",
+        }, None, """<h1>
+ <a href="https://example.org/test/foobar/actions/runs/1275479086">
+  The title
+ </a>
+</h1>
+<tbody>
+ <tr>
+  <td>
+   ✔
+  </td>
+  <td>
+   <a href="http://example.org">
+    01. foobar
+   </a>
+  </td>
+  <td>
+   <strong>
+    PASSED
+   </strong>
+  </td>
+ </tr>
+</tbody>""", None),
+        ("<tbody></tbody>", {}, '663209485c1e2a39fb8fb4ab9fcd51ac',
+         """<!-- gist-id:663209485c1e2a39fb8fb4ab9fcd51ac -->
+<tbody>
+ <tr>
+  <td>
+   ✔
+  </td>
+  <td>
+   <a href="http://example.org">
+    01. foobar
+   </a>
+  </td>
+  <td>
+   <strong>
+    PASSED
+   </strong>
+  </td>
+ </tr>
+</tbody>""", None),
+    ]
+)
+def test_update_comment(monkeypatch, caplog, comment_body, env, gist_id,
+                        exp_body, exp_errs):
+    # pylint: disable=R0913
+    # patch environment variables to not include run URL when run in Github
+    # Action
+    monkeypatch.setattr(testutils.github.os, "environ", env)
+    comment = MockComment(comment_body)
+    with caplog.at_level(logging.ERROR):
+        task = {
+            'spec': {'spec': 1},
+            'name': 'foobar',
+            'url': 'http://example.org'
+        }
+        if gist_id is not None:
+            task['gist_id'] = gist_id
+        testutils.github.update_comment(
+            _get_mock_report("passed"), comment, task
+        )
+    assert comment.body == exp_body
+    if exp_errs:
+        for exp_err in exp_errs:
+            assert exp_err in caplog.text
+    else:
         assert caplog.text == ""
 
 
-def test_update_comment_edit_error(caplog):
+def test_gist_file_url():
+    assert testutils.github.gist_file_url(
+        "https://example.org",
+        "ab_cd..ef.txt",
+        "foobar") == "https://example.org/foobar#ab_cd-ef-txt"
+
+
+def test_github_file_url():
+    assert testutils.github.github_file_url(
+        "https://github.com",
+        "ab_cd..ef.txt",
+        "foobar") == "https://github.com/blob/foobar/ab_cd..ef.txt"
+
+
+def test_github_file_url_non_github_url():
+    assert testutils.github.github_file_url(
+        "https://example.org",
+        "ab_cd..ef.txt",
+        "foobar") is None
+
+
+@pytest.mark.parametrize(
+    'repo_exists,content,staging_changed',
+    [
+        (True, {}, False),
+        (False, {}, False),
+        (True, {'test.txt': 'foobar'}, True),
+        (True, {'test.txt': 'foobar', 'abcd.txt': 'snafu'}, False),
+    ]
+)
+def test_upload_result_content(tmp_path, monkeypatch, repo_exists, content,
+                               staging_changed):
+    pulled = False
+
+    def mock_pull(self):    # pylint: disable=unused-argument
+        nonlocal pulled
+        pulled = True
+
+    repo = testutils.github.Git(tmp_path)
+    repo.cmd("init")
+    config_repo(repo)
+
+    monkeypatch.setattr(testutils.github.Git, 'exists',
+                        lambda self: repo_exists)
+    monkeypatch.setattr(testutils.github.Git, 'pull', mock_pull)
+    monkeypatch.setattr(testutils.github.Git, 'clone',
+                        lambda *args, **kwargs: repo)
+    monkeypatch.setattr(testutils.github.Git, 'push', lambda self: None)
+    monkeypatch.setattr(testutils.github.Git, 'staging_changed',
+                        lambda self: staging_changed)
+    monkeypatch.setattr(testutils.github.Git, 'head_sha', 'abcdef')
+
+    assert testutils.github.upload_result_content(
+        _github(),
+        repo,
+        'https://example.org',
+        content
+    ) == 'abcdef'
+    assert repo_exists or not pulled
+    if content and staging_changed:
+        for filename in content:
+            output = repo.log('--format=%H', '--name-only', '--', filename)
+            assert filename in output
+            assert (tmp_path / filename).exists()
+            with (tmp_path / filename).open() as f:
+                assert f.read() == content[filename]
+        assert len(repo.log('--oneline').strip().split('\n')) == len(content)
+    else:
+        with pytest.raises(testutils.git.GitError):
+            repo.log()
+
+
+def test_upload_result_content_error(monkeypatch, caplog, tmp_path):
+    def mock_exists(self):
+        raise testutils.github.GitError(returncode=42, cmd=["exists"])
+
+    monkeypatch.setattr(testutils.github.Git, 'exists', mock_exists)
+    with caplog.at_level(logging.ERROR):
+        testutils.github.upload_result_content(
+            _github(),
+            testutils.git.Git(tmp_path),
+            "https://examples.org",
+            []
+        )
+    assert "42" in caplog.text
+    assert "exists" in caplog.text
+
+
+def test_update_comment_edit_error(monkeypatch, caplog):
     class MockCommentEditError(MockComment):
         def edit(self, body):   # pylint: disable=R0201
             raise testutils.github.GithubException(300, "Nope", None)
 
+    # isolate test environment
+    monkeypatch.setattr(testutils.github.os, "environ", {})
     comment_body = "<tbody><tr><td>foobar</td></tr></tbody>"
     comment = MockCommentEditError(comment_body)
     with caplog.at_level(logging.ERROR):
@@ -551,42 +730,229 @@ def test_update_comment_edit_error(caplog):
 
 
 @pytest.mark.parametrize(
+    'gist_ids,gist_id,in_comment,error_get,error_create',
+    [
+        (['b217693d', '99fb3395'], 'b217693d', False, False, False),
+        (['b217693d', '99fb3395'], 'b217693d', False, False, True),
+        (['b217693d', '99fb3395'], 'b217693d', False, True, False),
+        (['b217693d', '99fb3395'], 'b217693d', True, True, False),
+        (['b217693d', '99fb3395'], 'b217693d', True, False, True),
+        (['b217693d', '99fb3395'], 'b28c49fb', True, True, False),
+        (['b217693d', '99fb3395'], 'b28c49fb', True, False, True),
+    ]
+)
+def test_get_results_gist(caplog, tmp_path,     # noqa: C901
+                          gist_ids, gist_id, in_comment, error_get,
+                          error_create):
+    # pylint: disable=too-few-public-methods,no-self-use,too-many-arguments
+    # pylint: disable=unused-argument
+    class MockGist:
+        def __init__(self, identifier):
+            self._id = identifier
+
+        @property
+        def id(self):
+            return self._id
+
+        @property
+        def html_url(self):
+            return f'https://example.org/{self._id}'
+
+    class MockGistUser:
+        def get_gists(self):
+            if error_get:
+                raise testutils.github.GithubException(300, "Nope", None)
+            return [MockGist(g) for g in gist_ids]
+
+        def create_gist(self, *args, **kwargs):
+            if error_create:
+                raise testutils.github.GithubException(400, "Nope", None)
+            return MockGist(gist_id)
+
+    with caplog.at_level(logging.ERROR):
+        res = testutils.github.get_results_gist(
+            MockComment(testutils.github.GIST_ID_COMMENT_FMT.format(
+                            gist_id=gist_id
+                        ) if in_comment else ''),
+            _github(MockGistUser),
+            {'release': '2021.05', 'candidate': 'RC6'},
+            tmp_path,
+            {}
+        )
+    assert len(res) == 3
+    if in_comment and gist_id in gist_ids:
+        if error_get:
+            assert '300' in caplog.text
+            assert 'Nope' in caplog.text
+            assert all(r is None for r in res)
+        else:
+            assert res[0].repodir == str(tmp_path / gist_id)
+            assert res[1] == MockGist(gist_id).html_url
+            assert res[2] is None
+            assert caplog.text == ''
+    else:
+        if gist_id not in gist_ids and error_get:
+            assert '300' in caplog.text
+            assert 'Nope' in caplog.text
+            assert all(r is None for r in res)
+        elif error_create:
+            assert '400' in caplog.text
+            assert 'Nope' in caplog.text
+            assert all(r is None for r in res)
+        else:
+            assert res[0].repodir == str(tmp_path / gist_id)
+            assert res[1] == MockGist(gist_id).html_url
+            assert res[2] == gist_id
+            assert caplog.text == ''
+
+
+@pytest.mark.parametrize(
+    "params,outcome,longrepr,sections",
+    [
+        (None, 'skipped', 'blafoo', [('test', 'abcdef')]),
+        (None, 'passed', 'blafoo', [('test', 'abcdef')]),
+        ('test-arg', 'failed', 'blafoo', []),
+        ('test-arg', 'failed', 'blafoo', None),
+        (None, 'passed', None, [('test', 'abcdef')]),
+    ]
+)
+def test_generate_outcome_content(params, outcome, longrepr, sections):
+    report = _get_mock_report(outcome, longrepr=longrepr, sections=sections)
+    task = {'spec': {'spec': 3}, 'task': 1, 'name': 'foobar', 'params': params}
+    content = testutils.github.generate_outcome_content(report, task)
+    if outcome in ['passed', 'failed']:
+        assert len(content) == 1
+        filename = list(content)[0]
+        if params:
+            assert filename == f'task_03.01.{params}_result.md'
+            assert params.lower() in content[filename].lower()
+        else:
+            assert filename == 'task_03.01_result.md'
+        assert outcome.lower() in content[filename].lower()
+        if longrepr:
+            assert longrepr in content[filename]
+        if sections:
+            for title, body in sections:
+                assert title in content[filename]
+                assert body in content[filename]
+    else:
+        assert not content
+
+
+@pytest.mark.parametrize(
+    "env,content_generated,gist_created,head,outcome_url",
+    [
+        ({}, False, False, None, None),
+        ({}, True, False, None, None),
+        ({}, True, True, None, None),
+        ({
+            'RESULT_OUTPUT_DIR': '../',
+            'RESULT_OUTPUT_URL': 'https://example.org'
+         }, True, False, None, None),
+        ({
+            'RESULT_OUTPUT_DIR': '../',
+            'RESULT_OUTPUT_URL': 'https://example.org'
+         }, True, True, None, None),
+        ({}, True, True, 'the_head', None),
+        ({
+            'RESULT_OUTPUT_DIR': '../',
+            'RESULT_OUTPUT_URL': 'https://example.org'
+         }, True, True, 'the_head', None),
+        ({}, True, True, None, 'https://example.org/the_id'),
+        ({
+            'RESULT_OUTPUT_DIR': '../',
+            'RESULT_OUTPUT_URL': 'https://example.org'
+        }, True, True, None, 'https://example.org/the_id'),
+        ({}, True, True, 'the_head', 'https://example.org/the_id'),
+        ({
+            'RESULT_OUTPUT_DIR': '../',
+            'RESULT_OUTPUT_URL': 'https://example.org'
+        }, True, True, 'the_head', 'https://example.org/the_id'),
+    ]
+)
+def test_upload_results(monkeypatch, caplog, env, content_generated,
+                        gist_created, head, outcome_url):
+    # pylint: disable=too-many-arguments
+    monkeypatch.setattr(
+        testutils.github,
+        "generate_outcome_content",
+        lambda *args, **kwargs: {"test.txt": "foobar"}
+        if content_generated else None
+    )
+    monkeypatch.setattr(testutils.github.os, "environ", env)
+    monkeypatch.setattr(testutils.github, "github_file_url",
+                        lambda *args, **kwargs: outcome_url)
+    monkeypatch.setattr(testutils.github, "gist_file_url",
+                        lambda *args, **kwargs: outcome_url)
+    monkeypatch.setattr(testutils.github, "get_results_gist",
+                        lambda *args, **kwargs:
+                        (testutils.github.Git('.'), "", "the_gist_id")
+                        if gist_created else (None, None, None))
+    monkeypatch.setattr(testutils.github, "upload_result_content",
+                        lambda *args, **kwargs: head)
+    task = {}
+    with caplog.at_level(logging.INFO):
+        testutils.github.upload_results(
+            _get_mock_report("passed"), MockComment(''), task, _github(), {},
+            './'
+        )
+    if not content_generated:
+        assert "No result content for " in caplog.text
+        assert not task
+        return
+    if len(env) == 0:
+        if gist_created:
+            assert task["gist_id"] == "the_gist_id"
+        else:
+            assert "No suitable repo for result upload" in caplog.text
+            assert "gist_id" not in task or task["gist_id"] is None
+            return
+    elif 'RESULT_OUTPUT_DIR' in env and 'RESULT_OUTPUT_URL' in env:
+        assert "gist_id" not in task
+    if head and outcome_url:
+        assert task["outcome_url"] == outcome_url
+    else:
+        assert "outcome_url" not in task
+
+
+@pytest.mark.parametrize(
     "outcome,longrepr,sections,task,env",
     [("passed", None, [("foobar", "blafoo"), ("snafu", "ruined!")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+     {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", "Foos rho dah", [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", None, None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", None, [],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("passed", None, [("foobar", "blafoo"), ("snafu", "ruined!")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("skipped", ("test", 5, "not loaded"), [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", "Foos rho dah", [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("skipped", ("test", 5, "not loaded"), None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", None, None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", None, [],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"})]
 )
 # pylint: disable=R0913
-def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
+def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task,
+                      env):
     class MockIssue():
         def __init__(self):
             self.comment = None
@@ -602,10 +968,12 @@ def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
 
     # pylint: disable=R0903
     monkeypatch.setattr(testutils.github.os, "environ", env)
+    monkeypatch.setattr(testutils.github, "upload_results", lambda *args: None)
     report = _get_mock_report(outcome, longrepr=longrepr, sections=sections)
     issue = MockIssue()
-    assert testutils.github.make_comment(report, issue, task, _github()) \
-        is not None
+    rc = {"release": "2021.05", "candidate": "RC7"}
+    assert testutils.github.make_comment(report, issue, task, _github(), rc,
+                                         tmpdir) is not None
     assert "{:02}".format(task["spec"]["spec"]) in issue.comment.body
     assert task["name"] in issue.comment.body
     assert task["url"] in issue.comment.body
@@ -626,8 +994,8 @@ def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
       {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"})]
 )
 # pylint: disable=R0913
-def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
-                            task):
+def test_make_comment_error(monkeypatch, tmpdir, caplog, outcome, longrepr,
+                            sections, task):
     # pylint: disable=R0903
     class MockIssue():
         def __init__(self):
@@ -642,9 +1010,10 @@ def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
                         lambda *args: None)
     report = _get_mock_report(outcome, longrepr, sections)
     issue = MockIssue()
+    rc = {"release": "2021.05", "candidate": "RC7"}
     with caplog.at_level(logging.ERROR):
-        assert testutils.github.make_comment(report, issue, task, _github()) \
-                is None
+        assert testutils.github.make_comment(report, issue, task, _github(),
+                                             rc, tmpdir) is None
     assert "Unable to comment:" in caplog.text
 
 
@@ -736,8 +1105,8 @@ def _mock_update_issue():
     ]
 )
 # pylint: disable=R0913,R0914
-def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
-                      github, repo, issue, task, log, comment_error,
+def test_update_issue(monkeypatch, caplog, tmpdir, when, outcome, tested_task,
+                      rc, github, repo, issue, task, log, comment_error,
                       exp_marked):
     # pylint: disable=R0903,W0621
     class MockComment():
@@ -782,7 +1151,7 @@ def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
 
     report = _get_mock_report(outcome, when=when)
     with caplog.at_level(logging.INFO):
-        testutils.github.update_issue(report)
+        testutils.github.update_issue(report, tmpdir)
     if log:
         assert log in caplog.text
     else:
