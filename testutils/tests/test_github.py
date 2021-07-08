@@ -1,5 +1,6 @@
 import logging
 import re
+import subprocess
 
 import pytest
 
@@ -14,7 +15,7 @@ import testutils.github
      (b"tag: 2042.06-RC13", {"release": "2042.06", "candidate": "RC13"})]
 )
 def test_check_rc(monkeypatch, caplog, output, expected):
-    monkeypatch.setattr(testutils.github.subprocess, "check_output",
+    monkeypatch.setattr(subprocess, "check_output",
                         lambda *args, **kwargs: output)
     with caplog.at_level(logging.WARNING):
         assert testutils.github.get_rc() == expected
@@ -553,40 +554,41 @@ def test_update_comment_edit_error(caplog):
 @pytest.mark.parametrize(
     "outcome,longrepr,sections,task,env",
     [("passed", None, [("foobar", "blafoo"), ("snafu", "ruined!")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+     {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", "Foos rho dah", [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", None, None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("failed", None, [],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}, {}),
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"}, {}),
      ("passed", None, [("foobar", "blafoo"), ("snafu", "ruined!")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("skipped", ("test", 5, "not loaded"), [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", "Foos rho dah", [("foobar", "blafoo")],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("skipped", ("test", 5, "not loaded"), None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", None, None,
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"}),
      ("failed", None, [],
-      {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"},
+      {"spec": {"spec": 5}, "task": 1, "name": "Lorem", "url": "t::test"},
       {"GITHUB_RUN_ID": "1275479086", "GITHUB_REPOSITORY": "test/foobar",
        "GITHUB_SERVER_URL": "https://example.org"})]
 )
 # pylint: disable=R0913
-def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
+def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task,
+                      env):
     class MockIssue():
         def __init__(self):
             self.comment = None
@@ -602,10 +604,12 @@ def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
 
     # pylint: disable=R0903
     monkeypatch.setattr(testutils.github.os, "environ", env)
+    monkeypatch.setattr(testutils.github, "upload_results", lambda *args: None)
     report = _get_mock_report(outcome, longrepr=longrepr, sections=sections)
     issue = MockIssue()
-    assert testutils.github.make_comment(report, issue, task, _github()) \
-        is not None
+    rc = {"release": "2021.05", "candidate": "RC7"}
+    assert testutils.github.make_comment(report, issue, task, _github(), rc,
+                                         tmpdir) is not None
     assert "{:02}".format(task["spec"]["spec"]) in issue.comment.body
     assert task["name"] in issue.comment.body
     assert task["url"] in issue.comment.body
@@ -626,8 +630,8 @@ def test_make_comment(monkeypatch, outcome, longrepr, sections, task, env):
       {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"})]
 )
 # pylint: disable=R0913
-def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
-                            task):
+def test_make_comment_error(monkeypatch, tmpdir, caplog, outcome, longrepr,
+                            sections, task):
     # pylint: disable=R0903
     class MockIssue():
         def __init__(self):
@@ -642,9 +646,10 @@ def test_make_comment_error(monkeypatch, caplog, outcome, longrepr, sections,
                         lambda *args: None)
     report = _get_mock_report(outcome, longrepr, sections)
     issue = MockIssue()
+    rc = {"release": "2021.05", "candidate": "RC7"}
     with caplog.at_level(logging.ERROR):
-        assert testutils.github.make_comment(report, issue, task, _github()) \
-                is None
+        assert testutils.github.make_comment(report, issue, task, _github(),
+                                             rc, tmpdir) is None
     assert "Unable to comment:" in caplog.text
 
 
@@ -736,8 +741,8 @@ def _mock_update_issue():
     ]
 )
 # pylint: disable=R0913,R0914
-def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
-                      github, repo, issue, task, log, comment_error,
+def test_update_issue(monkeypatch, caplog, tmpdir, when, outcome, tested_task,
+                      rc, github, repo, issue, task, log, comment_error,
                       exp_marked):
     # pylint: disable=R0903,W0621
     class MockComment():
@@ -782,7 +787,7 @@ def test_update_issue(monkeypatch, caplog, when, outcome, tested_task, rc,
 
     report = _get_mock_report(outcome, when=when)
     with caplog.at_level(logging.INFO):
-        testutils.github.update_issue(report)
+        testutils.github.update_issue(report, tmpdir)
     if log:
         assert log in caplog.text
     else:
