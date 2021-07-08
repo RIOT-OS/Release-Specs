@@ -112,10 +112,19 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(rc_only_mark)
 
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_logreport(report):
-    yield
-    testutils.github.update_issue(report)
+def pytest_configure(config):
+    plugin = GithubCommentReportPlugin(config)
+    config.pluginmanager.register(plugin, 'github_comment_report_plugin')
+
+
+class GithubCommentReportPlugin:    # pylint: disable=R0903
+    def __init__(self, config):
+        self.config = config
+
+    def pytest_runtest_logreport(self, report):
+        # pylint: disable=W0212
+        basetemp = self.config._tmp_path_factory.getbasetemp()
+        testutils.github.update_issue(report, basetemp)
 
 
 def pytest_keyboard_interrupt(excinfo):

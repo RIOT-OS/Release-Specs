@@ -1,13 +1,20 @@
 import logging
 import os
 import re
-import subprocess
+import urllib.parse
 
 from bs4 import BeautifulSoup
-from github import Github, GithubException
+from github import Github, GithubException, InputFileContent
+
+from testutils.git import Git, GitError
 
 
 STICKY_COMMENT_COMMENT = "<!-- release-specs results {user} -->"
+GIST_ID_COMMENT_FMT = "<!-- gist-id:{gist_id} -->"
+GIST_ID_COMMENT_PATTERN = GIST_ID_COMMENT_FMT.format(
+    gist_id="(?P<gist_id>[0-9a-f]+)"
+)
+GIT_QUIET = True
 GITHUB_DOMAIN = "github.com"
 API_URL = "https://api.%s" % GITHUB_DOMAIN
 REPO_NAME = "RIOT-OS/Release-Specs"
@@ -31,10 +38,13 @@ task_comp = re.compile(
 
 
 def get_rc():
-    output = subprocess.check_output([
-        "git", "-C", os.environ["RIOTBASE"], "log", "-1", "--oneline",
-        "--decorate"
-    ]).decode()
+    try:
+        output = Git(os.environ["RIOTBASE"]).log(
+            "-1", "--oneline", "--decorate"
+        )
+    except GitError as exc:
+        logger.error(exc)
+        return None
     m = re.search(r"tag:\s(?P<release>\d{4}.\d{2})-(?P<candidate>RC\d+)",
                   output)
     if m is None:
@@ -156,7 +166,17 @@ def find_previous_comment(github, issue):
 
 
 def create_comment(github, issue):
-    body = "<h1>Test Report</h1>\n\n"
+    run_url = None
+    if "GITHUB_RUN_ID" in os.environ and \
+       "GITHUB_REPOSITORY" in os.environ and \
+       "GITHUB_SERVER_URL" in os.environ:
+        run_url = "{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}/actions/runs/" \
+                  "{GITHUB_RUN_ID}".format(**os.environ)
+
+    body = "<h1>{a_open}Test Report{a_close}</h1>\n\n".format(
+         a_open='<a href="{}">'.format(run_url) if run_url else '',
+         a_close='</a>' if run_url else ''
+    )
     body += STICKY_COMMENT_COMMENT.format(user=get_user_name(github))
     body += """
 <table>
@@ -174,17 +194,12 @@ def create_comment(github, issue):
         return None
 
 
-def _generate_outcome_summary(pytest_report):
-    run_url = None
-    if "GITHUB_RUN_ID" in os.environ and \
-       "GITHUB_REPOSITORY" in os.environ and \
-       "GITHUB_SERVER_URL" in os.environ:
-        run_url = "{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}/actions/runs/" \
-                  "{GITHUB_RUN_ID}".format(**os.environ)
+def _generate_outcome_summary(pytest_report, task):
     return "<strong>{a_open}{outcome}{a_close}</strong>".format(
-        a_open='<a href="{}">'.format(run_url) if run_url else '',
+        a_open='<a href="{}">'.format(task["outcome_url"])
+               if "outcome_url" in task else '',
         outcome=pytest_report.outcome.upper(),
-        a_close='</a>' if run_url else ''
+        a_close='</a>' if "outcome_url" in task else ''
     )
 
 
@@ -227,6 +242,23 @@ def get_tasks(comment, tbody, task):
 
 
 def _update_soup(soup, tbody, tasks):
+    if "GITHUB_RUN_ID" in os.environ and \
+       "GITHUB_REPOSITORY" in os.environ and \
+       "GITHUB_SERVER_URL" in os.environ:
+        title = soup.find("h1")
+        if title:
+            run_a = title.find("a")
+            url = "{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}/" \
+                  "actions/runs/{GITHUB_RUN_ID}".format(**os.environ)
+            if run_a:
+                run_a["href"] = url
+            else:
+                content = ' '.join(str(t).strip() for t in title.contents)
+                title.clear()
+                title.append(BeautifulSoup(
+                    f'<a href="{url}">' + content + '</a>',
+                    'html.parser'
+                ))
     tbody.clear()
     for task in tasks:
         tr = soup.new_tag("tr")
@@ -259,8 +291,13 @@ def _make_title(task):
 
 def update_comment(pytest_report, comment, task):
     soup = BeautifulSoup(comment.body, "html.parser")
+    if "gist_id" in task:
+        soup.insert(0, BeautifulSoup(GIST_ID_COMMENT_FMT.format(
+            gist_id=task["gist_id"]
+        ), "html.parser"))
     task["title"] = _make_title(task)
-    task["outcome"] = BeautifulSoup(_generate_outcome_summary(pytest_report),
+    task["outcome"] = BeautifulSoup(_generate_outcome_summary(pytest_report,
+                                                              task),
                                     "html.parser")
     task["emoji"] = OUTCOME_EMOJIS[pytest_report.outcome.lower()]
     tbody = soup.find('tbody')
@@ -275,17 +312,152 @@ def update_comment(pytest_report, comment, task):
         logger.error("Unable to update comment: {}".format(e))
 
 
-def make_comment(pytest_report, issue, task, github):
+def generate_outcome_content(pytest_report, task):
+    params = task.get('params')
+    filename = 'task_{spec:02d}.{task:02d}{params}_result.md'.format(
+        spec=task['spec']['spec'],
+        task=task['task'],
+        params='.{}'.format(params) if params else '',
+    )
+    content = ""
+    if pytest_report.outcome in ['passed', 'failed']:
+        content += f'# {task["spec"]["spec"]:02d}. {task["name"]} ['
+        if task.get('params'):
+            content += task['params'] + '] ['
+        content += pytest_report.outcome.upper()
+        content += ']\n'
+        if pytest_report.longrepr:
+            content += "## Failures\n\n"
+            content += "```\n"
+            content += str(pytest_report.longrepr)
+            content += "\n```\n\n"
+        if pytest_report.sections:
+            for title, body in pytest_report.sections:
+                content += "## {}\n\n".format(title)
+                content += "```\n"
+                content += str(body)
+                content += "\n```\n\n"
+    if content:
+        return {filename: content}
+    return {}
+
+
+def gist_file_url(gist_url, filename, ref=''):
+    return '{gist_url}/{ref}#{file_slug}'.format(
+        gist_url=gist_url,
+        ref=ref,
+        file_slug=re.sub('[^0-9A-Za-z_]+', '-', filename)
+    )
+
+
+def github_file_url(repo_url, filepath, ref='main'):
+    if GITHUB_DOMAIN not in repo_url:
+        return None
+    return f'{repo_url}/blob/{ref}/{filepath}'
+
+
+def upload_result_content(github, repo, repo_url, new_content):
+    try:
+        if repo.exists():
+            repo.pull()
+        else:
+            pull_url = list(urllib.parse.urlsplit(repo_url))
+            # add user credentials to URL to be able to push to HTTPS
+            pull_url[1] = '{user}:{token}@{netloc}'.format(
+                user=get_user_name(github),
+                token=get_access_token(),
+                netloc=pull_url[1]
+            )
+            repo = Git.clone(urllib.parse.urlunsplit(pull_url), repo.repodir,
+                             quiet=GIT_QUIET)
+        for filename in new_content:
+            with open(os.path.join(repo.repodir, filename), 'w') as file:
+                file.write(new_content[filename])
+            repo.add(filename)
+            if repo.staging_changed():
+                repo.commit('-m', f'Add {filename}')
+        repo.push()
+        return repo.head_sha
+    except GitError as exc:
+        logger.error(exc)
+        return None
+
+
+def get_results_gist(comment, github, rc, tmpdir, content):
+    github_user = github.get_user()
+    gist_match = re.search(GIST_ID_COMMENT_PATTERN, comment.body)
+    if gist_match is not None:
+        gist_id = gist_match.group('gist_id')
+        try:
+            for gist in github_user.get_gists():
+                if gist.id == gist_id:
+                    return (
+                        Git(os.path.join(tmpdir, gist.id), quiet=GIT_QUIET),
+                        gist.html_url,
+                        None
+                    )
+        except GithubException as exc:
+            logger.error(exc)
+            return None, None, None
+    # no gist found so try to create one.
+    try:
+        gist = github_user.create_gist(
+            public=False,
+            files={k: InputFileContent(content=content[k])
+                   for k in content},
+            description='Automated test results for RIOT '
+                        f'{rc["release"]}-{rc["candidate"]}'
+        )
+    except GithubException as exc:
+        logger.error(exc)
+        return None, None, None
+    # add return gist ID so it can be added to comment to later find it.
+    return (
+        Git(os.path.join(tmpdir, gist.id), quiet=GIT_QUIET),
+        gist.html_url,
+        gist.id
+    )
+
+
+def upload_results(pytest_report, comment, task, github, rc, tmpdir):
+    # pylint: disable=too-many-arguments
+    content = generate_outcome_content(pytest_report, task)
+    if not content:
+        logger.info("No result content for %s", pytest_report)
+        return
+    if "RESULT_OUTPUT_DIR" in os.environ and \
+       "RESULT_OUTPUT_URL" in os.environ:
+        repo = Git(os.environ['RESULT_OUTPUT_DIR'], quiet=GIT_QUIET)
+        repo_url = os.environ['RESULT_OUTPUT_URL']
+        url_func = github_file_url
+    else:
+        repo, repo_url, task['gist_id'] = get_results_gist(
+            comment, github, rc, tmpdir, content
+        )
+        if repo is None:
+            logger.info("No suitable repo for result upload")
+            return
+        url_func = gist_file_url
+    head = upload_result_content(github, repo, repo_url, content)
+    if head:
+        outcome_url = url_func(repo_url, list(content.keys())[0], head)
+        if outcome_url:
+            task['outcome_url'] = outcome_url
+
+
+def make_comment(pytest_report, issue, task, github, rc, tmpdir):
+    # pylint: disable=too-many-arguments
     comment = find_previous_comment(github, issue)
     if comment is None:
         comment = create_comment(github, issue)
     if comment is not None:
+        upload_results(pytest_report, comment, task, github, rc, tmpdir)
         update_comment(pytest_report, comment, task)
     return comment
 
 
 # pylint: disable=R0911,R0912
-def update_issue(pytest_report):    # noqa: C901
+def update_issue(pytest_report, tmpdir):    # noqa: C901
     if pytest_report.when not in ['call', 'setup'] or \
        (pytest_report.when == 'setup' and pytest_report.outcome != 'skipped'):
         return
@@ -314,7 +486,8 @@ def update_issue(pytest_report):    # noqa: C901
         logger.warning("Unable to find task {spec}.{task} in the "
                        "tracking issue".format(**tested_task))
     else:
-        comment = make_comment(pytest_report, issue, task, github)
+        comment = make_comment(pytest_report, issue, task, github,
+                               rc, tmpdir)
         if comment:
             comment_url = comment.html_url
         else:
