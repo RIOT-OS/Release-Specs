@@ -282,8 +282,8 @@ guide on Zephyr's documentation.
    ~~ PKT    -  4 snips, total size:  85 byte
    ```
    
-Task #12 - GNRC Border Router with WiFi uplink to the Internet
-==============================================================
+Task #12 - ICMPv6 echo between Border Router with WiFi uplink to named Internet host
+====================================================================================
 ### Description
 
 This test will ensure RIOT can connect to a real IPv6 enabled WiFi network and
@@ -372,8 +372,8 @@ Valid DNS names should get resolved too
 2020-08-02 20:35:40,088 # round-trip min/avg/max = 33.071/33.460/34.129 ms
 ```
 
-Task #13 - GNRC Networking
-==========================
+Task #13 - ICMPv6 echo between ESP and named Internet host through Linux with 6LowPAN
+=====================================================================================
 ### Description
 
 A second esp* board will connect to the border router from Task #12 using 6LoWPAN/`esp_now`.
