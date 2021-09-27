@@ -279,6 +279,7 @@ def nodes(local, request, boards, iotlab_site):
         name_fmt = get_namefmt(request)
         # Start IoT-LAB experiment if requested
         exp = IoTLABExperiment(
+            # pylint: disable=C0209
             name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
             site=iotlab_site)

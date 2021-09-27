@@ -98,10 +98,12 @@ def get_rc_tracking_issue(repo, rc):
     issue = None
     try:
         for i in repo.get_issues(state="open"):
+            # pylint: disable=C0209
             if i.title == "Release {release} - {candidate}".format(**rc):
                 issue = i
                 break
         if issue is None:
+            # pylint: disable=C0209
             logger.error("No tracking issue found for {release}-{candidate}"
                          .format(**rc))
     except GithubException as e:
@@ -171,9 +173,11 @@ def create_comment(github, issue):
     if "GITHUB_RUN_ID" in os.environ and \
        "GITHUB_REPOSITORY" in os.environ and \
        "GITHUB_SERVER_URL" in os.environ:
+        # pylint: disable=C0209
         run_url = "{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}/actions/runs/" \
                   "{GITHUB_RUN_ID}".format(**os.environ)
 
+    # pylint: disable=C0209
     body = "<h1>{a_open}Test Report{a_close}</h1>\n\n".format(
          a_open='<a href="{}">'.format(run_url) if run_url else '',
          a_close='</a>' if run_url else ''
@@ -196,6 +200,7 @@ def create_comment(github, issue):
 
 
 def _generate_outcome_summary(pytest_report, task):
+    # pylint: disable=C0209
     return "<strong>{a_open}{outcome}{a_close}</strong>".format(
         a_open='<a href="{}">'.format(task["outcome_url"])
                if "outcome_url" in task else '',
@@ -249,6 +254,7 @@ def _update_soup(soup, tbody, tasks):
         title = soup.find("h1")
         if title:
             run_a = title.find("a")
+            # pylint: disable=C0209
             url = "{GITHUB_SERVER_URL}/{GITHUB_REPOSITORY}/" \
                   "actions/runs/{GITHUB_RUN_ID}".format(**os.environ)
             if run_a:
@@ -315,6 +321,7 @@ def update_comment(pytest_report, comment, task):
 
 def generate_outcome_content(pytest_report, task):
     params = task.get('params')
+    # pylint: disable=C0209
     filename = 'task_{spec:02d}.{task:02d}{params}_result.md'.format(
         spec=task['spec']['spec'],
         task=task['task'],
@@ -477,6 +484,7 @@ def update_issue(pytest_report, tmpdir):    # noqa: C901
         logger.error(f"Unable to get issue text of {issue}: {e}")
         return
     if not task_line or not task:
+        # pylint: disable=C0209
         logger.warning("Unable to find task {spec}.{task} in the "
                        "tracking issue".format(**tested_task))
     else:
@@ -490,5 +498,6 @@ def update_issue(pytest_report, tmpdir):    # noqa: C901
             mark_task_done(get_user_name(github), comment_url, issue,
                            task_line, tested_task)
         elif task["done"]:
+            # pylint: disable=C0209
             logger.info("Task {spec}.{task} is already marked done in the "
                         "tracking issue".format(**tested_task))
