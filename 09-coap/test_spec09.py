@@ -35,7 +35,7 @@ class Shell(Ifconfig, CordEp):
         cmd = "coap get "
         if confirmable:
             cmd += "-c "
-        cmd += "{} {:d} {}".format(addr, port, resource)
+        cmd += f"{addr} {port:d} {resource}"
         return self.cmd(cmd, timeout=timeout, async_=async_)
 
 
@@ -63,13 +63,13 @@ async def coap_server():
 def setup_function(function):
     if function.__name__ in ["test_task01", "test_task02", "test_task05"]:
         host_netif = bridge(TAP)
-        ip_addr_add(host_netif, "{}/64".format(HOST_ULA))
+        ip_addr_add(host_netif, f"{HOST_ULA}/64")
 
 
 def teardown_function(function):
     if function.__name__ in ["test_task01", "test_task02", "test_task05"]:
         host_netif = bridge(TAP)
-        ip_addr_del(host_netif, "{}/64".format(HOST_ULA))
+        ip_addr_del(host_netif, f"{HOST_ULA}/64")
 
 
 # sudo required for function setup (address configuration of interface)
@@ -91,7 +91,7 @@ def test_task01(riot_ctrl, log_nodes):
         stderr=None if log_nodes else subprocess.DEVNULL,
     )
     try:
-        res = node.cord_ep_register("[{}]".format(HOST_ULA))
+        res = node.cord_ep_register(f"[{HOST_ULA}]")
         parser = CordEpRegistrationInfoParser()
         core_reg = parser.parse(res)
         if core_reg["ltime"] > 300:
@@ -164,7 +164,7 @@ def test_task03(riot_ctrl):
 
         # pylint: disable=E1101
         request = aiocoap.Message(code=aiocoap.POST, payload=payload,
-                                  uri='coap://{0}/sha256'.format(host))
+                                  uri=f'coap://{host}/sha256')
 
         block_exp = round(math.log(block_size, 2)) - 4
         # pylint: disable=E0237
@@ -177,7 +177,7 @@ def test_task03(riot_ctrl):
     for block_size in range(16, 1024 + 1, 16):
         print("Testing block size", block_size)
         response = asyncio.get_event_loop().run_until_complete(
-            client("[{}%{}]".format(node_lladdr, host_netif), block_size)
+            client(f"[{node_lladdr}%{host_netif}]", block_size)
         )
         assert str(response.code) == "2.04 Changed"
         # payload is a sha256 digest
@@ -204,7 +204,7 @@ def test_task04(riot_ctrl):
 
         # pylint: disable=E1101
         request = aiocoap.Message(code=aiocoap.GET,
-                                  uri='coap://{0}/riot/ver'.format(host))
+                                  uri=f'coap://{host}/riot/ver')
 
         block_exp = round(math.log(block_size, 2)) - 4
         # pylint: disable=E0237
@@ -217,7 +217,7 @@ def test_task04(riot_ctrl):
     for block_size in range(16, 1024 + 1, 16):
         print("Testing block size", block_size)
         response = asyncio.get_event_loop().run_until_complete(
-            client("[{}%{}]".format(node_lladdr, host_netif), block_size)
+            client(f"[{node_lladdr}%{host_netif}]", block_size)
         )
         assert str(response.code) == "2.05 Content"
         assert re.search(r"This is RIOT \(Version: .*\) running on a "
@@ -244,7 +244,7 @@ def test_task05(riot_ctrl):
 
         # pylint: disable=E1101
         msg = aiocoap.Message(code=aiocoap.GET,
-                              uri='coap://{0}/cli/stats'.format(host),
+                              uri=f'coap://{host}/cli/stats',
                               observe=0)
         req = context.request(msg)
 
@@ -261,7 +261,7 @@ def test_task05(riot_ctrl):
             break
         await context.shutdown()
 
-    timeout_futures([client_server('[{}]'.format(NODE_ULA))], timeout=2)
+    timeout_futures([client_server(f'[{NODE_ULA}]')], timeout=2)
     node.riotctrl.term.expect(r"gcoap: response Success, code 2.05, \d+ bytes")
     assert len(responses) == 2
     for i, response in enumerate(responses):

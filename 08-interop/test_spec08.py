@@ -47,7 +47,7 @@ def test_task01(riot_ctrl, log_nodes):
     m = re.search(r"\b(\d+)% packet loss", out)
     assert m is not None
     assert int(m.group(1)) < 1
-    res = ping6(node, "{}%{}".format(linux_addr, node_iface),
+    res = ping6(node, f"{linux_addr}%{node_iface}",
                 count=20, interval=100, packet_size=8)
     assert res["stats"]["packet_loss"] < 1
 
@@ -73,16 +73,14 @@ def test_task08(riot_ctrl):
 
     gnrc_node.udp_server_start(61616)
 
-    lwip_node.cmd("udp send [{gnrc_addr}]:61616 012345678abcdef"
-                  .format(gnrc_addr=gnrc_addr))
+    lwip_node.cmd(f"udp send [{gnrc_addr}]:61616 012345678abcdef")
     packet_loss = gnrc_node.udp_server_check_output(count=1, delay_ms=0)
     assert packet_loss == 0
     gnrc_node.udp_server_stop()
 
     lwip_node.cmd("udp server start 61617")
     gnrc_node.udp_client_send(lwip_addr, 61617, "01234567")
-    lwip_node.riotctrl.term.expect_exact("Received UDP data from [{}]:61617"
-                                         .format(gnrc_addr))
+    lwip_node.riotctrl.term.expect_exact(f"Received UDP data from [{gnrc_addr}]:61617")
     lwip_node.riotctrl.term.expect_exact("00000000  " +
                                          "  ".join(hex(ord(c))[2:]
                                                    for c in "01234567"),

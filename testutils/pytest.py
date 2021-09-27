@@ -56,10 +56,9 @@ def check_ssh():
     user, _ = IoTLABExperiment.user_credentials()
     if user is None:
         return False
-    spawn = pexpect.spawnu("ssh {}@{}.{} /bin/bash".format(user, DEFAULT_SITE,
-                                                           IOTLAB_DOMAIN))
+    spawn = pexpect.spawnu(f"ssh {user}@{DEFAULT_SITE}.{IOTLAB_DOMAIN} /bin/bash")
     spawn.sendline("echo $USER")
-    return bool(spawn.expect([pexpect.TIMEOUT, "{}".format(user)],
+    return bool(spawn.expect([pexpect.TIMEOUT, f"{user}"],
                              timeout=5))
 
 
@@ -116,4 +115,4 @@ def get_required_envvar(envvar):
     try:
         return os.environ[envvar]
     except KeyError as err:
-        raise RuntimeError("Missing {} env variable".format(envvar)) from err
+        raise RuntimeError(f"Missing {envvar} env variable") from err

@@ -468,7 +468,7 @@ class SBS4(BeautifulSoup):          # pylint: disable=W0223
 )
 def test_get_tasks(caplog, tbody, task, exp, exp_errs):
     tbody = SBS4(
-        '<table><tbody>{}</tbody></table>'.format(tbody)
+        f'<table><tbody>{tbody}</tbody></table>'
     ).find('tbody')
     with caplog.at_level(logging.ERROR):
         tasks = testutils.github.get_tasks(MockComment("foobar"), tbody, task)
@@ -974,7 +974,7 @@ def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task,
     rc = {"release": "2021.05", "candidate": "RC7"}
     assert testutils.github.make_comment(report, issue, task, _github(), rc,
                                          tmpdir) is not None
-    assert "{:02}".format(task["spec"]["spec"]) in issue.comment.body
+    assert f"{task['spec']['spec']:02}" in issue.comment.body
     assert task["name"] in issue.comment.body
     assert task["url"] in issue.comment.body
     for key in env:

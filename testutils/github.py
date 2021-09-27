@@ -16,7 +16,7 @@ GIST_ID_COMMENT_PATTERN = GIST_ID_COMMENT_FMT.format(
 )
 GIT_QUIET = True
 GITHUB_DOMAIN = "github.com"
-API_URL = "https://api.%s" % GITHUB_DOMAIN
+API_URL = f"https://api.{GITHUB_DOMAIN}"
 REPO_NAME = "RIOT-OS/Release-Specs"
 GITHUBTOKEN_FILE = ".riotgithubtoken"
 OUTCOME_EMOJIS = {
@@ -49,7 +49,7 @@ def get_rc():
                   output)
     if m is None:
         logger.warning("Not a release candidate")
-        logger.warning("  {}".format(output))
+        logger.warning(f"  {output}")
         return None
     return m.groupdict()
 
@@ -59,7 +59,7 @@ def get_task(nodeid):
                   r"(\[(?P<params>[0-9a-zA-Z_-]+)\])",
                   nodeid)
     if m is None:
-        logger.warning("Can not find task in {}".format(nodeid))
+        logger.warning(f"Can not find task in {nodeid}")
         return None
     return {k: int(v) if k != 'params' else v
             for k, v in m.groupdict().items()}
@@ -74,7 +74,7 @@ def get_access_token():
         with open(os.path.join(os.environ["HOME"], GITHUBTOKEN_FILE)) as tf:
             return tf.read().strip()
     except FileNotFoundError:
-        logger.warning("~/{} not found".format(GITHUBTOKEN_FILE))
+        logger.warning(f"~/{GITHUBTOKEN_FILE} not found")
         return None
 
 
@@ -89,7 +89,7 @@ def get_repo(github):
     try:
         return github.get_repo(REPO_NAME)
     except GithubException as e:
-        logger.error("Unable to get {}: {}".format(REPO_NAME, e))
+        logger.error(f"Unable to get {REPO_NAME}: {e}")
         return None
 
 
@@ -104,7 +104,7 @@ def get_rc_tracking_issue(repo, rc):
             logger.error("No tracking issue found for {release}-{candidate}"
                          .format(**rc))
     except GithubException as e:
-        logger.error("Unable to get repo's issues: {}".format(e))
+        logger.error(f"Unable to get repo's issues: {e}")
     return issue
 
 
@@ -113,9 +113,9 @@ def mark_task_done(user, comment_url, issue, task_line, tested_task):
     # trailing whitespace in case something was added after in the meantime
     if new_task_line != task_line:
         if comment_url:
-            new_task_line += " @{} (see {}) ".format(user, comment_url)
+            new_task_line += f" @{user} (see {comment_url}) "
         else:
-            new_task_line += " @{} ".format(user)
+            new_task_line += f" @{user} "
     try:
         issue.update()      # reload body in case something changed
         new_body = issue.body.replace(task_line, new_task_line)
@@ -190,7 +190,7 @@ def create_comment(github, issue):
     try:
         return issue.create_comment(body)
     except GithubException as e:
-        logger.error("Unable to comment: {}".format(e))
+        logger.error(f"Unable to comment: {e}")
         return None
 
 
@@ -283,9 +283,9 @@ def _make_title(task):
     >>> _make_title({'spec': {'spec': 5}, 'name': 'snafu', 'params': 'params'})
     '05. snafu [params]'
     """
-    title = "{:02d}. {}".format(task["spec"]["spec"], task["name"]).strip()
+    title = f"{task['spec']['spec']:02d}. {task['name']}".strip()
     if task.get("params") is not None:
-        title += " [{}]".format(task["params"])
+        title += f" [{task['params']}]"
     return title
 
 
@@ -309,7 +309,7 @@ def update_comment(pytest_report, comment, task):
     try:
         comment.edit(soup.prettify(formatter="html5"))
     except GithubException as e:
-        logger.error("Unable to update comment: {}".format(e))
+        logger.error(f"Unable to update comment: {e}")
 
 
 def generate_outcome_content(pytest_report, task):
@@ -333,7 +333,7 @@ def generate_outcome_content(pytest_report, task):
             content += "\n```\n\n"
         if pytest_report.sections:
             for title, body in pytest_report.sections:
-                content += "## {}\n\n".format(title)
+                content += f"## {title}\n\n"
                 content += "```\n"
                 content += str(body)
                 content += "\n```\n\n"
@@ -363,11 +363,7 @@ def upload_result_content(github, repo, repo_url, new_content):
         else:
             pull_url = list(urllib.parse.urlsplit(repo_url))
             # add user credentials to URL to be able to push to HTTPS
-            pull_url[1] = '{user}:{token}@{netloc}'.format(
-                user=get_user_name(github),
-                token=get_access_token(),
-                netloc=pull_url[1]
-            )
+            pull_url[1] = f'{get_user_name(github)}:{get_access_token()}@{pull_url[1]}'
             repo = Git.clone(urllib.parse.urlunsplit(pull_url), repo.repodir,
                              quiet=GIT_QUIET)
         for filename in new_content:
@@ -479,8 +475,7 @@ def update_issue(pytest_report, tmpdir):    # noqa: C901
     try:
         task_line, task = find_task_text(issue.body, tested_task)
     except GithubException as e:
-        logger.error("Unable to get issue text of {}: {}"
-                     .format(issue, e))
+        logger.error(f"Unable to get issue text of {issue}: {e}")
         return
     if not task_line or not task:
         logger.warning("Unable to find task {spec}.{task} in the "

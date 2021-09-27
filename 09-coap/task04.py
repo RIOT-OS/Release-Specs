@@ -40,14 +40,14 @@ async def main(host, block_size):
     context = await Context.create_client_context()
     await asyncio.sleep(2)
 
-    request = Message(code=GET, uri='coap://{0}/riot/ver'.format(host))
+    request = Message(code=GET, uri=f'coap://{host}/riot/ver')
 
     block_exp = round(math.log(block_size, 2)) - 4
     request.opt.block2 = optiontypes.BlockOption.BlockwiseTuple(0, 0, block_exp)
 
     response = await context.request(request).response
 
-    print('Result: %s\n%r'%(response.code, response.payload))
+    print(f'Result: {response.code}\n{response.payload!r}')
 
 if __name__ == "__main__":
     # read command line

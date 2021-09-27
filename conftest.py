@@ -266,11 +266,11 @@ def nodes(local, request, boards, iotlab_site):
     only_native = all(b.startswith("native") for b in boards)
     for board in boards:
         if local or only_native or IoTLABExperiment.valid_board(board):
-            env = {'BOARD': '{}'.format(board)}
+            env = {'BOARD': f'{board}'}
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
-                'IOTLAB_NODE': '{}'.format(board)
+                'IOTLAB_NODE': f'{board}'
             }
         ctrls.append(RIOTCtrl(env=env))
     if local or only_native:
@@ -302,7 +302,7 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
         # see: https://github.com/RIOT-OS/RIOT/issues/14504
         node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
             node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '') +
-            " -e 'USEMODULE={}'".format(node.env['USEMODULE'])
+            f" -e 'USEMODULE={node.env['USEMODULE']}'"
         )
     if cflags is not None:
         node.env['CFLAGS'] = cflags
