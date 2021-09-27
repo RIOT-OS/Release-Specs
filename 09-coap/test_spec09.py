@@ -42,7 +42,7 @@ class Shell(Ifconfig, CordEp):
 # pylint: disable=R0903
 class TimeResource(aiocoap.resource.Resource):
     """Handle GET for clock time."""
-    # pylint: disable=W0613
+    # pylint: disable=W0613, disable=R0201
     async def render_get(self, request):
         payload = datetime.datetime.now().\
                 strftime("%Y-%m-%d %H:%M").encode('ascii')
