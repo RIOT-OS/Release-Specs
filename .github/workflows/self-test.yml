@@ -36,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install tox
+        python -m pip install tox
     - name: Test with tox
       env:
         RIOTBASE: ${{ github.workspace }}/RIOT
@@ -49,4 +49,6 @@ jobs:
             --cov-fail-under=95
     - name: Check code format with black
       if: matrix.python-version == 3.9
-      run: tox -e black
+      run: |
+        cd Release-Specs
+        tox -e black
