@@ -71,7 +71,8 @@ def get_user_name(github):
 
 def get_access_token():
     try:
-        with open(os.path.join(os.environ["HOME"], GITHUBTOKEN_FILE)) as tf:
+        with open(os.path.join(os.environ["HOME"], GITHUBTOKEN_FILE),
+                  encoding='utf-8') as tf:
             return tf.read().strip()
     except FileNotFoundError:
         logger.warning(f"~/{GITHUBTOKEN_FILE} not found")
@@ -367,7 +368,8 @@ def upload_result_content(github, repo, repo_url, new_content):
             repo = Git.clone(urllib.parse.urlunsplit(pull_url), repo.repodir,
                              quiet=GIT_QUIET)
         for filename in new_content:
-            with open(os.path.join(repo.repodir, filename), 'w') as file:
+            with open(os.path.join(repo.repodir, filename), 'w',
+                      encoding='utf-8') as file:
                 file.write(new_content[filename])
             repo.add(filename)
             if repo.staging_changed():
