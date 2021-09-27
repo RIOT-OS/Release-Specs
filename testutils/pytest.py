@@ -79,16 +79,15 @@ def check_local(run_local):
 def check_credentials(run_local):
     iotlab_creds_mark = None
     if not run_local and not IoTLABExperiment.check_user_credentials():
+        iotlab_creds_location = os.path.join(os.environ["HOME"], ".iotlabrc")
         iotlab_creds_mark = pytest.mark.skip(
-            reason="Test requires IoT-LAB credentials in {}. "
-                   "Use `iotlab-auth` to create".format(
-                       os.path.join(os.environ["HOME"], ".iotlabrc"))
+            reason=f"Test requires IoT-LAB credentials in {iotlab_creds_location}. "
+                   "Use `iotlab-auth` to create"
         )
     elif not run_local and not check_ssh():
         iotlab_creds_mark = pytest.mark.skip(
-            reason="Can't access IoT-LAB front-end {}.{} via SSH. "
-                   "Use key without password or `ssh-agent`".format(
-                       DEFAULT_SITE, IOTLAB_DOMAIN)
+            reason="Can't access IoT-LAB front-end {DEFAULT_SITE}.{IOTLAB_DOMAIN} "
+                   "via SSH. Use key without password or `ssh-agent`"
         )
     return iotlab_creds_mark
 

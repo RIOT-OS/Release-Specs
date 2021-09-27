@@ -41,9 +41,8 @@ def test_task01(riot_ctrl, log_nodes):
 
     if log_nodes:
         linux.child.logfile = sys.stdout
-    out = linux.run_command("{ping_cmd} -c 20 -i .5 {node_addr}%{linux_iface}"
-                            .format(ping_cmd=ping_cmd, node_addr=node_addr,
-                                    linux_iface=linux_iface), timeout=20)
+    out = linux.run_command(f"{ping_cmd} -c 20 -i .5 {node_addr}%{linux_iface}",
+                            timeout=20)
     m = re.search(r"\b(\d+)% packet loss", out)
     assert m is not None
     assert int(m.group(1)) < 1

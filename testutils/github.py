@@ -122,8 +122,8 @@ def mark_task_done(user, comment_url, issue, task_line, tested_task):
         new_body = issue.body.replace(task_line, new_task_line)
         issue.edit(body=new_body)
     except GithubException as e:
-        logger.error("Unable to mark {}.{} in the tracking issue: {}"
-                     .format(tested_task["spec"], tested_task["task"], e))
+        logger.error(f"Unable to mark {tested_task['spec']}.{tested_task['task']} "
+                     f"in the tracking issue: {e}")
 
 
 def find_task_text(issue_body, tested_task):
@@ -344,11 +344,8 @@ def generate_outcome_content(pytest_report, task):
 
 
 def gist_file_url(gist_url, filename, ref=''):
-    return '{gist_url}/{ref}#{file_slug}'.format(
-        gist_url=gist_url,
-        ref=ref,
-        file_slug=re.sub('[^0-9A-Za-z_]+', '-', filename)
-    )
+    file_slug = re.sub('[^0-9A-Za-z_]+', '-', filename)
+    return f'{gist_url}/{ref}#{file_slug}'
 
 
 def github_file_url(repo_url, filepath, ref='main'):

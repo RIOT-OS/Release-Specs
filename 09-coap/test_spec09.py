@@ -94,11 +94,11 @@ def test_task01(riot_ctrl, log_nodes):
         res = node.cord_ep_register(f"[{HOST_ULA}]")
         parser = CordEpRegistrationInfoParser()
         core_reg = parser.parse(res)
-        if core_reg["ltime"] > 300:
-            pytest.xfail("CoRE RD lifetime is configured for {}s (> 5min). "
-                         "That's way to long for a test!"
-                         .format(core_reg["ltime"]))
-        time.sleep(core_reg["ltime"])
+        ltime = core_reg['ltime']
+        if ltime > 300:
+            pytest.xfail(f"CoRE RD lifetime is configured for {ltime}s (> 5min). "
+                         "That's way to long for a test!")
+        time.sleep(ltime)
     finally:
         aiocoap_rd.terminate()
         aiocoap_rd.wait()

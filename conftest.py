@@ -336,8 +336,8 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
             if node.env.get("IOTLAB_NODE"):
                 node_name = node.env["IOTLAB_NODE"]
             else:
-                node_name = "{}-{}".format(
-                    node.board(), re.sub(r'\W+', '-', node.env["PORT"]))
+                node_port = re.sub(r'\W+', '-', node.env["PORT"])
+                node_name = f"{node.board()}-{node_port}"
             node.env["TERMLOG"] = os.path.join(
                 os.getcwd(), log_file_fmt.format(
                     node=node_name, time=int(time.time()),

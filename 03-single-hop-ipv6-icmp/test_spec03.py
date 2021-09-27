@@ -104,12 +104,10 @@ def test_task04(riot_ctrl, log_nodes):
         for pinger in pingers:
             if log_nodes:
                 pinger.child.logfile = sys.stdout
-            out = pinger.run_command("{ping_cmd} -f -s 1452 {pinged_addr}"
+            out = pinger.run_command(f"{ping_cmd} -f -s 1452 {pinged_addr}"
                                      # pipe to /dev/null because output can go
                                      # into MiB of data ;-)
-                                     " 2>&1 > /dev/null"
-                                     .format(ping_cmd=ping_cmd,
-                                             pinged_addr=pinged_addr),
+                                     " 2>&1 > /dev/null",
                                      async_=True, timeout=60 * 60)
             futures.append(out)
         timeout_futures(futures, 60 * 60)

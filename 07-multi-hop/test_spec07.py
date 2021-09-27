@@ -205,10 +205,10 @@ def test_task05(rpl_nodes):
         packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
         if packet_loss >= 10:
             pytest.xfail(
-                "packet_loss {} >= 10. This is an experimental task, see also "
+                f"packet_loss {packet_loss} >= 10. This is an experimental task, "
+                "see also "
                 # pylint: disable=C0301
                 "https://github.com/RIOT-OS/Release-Specs/issues/142#issuecomment-561677974"    # noqa: E501
-                .format(packet_loss)
             )
         assert packet_loss < 10
         server.udp_server_stop()

@@ -50,9 +50,8 @@ class IoTLABExperiment():
         reg = r'([0-9a-zA-Z\-]+)-\d+\.[a-z]+\.iot-lab\.info'
         match = re.search(reg, iotlab_node)
         if match is None:
-            raise ValueError("Unable to parse {} as IoT-LAB node name of "
-                             "format <node-name>.<site-name>.iot-lab.info"
-                             .format(iotlab_node))
+            raise ValueError("Unable to parse {iotlab_node} as IoT-LAB node name of "
+                             "format <node-name>.<site-name>.iot-lab.info")
         iotlab_node_name = match.group(1)
         dict_values = IoTLABExperiment.BOARD_ARCHI_MAP.values()
         dict_names = [value['name'] for value in dict_values]
@@ -83,8 +82,9 @@ class IoTLABExperiment():
     @staticmethod
     def _archi_from_board(board):
         """Return iotlab 'archi' format for BOARD"""
-        return '{}:{}'.format(IoTLABExperiment.BOARD_ARCHI_MAP[board]['name'],
-                              IoTLABExperiment.BOARD_ARCHI_MAP[board]['radio'])
+        name = IoTLABExperiment.BOARD_ARCHI_MAP[board]['name']
+        radio = IoTLABExperiment.BOARD_ARCHI_MAP[board]['radio']
+        return f'{name}:{radio}'
 
     @staticmethod
     def _check_site(site):
