@@ -7,4 +7,6 @@ pytest-cov
 pytest-rerunfailures
 riotctrl
 scapy
+pyserial
+pexpect
 paho-mqtt
