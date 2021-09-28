@@ -2,52 +2,91 @@ import json
 import pytest
 import testutils.ttn
 
-TOPIC_UPLINK = '+/devices/+/up'
-TOPIC_ACK = '+/devices/+/events/down/acks'
-TOPIC_ACTIVATION = '+/devices/+/events/activations'
-SUBSCRIBE_LIST = [TOPIC_UPLINK, TOPIC_ACTIVATION, TOPIC_ACK]
+from testutils.ttn import SUBSCRIBE_LIST, TOPIC_ACK, TOPIC_UPLINK
 
-BASE64_PAYLOAD = '\x01\x02\x03\x04'
+
+BASE64_PAYLOAD = "This is RIOT!"
 TEST_DEV_ID = "0102030405060708"
 
-JSON_UPLINK = """{
-  "app_id": "my-app-id",
-  "dev_id": "my-dev-id",
-  "hardware_serial": "0102030405060708",
-  "port": 1,
-  "counter": 2,
-  "is_retry": false,
-  "confirmed": false,
-  "payload_raw": "AQIDBA==",
-  "payload_fields": {},
-  "metadata": {
-    "airtime": 46336000,
-    "time": "1970-01-01T00:00:00Z",
-    "frequency": 868.1,
-    "modulation": "LORA",
-    "data_rate": "SF7BW125",
-    "bit_rate": 50000,
-    "coding_rate": "4/5",
-    "gateways": [
+JSON_UPLINK = """
+{
+  "uplink_message": {
+    "session_key_id": "AXwoG2498U/6R8SL29L1UQ==",
+    "f_port": 2,
+    "f_cnt": 2,
+    "frm_payload": "VGhpcyBpcyBSSU9UIQ==",
+    "rx_metadata": [
       {
-        "gtw_id": "ttn-herengracht-ams",
-        "timestamp": 12345,
-        "time": "1970-01-01T00:00:00Z",
-        "channel": 0,
-        "rssi": -25,
-        "snr": 5,
-        "rf_chain": 0,
-        "latitude": 52.1234,
-        "longitude": 6.1234,
-        "altitude": 6
+        "gateway_ids": {
+          "gateway_id": "iot-lab-saclay-gateway"
+        },
+        "time": "2021-09-27T16:34:49Z",
+        "timestamp": 2965596547,
+        "rssi": -70,
+        "channel_rssi": -70,
+        "snr": 10,
+        "location": {
+          "latitude": 48.71503122196953,
+          "longitude": 2.205945253372193,
+          "altitude": 157,
+          "source": "SOURCE_REGISTRY"
+        },
+        "uplink_token": "bar"
       }
     ],
-    "latitude": 52.2345,
-    "longitude": 6.2345,
-    "altitude": 2
+    "settings": {
+      "data_rate": {
+        "lora": {
+          "bandwidth": 125000,
+          "spreading_factor": 7
+        }
+      },
+      "data_rate_index": 5,
+      "coding_rate": "4/5",
+      "frequency": "868100000",
+      "timestamp": 2965596547
+    },
+    "received_at": "2021-09-27T16:34:49.052680760Z",
+    "confirmed": true,
+    "consumed_airtime": "0.061696s",
+    "network_ids": {
+      "net_id": "000013",
+      "tenant_id": "ttn",
+      "cluster_id": "ttn-eu1"
+    }
   }
 }
 """
+
+JSON_UPLINK_FIRST_MSG = """
+{
+  "uplink_message": {
+    "session_key_id": "AXwoG2498U/6R8SL29L1UQ==",
+    "f_port": 2,
+    "frm_payload": "VGhpcyBpcyBSSU9UIQ==",
+    "rx_metadata": [
+      {
+        "gateway_ids": {
+          "gateway_id": "iot-lab-saclay-gateway"
+        },
+        "time": "2021-09-27T16:34:49Z",
+        "timestamp": 2965596547,
+        "rssi": -70,
+        "channel_rssi": -70,
+        "snr": 10,
+        "location": {
+          "latitude": 48.71503122196953,
+          "longitude": 2.205945253372193,
+          "altitude": 157,
+          "source": "SOURCE_REGISTRY"
+        },
+        "uplink_token": "foo"
+      }
+    ]
+  }
+}
+"""
+
 
 JSON_DOWNLINK = "{}"
 
@@ -132,7 +171,7 @@ def test_on_message_ack(ttn_client):
 def test_publish_to_dev(ttn_client):
     ttn_client.publish_to_dev(TEST_DEV_ID, foo="bar")
     downlink = ttn_client.mqtt.downlink_list.pop()
-    expected_uri = f'{testutils.ttn.APP_ID}/devices/{TEST_DEV_ID}/down'
+    expected_uri = f'v3/{testutils.ttn.APP_ID}@ttn/devices/{TEST_DEV_ID}/down/replace'
     assert downlink.uri == expected_uri
     assert json.loads(downlink.data)["foo"] == "bar"
 
