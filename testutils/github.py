@@ -124,7 +124,9 @@ def mark_task_done(user, comment_url, issue, task_line, tested_task):
         new_body = issue.body.replace(task_line, new_task_line)
         issue.edit(body=new_body)
     except GithubException as e:
-        logger.error(f"Unable to mark {tested_task['spec']}.{tested_task['task']} "
+        spec = tested_task['spec']
+        spec_task = tested_task['task']
+        logger.error(f"Unable to mark {spec}.{spec_task} "
                      f"in the tracking issue: {e}")
 
 
@@ -368,7 +370,8 @@ def upload_result_content(github, repo, repo_url, new_content):
         else:
             pull_url = list(urllib.parse.urlsplit(repo_url))
             # add user credentials to URL to be able to push to HTTPS
-            pull_url[1] = f'{get_user_name(github)}:{get_access_token()}@{pull_url[1]}'
+            username = get_user_name(github)
+            pull_url[1] = f'{username}:{get_access_token()}@{pull_url[1]}'
             repo = Git.clone(urllib.parse.urlunsplit(pull_url), repo.repodir,
                              quiet=GIT_QUIET)
         for filename in new_content:

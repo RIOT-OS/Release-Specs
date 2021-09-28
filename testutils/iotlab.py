@@ -50,8 +50,9 @@ class IoTLABExperiment():
         reg = r'([0-9a-zA-Z\-]+)-\d+\.[a-z]+\.iot-lab\.info'
         match = re.search(reg, iotlab_node)
         if match is None:
-            raise ValueError("Unable to parse {iotlab_node} as IoT-LAB node name of "
-                             "format <node-name>.<site-name>.iot-lab.info")
+            raise ValueError("Unable to parse {iotlab_node} as IoT-LAB node "
+                             "name of format "
+                             "<node-name>.<site-name>.iot-lab.info")
         iotlab_node_name = match.group(1)
         dict_values = IoTLABExperiment.BOARD_ARCHI_MAP.values()
         dict_names = [value['name'] for value in dict_values]
@@ -89,7 +90,8 @@ class IoTLABExperiment():
     @staticmethod
     def _check_site(site):
         if site not in IoTLABExperiment.SITES:
-            raise ValueError(f"iotlab site must be one of {IoTLABExperiment.SITES}")
+            raise ValueError("iotlab site must be one of "
+                             f"{IoTLABExperiment.SITES}")
 
     @staticmethod
     def _valid_addr(ctrl, addr):
@@ -132,7 +134,8 @@ class IoTLABExperiment():
            nodes"""
         logging.info("Submitting experiment")
         self.exp_id = self._submit(site=self.site, duration=duration)
-        logging.info(f"Waiting for experiment {self.exp_id} to go to state \"Running\"")
+        logging.info(f"Waiting for experiment {self.exp_id} to go to state "
+                     "\"Running\"")
         self._wait()
         self._map_iotlab_nodes_to_riot_ctrl(self._get_nodes())
 

@@ -41,8 +41,9 @@ def test_task01(riot_ctrl, log_nodes):
 
     if log_nodes:
         linux.child.logfile = sys.stdout
-    out = linux.run_command(f"{ping_cmd} -c 20 -i .5 {node_addr}%{linux_iface}",
-                            timeout=20)
+    out = linux.run_command(
+        f"{ping_cmd} -c 20 -i .5 {node_addr}%{linux_iface}", timeout=20
+    )
     m = re.search(r"\b(\d+)% packet loss", out)
     assert m is not None
     assert int(m.group(1)) < 1
@@ -79,7 +80,9 @@ def test_task08(riot_ctrl):
 
     lwip_node.cmd("udp server start 61617")
     gnrc_node.udp_client_send(lwip_addr, 61617, "01234567")
-    lwip_node.riotctrl.term.expect_exact(f"Received UDP data from [{gnrc_addr}]:61617")
+    lwip_node.riotctrl.term.expect_exact(
+        f"Received UDP data from [{gnrc_addr}]:61617"
+    )
     lwip_node.riotctrl.term.expect_exact("00000000  " +
                                          "  ".join(hex(ord(c))[2:]
                                                    for c in "01234567"),

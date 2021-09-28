@@ -167,8 +167,9 @@ class GNRCUDP(ShellInteraction):
         else:
             # wait 1 sec per message
             timeout = count * 1
+        delay = int(delay_ms * 1000)
         res = self.cmd(
-            f"udp send {dest_addr} {port} {payload} {count} {int(delay_ms * 1000)}",
+            f"udp send {dest_addr} {port} {payload} {count} {delay}",
             timeout=timeout, async_=async_
         )
         if "Error:" in res:
