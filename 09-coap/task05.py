@@ -69,14 +69,14 @@ async def main(host):
 
     context = await Context.create_server_context(root)
 
-    msg = Message(code=GET, uri='coap://{0}/cli/stats'.format(host), observe=0)
+    msg = Message(code=GET, uri=f'coap://{host}/cli/stats', observe=0)
     req = context.request(msg)
 
     resp = await req.response
-    print("First response: %s\n%r"%(resp, resp.payload))
+    print(f"First response: {resp}\n{resp.payload!r}")
 
     async for resp in req.observation:
-        print("Next result: %s\n%r"%(resp, resp.payload))
+        print(f"Next result: {resp}\n{resp.payload!r}")
 
         req.observation.cancel()
         break

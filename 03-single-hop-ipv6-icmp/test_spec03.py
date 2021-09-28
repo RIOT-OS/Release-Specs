@@ -96,7 +96,7 @@ def test_task04(riot_ctrl, log_nodes):
     _, pinged_addr = lladdr(node.ifconfig_list())
     assert pinged_addr.startswith("fe80::")
     iface = bridge('tap0')
-    pinged_addr += "%{}".format(iface)
+    pinged_addr += f"%{iface}"
     ping_cmd = get_ping_cmd()
 
     futures = []
@@ -104,12 +104,10 @@ def test_task04(riot_ctrl, log_nodes):
         for pinger in pingers:
             if log_nodes:
                 pinger.child.logfile = sys.stdout
-            out = pinger.run_command("{ping_cmd} -f -s 1452 {pinged_addr}"
+            out = pinger.run_command(f"{ping_cmd} -f -s 1452 {pinged_addr}"
                                      # pipe to /dev/null because output can go
                                      # into MiB of data ;-)
-                                     " 2>&1 > /dev/null"
-                                     .format(ping_cmd=ping_cmd,
-                                             pinged_addr=pinged_addr),
+                                     " 2>&1 > /dev/null",
                                      async_=True, timeout=60 * 60)
             futures.append(out)
         timeout_futures(futures, 60 * 60)
@@ -122,7 +120,7 @@ def test_task04(riot_ctrl, log_nodes):
 
 
 @pytest.mark.xfail(reason="See https://github.com/RIOT-OS/RIOT/issues/12565")
-@pytest.mark.skipif(not bridged(["tap{}".format(i)
+@pytest.mark.skipif(not bridged([f"tap{i}"
                                  for i in range(TASK05_NODES)]),
                     reason="tap0 to tap10 are not bridged")
 @pytest.mark.parametrize('nodes',
@@ -130,7 +128,7 @@ def test_task04(riot_ctrl, log_nodes):
                          indirect=['nodes'])
 def test_task05(nodes, riot_ctrl):
     nodes = [
-        riot_ctrl(i, APP, Shell, port='tap{}'.format(i))
+        riot_ctrl(i, APP, Shell, port=f'tap{i}')
         for i in range(len(nodes))
     ]
 

@@ -81,14 +81,14 @@ def _init_rpl_dodag(nodes, nodes_netifs):
     dodag_id = nodes_netifs[0]["lladdr"].replace("fe80::", "2001:db8::")
     nodes[0].ifconfig_add(nodes_netifs[0]["netif"], dodag_id + "/64")
     # TODO provide rpl ShellInteraction in `riotctrl_shell` upstream
-    res = nodes[0].cmd("rpl init {}".format(nodes_netifs[0]["netif"]))
+    res = nodes[0].cmd(f"rpl init {nodes_netifs[0]['netif']}")
     if "success" not in res:
         raise RuntimeError(res)
-    res = nodes[0].cmd("rpl root 0 {}".format(dodag_id))
+    res = nodes[0].cmd(f"rpl root 0 {dodag_id}")
     if "success" not in res:
         raise RuntimeError(res)
     for i, node in enumerate(nodes[1:], 1):
-        res = node.cmd("rpl init {}".format(nodes_netifs[i]["netif"]))
+        res = node.cmd(f"rpl init {nodes_netifs[i]['netif']}")
         if "success" not in res:
             raise RuntimeError(res)
     nodes_configured = [False]
@@ -205,10 +205,10 @@ def test_task05(rpl_nodes):
         packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
         if packet_loss >= 10:
             pytest.xfail(
-                "packet_loss {} >= 10. This is an experimental task, see also "
+                f"packet_loss {packet_loss} >= 10. This is an experimental "
+                "task, see also "
                 # pylint: disable=C0301
                 "https://github.com/RIOT-OS/Release-Specs/issues/142#issuecomment-561677974"    # noqa: E501
-                .format(packet_loss)
             )
         assert packet_loss < 10
         server.udp_server_stop()

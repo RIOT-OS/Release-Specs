@@ -60,7 +60,7 @@ class TTNClient:
         self.mqtt.loop_stop()
 
     def publish_to_dev(self, dev_id, **kwargs):
-        self.mqtt.publish("{}/devices/{}/down".format(APP_ID, dev_id),
+        self.mqtt.publish(f"{APP_ID}/devices/{dev_id}/down",
                           json.dumps(kwargs))
 
     def pop_uplink_payload(self):

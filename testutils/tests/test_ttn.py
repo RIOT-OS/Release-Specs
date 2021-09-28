@@ -131,8 +131,7 @@ def test_on_message_ack(ttn_client):
 def test_publish_to_dev(ttn_client):
     ttn_client.publish_to_dev(TEST_DEV_ID, foo="bar")
     downlink = ttn_client.mqtt.downlink_list.pop()
-    expected_uri = '{}/devices/{}/down'.format(testutils.ttn.APP_ID,
-                                               TEST_DEV_ID)
+    expected_uri = f'{testutils.ttn.APP_ID}/devices/{TEST_DEV_ID}/down'
     assert downlink.uri == expected_uri
     assert json.loads(downlink.data)["foo"] == "bar"
 

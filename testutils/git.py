@@ -16,7 +16,7 @@ class Git:
         self._quiet = quiet
 
     def __repr__(self):
-        return "<{}: {}>".format(type(self).__name__, self._root)
+        return f"<{type(self).__name__}: {self._root}>"
 
     @staticmethod
     def _cmd(cmd, quiet=True):

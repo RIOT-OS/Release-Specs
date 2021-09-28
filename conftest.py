@@ -266,11 +266,11 @@ def nodes(local, request, boards, iotlab_site):
     only_native = all(b.startswith("native") for b in boards)
     for board in boards:
         if local or only_native or IoTLABExperiment.valid_board(board):
-            env = {'BOARD': '{}'.format(board)}
+            env = {'BOARD': f'{board}'}
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
-                'IOTLAB_NODE': '{}'.format(board)
+                'IOTLAB_NODE': f'{board}'
             }
         ctrls.append(RIOTCtrl(env=env))
     if local or only_native:
@@ -279,6 +279,7 @@ def nodes(local, request, boards, iotlab_site):
         name_fmt = get_namefmt(request)
         # Start IoT-LAB experiment if requested
         exp = IoTLABExperiment(
+            # pylint: disable=C0209
             name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
             site=iotlab_site)
@@ -302,7 +303,7 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
         # see: https://github.com/RIOT-OS/RIOT/issues/14504
         node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
             node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '') +
-            " -e 'USEMODULE={}'".format(node.env['USEMODULE'])
+            f" -e 'USEMODULE={node.env['USEMODULE']}'"
         )
     if cflags is not None:
         node.env['CFLAGS'] = cflags
@@ -336,8 +337,8 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
             if node.env.get("IOTLAB_NODE"):
                 node_name = node.env["IOTLAB_NODE"]
             else:
-                node_name = "{}-{}".format(
-                    node.board(), re.sub(r'\W+', '-', node.env["PORT"]))
+                node_port = re.sub(r'\W+', '-', node.env["PORT"])
+                node_name = f"{node.board()}-{node_port}"
             node.env["TERMLOG"] = os.path.join(
                 os.getcwd(), log_file_fmt.format(
                     node=node_name, time=int(time.time()),

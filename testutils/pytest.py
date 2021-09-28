@@ -56,10 +56,11 @@ def check_ssh():
     user, _ = IoTLABExperiment.user_credentials()
     if user is None:
         return False
-    spawn = pexpect.spawnu("ssh {}@{}.{} /bin/bash".format(user, DEFAULT_SITE,
-                                                           IOTLAB_DOMAIN))
+    spawn = pexpect.spawnu(
+        f"ssh {user}@{DEFAULT_SITE}.{IOTLAB_DOMAIN} /bin/bash"
+    )
     spawn.sendline("echo $USER")
-    return bool(spawn.expect([pexpect.TIMEOUT, "{}".format(user)],
+    return bool(spawn.expect([pexpect.TIMEOUT, f"{user}"],
                              timeout=5))
 
 
@@ -80,16 +81,16 @@ def check_local(run_local):
 def check_credentials(run_local):
     iotlab_creds_mark = None
     if not run_local and not IoTLABExperiment.check_user_credentials():
+        iotlab_creds_location = os.path.join(os.environ["HOME"], ".iotlabrc")
         iotlab_creds_mark = pytest.mark.skip(
-            reason="Test requires IoT-LAB credentials in {}. "
-                   "Use `iotlab-auth` to create".format(
-                       os.path.join(os.environ["HOME"], ".iotlabrc"))
+            reason="Test requires IoT-LAB credentials in "
+                   f"{iotlab_creds_location}. Use `iotlab-auth` to create"
         )
     elif not run_local and not check_ssh():
         iotlab_creds_mark = pytest.mark.skip(
-            reason="Can't access IoT-LAB front-end {}.{} via SSH. "
-                   "Use key without password or `ssh-agent`".format(
-                       DEFAULT_SITE, IOTLAB_DOMAIN)
+            reason="Can't access IoT-LAB front-end "
+                   "{DEFAULT_SITE}.{IOTLAB_DOMAIN} via SSH. Use key without "
+                   "password or `ssh-agent`"
         )
     return iotlab_creds_mark
 
@@ -116,4 +117,4 @@ def get_required_envvar(envvar):
     try:
         return os.environ[envvar]
     except KeyError as err:
-        raise RuntimeError("Missing {} env variable".format(envvar)) from err
+        raise RuntimeError(f"Missing {envvar} env variable") from err

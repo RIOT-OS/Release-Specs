@@ -83,7 +83,7 @@ class GNRCLoRaWANSend(ShellInteraction):
 
     @ShellInteraction.check_term
     def send(self, netif, payload, timeout=-1, async_=False):
-        res = self.cmd("send {} \"{}\"".format(netif, payload),
+        res = self.cmd(f"send {netif} \"{payload}\"",
                        timeout=timeout, async_=async_)
 
         recv_downlink = False
@@ -109,7 +109,7 @@ class GNRCUDP(ShellInteraction):
     """
     @ShellInteraction.check_term
     def udp_server_start(self, port, timeout=-1, async_=False):
-        res = self.cmd("udp server start {}".format(port), timeout=timeout,
+        res = self.cmd(f"udp server start {port}", timeout=timeout,
                        async_=async_)
         if "Success:" not in res:
             raise RuntimeError(res)
@@ -167,10 +167,9 @@ class GNRCUDP(ShellInteraction):
         else:
             # wait 1 sec per message
             timeout = count * 1
+        delay = int(delay_ms * 1000)
         res = self.cmd(
-            "udp send {dest_addr} {port} {payload} {count} {delay_us}"
-            .format(dest_addr=dest_addr, port=port, payload=payload,
-                    count=count, delay_us=int(delay_ms * 1000)),
+            f"udp send {dest_addr} {port} {payload} {count} {delay}",
             timeout=timeout, async_=async_
         )
         if "Error:" in res:
