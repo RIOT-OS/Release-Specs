@@ -32,6 +32,7 @@ RUNNING_EXPERIMENTS = []
 
 
 def pytest_addoption(parser):
+    # pylint: disable=C0301
     """
     register argparse-style options and ini-style config values, called once at
     the beginning of a test run.
@@ -85,6 +86,7 @@ def pytest_addoption(parser):
 
 
 def pytest_ignore_collect(path, config):
+    # pylint: disable=C0301
     """
     return True to prevent considering this path for collection.
 
