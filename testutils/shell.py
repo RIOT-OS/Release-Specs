@@ -33,12 +33,15 @@ class GNRCUDPClientSendParser(ShellInteractionParser):
     As the `udp` shell command is application specific, a central
     ShellInteraction in `riotctrl_shell` does not make much sense
     """
+
     def __init__(self):
-        self.success_c = re.compile(r"Success:\s+sen[td]\s+"
-                                    r"(?P<payload_len>\d+)\s+"
-                                    r"byte(\(s\))?\s+to\s+"
-                                    r"\[(?P<dst>[0-9a-f:]+(%\S+)?)\]:"
-                                    r"(?P<dport>\d+)$")
+        self.success_c = re.compile(
+            r"Success:\s+sen[td]\s+"
+            r"(?P<payload_len>\d+)\s+"
+            r"byte(\(s\))?\s+to\s+"
+            r"\[(?P<dst>[0-9a-f:]+(%\S+)?)\]:"
+            r"(?P<dport>\d+)$"
+        )
 
     def parse(self, cmd_output):
         """
@@ -83,8 +86,7 @@ class GNRCLoRaWANSend(ShellInteraction):
 
     @ShellInteraction.check_term
     def send(self, netif, payload, timeout=-1, async_=False):
-        res = self.cmd(f"send {netif} \"{payload}\"",
-                       timeout=timeout, async_=async_)
+        res = self.cmd(f"send {netif} \"{payload}\"", timeout=timeout, async_=async_)
 
         recv_downlink = False
         for line in res.splitlines():
@@ -107,10 +109,10 @@ class GNRCUDP(ShellInteraction):
     As the `udp` shell command is application specific, a central
     ShellInteraction in `riotctrl_shell` does not make much sense
     """
+
     @ShellInteraction.check_term
     def udp_server_start(self, port, timeout=-1, async_=False):
-        res = self.cmd(f"udp server start {port}", timeout=timeout,
-                       async_=async_)
+        res = self.cmd(f"udp server start {port}", timeout=timeout, async_=async_)
         if "Success:" not in res:
             raise RuntimeError(res)
         return res
@@ -126,19 +128,21 @@ class GNRCUDP(ShellInteraction):
         else:
             timeout = 1
         for _ in range(count):
-            exp = self.riotctrl.term.expect([
-                pexpect.TIMEOUT,
-                r"Packets received:\s+\d",
-                r"PKTDUMP: data received:"
-            ], timeout=timeout)
-            if not exp:     # expect timed out
+            exp = self.riotctrl.term.expect(
+                [
+                    pexpect.TIMEOUT,
+                    r"Packets received:\s+\d",
+                    r"PKTDUMP: data received:",
+                ],
+                timeout=timeout,
+            )
+            if not exp:  # expect timed out
                 packets_lost += 1
             if exp < 2:
                 continue
             try:
                 self.riotctrl.term.expect(
-                    r"~~ SNIP  0 - size:\s+\d+ byte, type: NETTYPE_UNDEF "
-                    r"\(\d+\)"
+                    r"~~ SNIP  0 - size:\s+\d+ byte, type: NETTYPE_UNDEF " r"\(\d+\)"
                 )
                 self.riotctrl.term.expect(
                     r"~~ SNIP  1 - size:\s+\d+ byte, type: NETTYPE_UDP \(\d+\)"
@@ -147,8 +151,7 @@ class GNRCUDP(ShellInteraction):
                     r"~~ SNIP  2 - size:\s+40 byte, type: NETTYPE_IPV6 \(\d+\)"
                 )
                 self.riotctrl.term.expect(
-                    r"~~ SNIP  3 - size:\s+\d+ byte, type: NETTYPE_NETIF "
-                    r"\(-1\)"
+                    r"~~ SNIP  3 - size:\s+\d+ byte, type: NETTYPE_NETIF " r"\(-1\)"
                 )
                 self.riotctrl.term.expect(
                     r"~~ PKT\s+-\s+4 snips, total size:\s+\d+ byte"
@@ -159,8 +162,9 @@ class GNRCUDP(ShellInteraction):
 
     # pylint: disable=R0913
     @ShellInteraction.check_term
-    def udp_client_send(self, dest_addr, port, payload,
-                        count=1, delay_ms=1000, async_=False):
+    def udp_client_send(
+        self, dest_addr, port, payload, count=1, delay_ms=1000, async_=False
+    ):
         if delay_ms:
             # wait .5 sec more per message
             timeout = math.ceil((delay_ms * count) / 1000) + (5 * (count / 10))
@@ -170,7 +174,8 @@ class GNRCUDP(ShellInteraction):
         delay = int(delay_ms * 1000)
         res = self.cmd(
             f"udp send {dest_addr} {port} {payload} {count} {delay}",
-            timeout=timeout, async_=async_
+            timeout=timeout,
+            async_=async_,
         )
         if "Error:" in res:
             raise RuntimeError(res)
@@ -178,8 +183,9 @@ class GNRCUDP(ShellInteraction):
 
 
 def ping6(pinger, hostname, count, packet_size, interval):
-    out = pinger.ping6(hostname, count=count, packet_size=packet_size,
-                       interval=interval)
+    out = pinger.ping6(
+        hostname, count=count, packet_size=packet_size, interval=interval
+    )
     return PARSERS["ping6"].parse(out)
 
 
@@ -199,8 +205,10 @@ def first_netif_and_addr_by_scope(ifconfig_out, scope):
     netifs = PARSERS["ifconfig"].parse(ifconfig_out)
     key = next(iter(netifs))
     netif = netifs[key]
-    return key, [addr["addr"] for addr in netif["ipv6_addrs"] if
-                 addr["scope"] == scope][0]
+    return (
+        key,
+        [addr["addr"] for addr in netif["ipv6_addrs"] if addr["scope"] == scope][0],
+    )
 
 
 def lladdr(ifconfig_out):

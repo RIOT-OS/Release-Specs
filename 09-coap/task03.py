@@ -36,16 +36,18 @@ from aiocoap import *
 
 logging.basicConfig(level=logging.INFO)
 
+
 async def main(host, block_size):
     # create async context and wait a couple of seconds
     context = await Context.create_client_context()
     await asyncio.sleep(2)
 
-    payload = (b'If one advances confidently in the direction of his dreams,'
-               b' he will meet with a success unexpected in common hours.')
+    payload = (
+        b'If one advances confidently in the direction of his dreams,'
+        b' he will meet with a success unexpected in common hours.'
+    )
 
-    request = Message(code=POST, payload=payload,
-                      uri=f'coap://{host}/sha256')
+    request = Message(code=POST, payload=payload, uri=f'coap://{host}/sha256')
 
     block_exp = round(math.log(block_size, 2)) - 4
     request.opt.block1 = optiontypes.BlockOption.BlockwiseTuple(0, 0, block_exp)
@@ -54,13 +56,18 @@ async def main(host, block_size):
 
     print(f'Result: {response.code}\n{response.payload!r}')
 
+
 if __name__ == "__main__":
     # read command line
     parser = ArgumentParser()
-    parser.add_argument('-r', dest='host', required=True,
-                        help='remote host for URI')
-    parser.add_argument('-b', dest='block_size', type=int, default=32,
-                        help='one of 16, 32, 64, ..., 1024')
+    parser.add_argument('-r', dest='host', required=True, help='remote host for URI')
+    parser.add_argument(
+        '-b',
+        dest='block_size',
+        type=int,
+        default=32,
+        help='one of 16, 32, 64, ..., 1024',
+    )
 
     args = parser.parse_args()
 

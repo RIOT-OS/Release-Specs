@@ -23,8 +23,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     node.ifconfig_flag(iface, "ack_req", enable=False)
 
     # Push a downlink message to the TTN server
-    dl_data = {"payload_raw": DOWNLINK_PAYLOAD, "port": APP_PORT,
-               "confirmed": True}
+    dl_data = {"payload_raw": DOWNLINK_PAYLOAD, "port": APP_PORT, "confirmed": True}
 
     ttn_client.publish_to_dev(dev_id, **dl_data)
 
@@ -49,12 +48,13 @@ def run_lw_test(node, ttn_client, iface, dev_id):
 
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
-@pytest.mark.parametrize('nodes,dev_id',
-                         [pytest.param(['b-l072z-lrwan1'], "otaa")],
-                         indirect=['nodes', 'dev_id'])
+@pytest.mark.parametrize(
+    'nodes,dev_id',
+    [pytest.param(['b-l072z-lrwan1'], "otaa")],
+    indirect=['nodes', 'dev_id'],
+)
 # pylint: disable=R0913
-def test_task05(riot_ctrl, ttn_client, dev_id, deveui,
-                appeui, appkey):
+def test_task05(riot_ctrl, ttn_client, dev_id, deveui, appeui, appkey):
     node = riot_ctrl(0, APP, Shell)
 
     iface = lorawan_netif(node)
@@ -82,12 +82,13 @@ def test_task05(riot_ctrl, ttn_client, dev_id, deveui,
 
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
-@pytest.mark.parametrize('nodes,dev_id',
-                         [pytest.param(['b-l072z-lrwan1'], "abp")],
-                         indirect=['nodes', 'dev_id'])
+@pytest.mark.parametrize(
+    'nodes,dev_id',
+    [pytest.param(['b-l072z-lrwan1'], "abp")],
+    indirect=['nodes', 'dev_id'],
+)
 # pylint: disable=R0913
-def test_task06(riot_ctrl, ttn_client, dev_id,
-                devaddr, nwkskey, appskey):
+def test_task06(riot_ctrl, ttn_client, dev_id, devaddr, nwkskey, appskey):
     node = riot_ctrl(0, APP, Shell)
 
     iface = lorawan_netif(node)

@@ -14,8 +14,7 @@ from riotctrl_shell.netif import Ifconfig
 from riotctrl_shell.cord_ep import CordEp, CordEpRegistrationInfoParser
 
 from testutils.asyncio import timeout_futures, wait_for_futures
-from testutils.native import bridge, interface_exists, \
-                             ip_addr_add, ip_addr_del
+from testutils.native import bridge, interface_exists, ip_addr_add, ip_addr_del
 from testutils.shell import lladdr
 
 
@@ -30,8 +29,9 @@ pytestmark = pytest.mark.rc_only()
 
 class Shell(Ifconfig, CordEp):
     # pylint: disable=R0913
-    def coap_get(self, addr, port, resource, confirmable=False, timeout=-1,
-                 async_=False):
+    def coap_get(
+        self, addr, port, resource, confirmable=False, timeout=-1, async_=False
+    ):
         cmd = "coap get "
         if confirmable:
             cmd += "-c "
@@ -42,10 +42,10 @@ class Shell(Ifconfig, CordEp):
 # pylint: disable=R0903
 class TimeResource(aiocoap.resource.Resource):
     """Handle GET for clock time."""
+
     # pylint: disable=W0613, disable=R0201
     async def render_get(self, request):
-        payload = datetime.datetime.now().\
-                strftime("%Y-%m-%d %H:%M").encode('ascii')
+        payload = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").encode('ascii')
         msg = aiocoap.Message(payload=payload)
         # pylint: disable=E0237
         msg.opt.content_format = 0
@@ -74,11 +74,8 @@ def teardown_function(function):
 
 # sudo required for function setup (address configuration of interface)
 @pytest.mark.sudo_only
-@pytest.mark.skipif(not interface_exists("tap0"),
-                    reason="tap0 does not exist")
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['native'])],
-                         indirect=['nodes'])
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task01(riot_ctrl, log_nodes):
     node = riot_ctrl(0, 'examples/cord_ep', Shell, port=TAP)
 
@@ -96,8 +93,10 @@ def test_task01(riot_ctrl, log_nodes):
         core_reg = parser.parse(res)
         ltime = core_reg['ltime']
         if ltime > 300:
-            pytest.xfail(f"CoRE RD lifetime is configured for {ltime}s "
-                         "(> 5min). That's way to long for a test!")
+            pytest.xfail(
+                f"CoRE RD lifetime is configured for {ltime}s "
+                "(> 5min). That's way to long for a test!"
+            )
         time.sleep(ltime)
     finally:
         aiocoap_rd.terminate()
@@ -109,12 +108,12 @@ def test_task01(riot_ctrl, log_nodes):
 
 # sudo required for function setup (address configuration of interface)
 @pytest.mark.sudo_only
-@pytest.mark.skipif(not interface_exists("tap0"),
-                    reason="tap0 does not exist")
-@pytest.mark.parametrize('nodes,start_server,expected',
-                         [pytest.param(['native'], True, 1),
-                          pytest.param(['native'], False, 0)],
-                         indirect=['nodes'])
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.parametrize(
+    'nodes,start_server,expected',
+    [pytest.param(['native'], True, 1), pytest.param(['native'], False, 0)],
+    indirect=['nodes'],
+)
 def test_task02(riot_ctrl, start_server, expected):
     node = riot_ctrl(0, 'examples/gcoap', Shell, port=TAP)
 
@@ -132,18 +131,18 @@ def test_task02(riot_ctrl, start_server, expected):
     time.sleep(1)
     if start_server:
         wait_for_futures([run_task02_server()])
-    res = node.riotctrl.term.expect([
-        r"gcoap: timeout for msg ID \d+",
-        r"gcoap: response Success, code 2.05, \d+ bytes",
-    ], timeout=100)
+    res = node.riotctrl.term.expect(
+        [
+            r"gcoap: timeout for msg ID \d+",
+            r"gcoap: response Success, code 2.05, \d+ bytes",
+        ],
+        timeout=100,
+    )
     assert res == expected
 
 
-@pytest.mark.skipif(not interface_exists("tap0"),
-                    reason="tap0 does not exist")
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['native'])],
-                         indirect=['nodes'])
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task03(riot_ctrl):
     node = riot_ctrl(0, 'examples/nanocoap_server', Shell, port=TAP)
     host_netif = bridge(TAP)
@@ -163,8 +162,9 @@ def test_task03(riot_ctrl):
         )
 
         # pylint: disable=E1101
-        request = aiocoap.Message(code=aiocoap.POST, payload=payload,
-                                  uri=f'coap://{host}/sha256')
+        request = aiocoap.Message(
+            code=aiocoap.POST, payload=payload, uri=f'coap://{host}/sha256'
+        )
 
         block_exp = round(math.log(block_size, 2)) - 4
         # pylint: disable=E0237
@@ -184,11 +184,8 @@ def test_task03(riot_ctrl):
         assert re.match("^[0-9A-Fa-f]{64}$", response.payload.decode())
 
 
-@pytest.mark.skipif(not interface_exists("tap0"),
-                    reason="tap0 does not exist")
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['native'])],
-                         indirect=['nodes'])
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task04(riot_ctrl):
     node = riot_ctrl(0, 'examples/nanocoap_server', Shell, port=TAP)
     host_netif = bridge(TAP)
@@ -203,8 +200,7 @@ def test_task04(riot_ctrl):
         await asyncio.sleep(2)
 
         # pylint: disable=E1101
-        request = aiocoap.Message(code=aiocoap.GET,
-                                  uri=f'coap://{host}/riot/ver')
+        request = aiocoap.Message(code=aiocoap.GET, uri=f'coap://{host}/riot/ver')
 
         block_exp = round(math.log(block_size, 2)) - 4
         # pylint: disable=E0237
@@ -220,18 +216,17 @@ def test_task04(riot_ctrl):
             client(f"[{node_lladdr}%{host_netif}]", block_size)
         )
         assert str(response.code) == "2.05 Content"
-        assert re.search(r"This is RIOT \(Version: .*\) running on a "
-                         r"native board with a native MCU\.",
-                         response.payload.decode())
+        assert re.search(
+            r"This is RIOT \(Version: .*\) running on a "
+            r"native board with a native MCU\.",
+            response.payload.decode(),
+        )
 
 
 # sudo required for function setup (address configuration of interface)
 @pytest.mark.sudo_only
-@pytest.mark.skipif(not interface_exists("tap0"),
-                    reason="tap0 does not exist")
-@pytest.mark.parametrize('nodes',
-                         [pytest.param(['native'])],
-                         indirect=['nodes'])
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task05(riot_ctrl):
     node = riot_ctrl(0, 'examples/gcoap', Shell, port=TAP)
 
@@ -243,9 +238,9 @@ def test_task05(riot_ctrl):
         context = await coap_server()
 
         # pylint: disable=E1101
-        msg = aiocoap.Message(code=aiocoap.GET,
-                              uri=f'coap://{host}/cli/stats',
-                              observe=0)
+        msg = aiocoap.Message(
+            code=aiocoap.GET, uri=f'coap://{host}/cli/stats', observe=0
+        )
         req = context.request(msg)
 
         resp = await req.response

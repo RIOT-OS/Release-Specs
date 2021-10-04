@@ -52,15 +52,16 @@ from aiocoap import *
 
 logging.basicConfig(level=logging.INFO)
 
+
 class TimeResource(resource.Resource):
     """Handle GET for clock time."""
 
     async def render_get(self, request):
-        payload = datetime.datetime.now().\
-                strftime("%Y-%m-%d %H:%M").encode('ascii')
+        payload = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").encode('ascii')
         msg = Message(payload=payload)
         msg.opt.content_format = 0
         return msg
+
 
 async def main(host):
     # setup server resources
@@ -84,11 +85,11 @@ async def main(host):
     print("Loop ended, wait 10 sec")
     await asyncio.sleep(10)
 
+
 if __name__ == "__main__":
     # read command line
     parser = ArgumentParser()
-    parser.add_argument('-r', dest='host', required=True,
-                        help='remote host for URI')
+    parser.add_argument('-r', dest='host', required=True, help='remote host for URI')
 
     args = parser.parse_args()
 

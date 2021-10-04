@@ -102,6 +102,7 @@ class MockMQTTClient:
             def __init__(self):
                 self.topic = topic
                 self.payload = payload
+
         self.on_message(self, self.data_set, Msg())
 
 

@@ -24,8 +24,7 @@ class Git:
         try:
             return subprocess.check_output(cmd, stderr=stderr).decode()
         except subprocess.CalledProcessError as exc:
-            raise GitError(exc.returncode, exc.cmd, exc.output, exc.stderr) \
-                from exc
+            raise GitError(exc.returncode, exc.cmd, exc.output, exc.stderr) from exc
 
     def exists(self):
         return os.path.isdir(self._root)

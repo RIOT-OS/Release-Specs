@@ -7,9 +7,7 @@ import asyncio
 
 def wait_for_futures(futures):
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(
-        *futures
-    ))
+    loop.run_until_complete(asyncio.gather(*futures))
 
 
 def timeout_futures(futures, timeout):
@@ -21,9 +19,7 @@ def timeout_futures(futures, timeout):
             return gather.cancel()
         return False
 
-    gather = asyncio.gather(
-        wait_for_timeout(), *futures
-    )
+    gather = asyncio.gather(wait_for_timeout(), *futures)
 
     loop = asyncio.get_event_loop()
     try:

@@ -4,7 +4,7 @@
 Central pytest definitions.
 
 See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
-"""     # noqa: E501
+"""  # noqa: E501
 
 import re
 import os
@@ -37,38 +37,50 @@ def pytest_addoption(parser):
     the beginning of a test run.
 
     See https://docs.pytest.org/en/stable/reference.html#_pytest.hookspec.pytest_addoption
-    """     # noqa: E501
+    """  # noqa: E501
     parser.addoption(
-        "--local", action="store_true", default=False, help="use local boards",
+        "--local",
+        action="store_true",
+        default=False,
+        help="use local boards",
     )
     parser.addoption(
-        "--hide-output", action="store_true", default=False,
+        "--hide-output",
+        action="store_true",
+        default=False,
         help="Don't log output of nodes",
     )
     parser.addoption(
-        "--boards", type=testutils.pytest.list_from_string,
+        "--boards",
+        type=testutils.pytest.list_from_string,
         help="list of BOARD's or IOTLAB_NODEs for the test",
     )
     parser.addoption(
-        "--non-RC", action="store_true", default=False,
+        "--non-RC",
+        action="store_true",
+        default=False,
         help="Runs test even if RIOT version under test is not an RC",
     )
     parser.addoption(
-        "--self-test", action="store_true", default=False,
+        "--self-test",
+        action="store_true",
+        default=False,
         help="Tests the testutils rather than running the release tests",
     )
     parser.addoption(
-        "--log-file-fmt", nargs="?", default=None,
+        "--log-file-fmt",
+        nargs="?",
+        default=None,
         type=testutils.pytest.log_file_fmt,
         help="Format for the log file name. The available variables are: "
-             "`module`: The module (=specXX) of the test, "
-             "`function`: The function (=taskXX) of the test, "
-             "`node`: Name of the node (on IoT-LAB the URL of the node, "
-             "locally board name + port), "
-             "`time`: UNIX timestamp at creation time. "
-             "If the provided argument is an empty string the format will be "
-             "'{module}-{function}-{node}-{time}.log' and stored in the "
-             "current work directory"
+        "`module`: The module (=specXX) of the test, "
+        "`function`: The function (=taskXX) of the test, "
+        "`node`: Name of the node (on IoT-LAB the URL of the node, "
+        "locally board name + port), "
+        "`time`: UNIX timestamp at creation time. "
+        "If the provided argument is an empty string the format will be "
+        "'{module}-{function}-{node}-{time}.log' and stored in the "
+        "current work directory",
     )
 
 
@@ -77,7 +89,7 @@ def pytest_ignore_collect(path, config):
     return True to prevent considering this path for collection.
 
     See: https://docs.pytest.org/en/stable/reference.html#_pytest.hookspec.pytest_ignore_collect
-    """     # noqa: E501
+    """  # noqa: E501
     # This is about the --self-test option so I don't agree with pylint here
     # pylint: disable=R1705
     if config.getoption("--self-test"):
@@ -93,7 +105,7 @@ def pytest_collection_modifyitems(config, items):
     items in-place.
 
     See: https://docs.pytest.org/en/stable/reference.html#_pytest.hookspec.pytest_collection_modifyitems
-    """     # noqa: E501
+    """  # noqa: E501
     # --local given by CLI
     run_local = config.getoption("--local")
     sudo_only_mark = testutils.pytest.check_sudo()
@@ -117,7 +129,7 @@ def pytest_configure(config):
     config.pluginmanager.register(plugin, 'github_comment_report_plugin')
 
 
-class GithubCommentReportPlugin:    # pylint: disable=R0903
+class GithubCommentReportPlugin:  # pylint: disable=R0903
     def __init__(self, config):
         self.config = config
 
@@ -133,7 +145,7 @@ def pytest_keyboard_interrupt(excinfo):
     Called on KeyInterrupt
 
     See: https://docs.pytest.org/en/stable/reference.html?highlight=hooks#_pytest.hookspec.pytest_keyboard_interrupt
-    """     # noqa: E501
+    """  # noqa: E501
     for child in RUNNING_CTRLS:
         child.stop_term()
     for exp in RUNNING_EXPERIMENTS:
@@ -241,8 +253,7 @@ def iotlab_site(request):
     variable or falls back to DEFAULT_SITE.
     """
 
-    return getattr(request, "param",
-                   os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
+    return getattr(request, "param", os.environ.get("IOTLAB_SITE", DEFAULT_SITE))
 
 
 def get_namefmt(request):
@@ -250,8 +261,7 @@ def get_namefmt(request):
     if request.module:
         name_fmt["module"] = request.module.__name__.replace("test_", "")
     if request.function:
-        name_fmt["function"] = request.function.__name__ \
-                               .replace("test_", "")
+        name_fmt["function"] = request.function.__name__.replace("test_", "")
     return name_fmt
 
 
@@ -270,7 +280,7 @@ def nodes(local, request, boards, iotlab_site):
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
-                'IOTLAB_NODE': f'{board}'
+                'IOTLAB_NODE': f'{board}',
             }
         ctrls.append(RIOTCtrl(env=env))
     if local or only_native:
@@ -282,7 +292,8 @@ def nodes(local, request, boards, iotlab_site):
             # pylint: disable=C0209
             name="RIOT-release-test-{module}-{function}".format(**name_fmt),
             ctrls=ctrls,
-            site=iotlab_site)
+            site=iotlab_site,
+        )
         RUNNING_EXPERIMENTS.append(exp)
         exp.start(duration=IOTLAB_EXPERIMENT_DURATION)
         yield ctrls
@@ -292,18 +303,16 @@ def nodes(local, request, boards, iotlab_site):
 
 def update_env(node, modules=None, cflags=None, port=None, termflags=None):
     node.env['QUIETER'] = '1'
-    if not isinstance(modules, str) and \
-       isinstance(modules, Iterable):
+    if not isinstance(modules, str) and isinstance(modules, Iterable):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
     elif modules is not None:
         node.env['USEMODULE'] = modules
-    if "USEMODULE" in node.env and \
-       os.environ.get('BUILD_IN_DOCKER', 0) == '1':
+    if "USEMODULE" in node.env and os.environ.get('BUILD_IN_DOCKER', 0) == '1':
         # workaround to inject USEMODULE into docker container
         # see: https://github.com/RIOT-OS/RIOT/issues/14504
         node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
-            node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '') +
-            f" -e 'USEMODULE={node.env['USEMODULE']}'"
+            node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '')
+            + f" -e 'USEMODULE={node.env['USEMODULE']}'"
         )
     if cflags is not None:
         node.env['CFLAGS'] = cflags
@@ -322,9 +331,16 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
     factory_ctrls = []
 
     # pylint: disable=R0913
-    def ctrl(nodes_idx, application_dir, shell_interaction_cls,
-             board_type=None, modules=None, cflags=None, port=None,
-             termflags=None):
+    def ctrl(
+        nodes_idx,
+        application_dir,
+        shell_interaction_cls,
+        board_type=None,
+        modules=None,
+        cflags=None,
+        port=None,
+        termflags=None,
+    ):
         if board_type is not None:
             node = next(n for n in nodes if n.board() == board_type)
         else:
@@ -340,17 +356,20 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
                 node_port = re.sub(r'\W+', '-', node.env["PORT"])
                 node_name = f"{node.board()}-{node_port}"
             node.env["TERMLOG"] = os.path.join(
-                os.getcwd(), log_file_fmt.format(
-                    node=node_name, time=int(time.time()),
-                    **get_namefmt(request)
-                )
+                os.getcwd(),
+                log_file_fmt.format(
+                    node=node_name, time=int(time.time()), **get_namefmt(request)
+                ),
             )
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
-        node.make_run(['flash'], check=True,
-                      stdout=None if log_nodes else subprocess.DEVNULL,
-                      stderr=None if log_nodes else subprocess.DEVNULL)
+        node.make_run(
+            ['flash'],
+            check=True,
+            stdout=None if log_nodes else subprocess.DEVNULL,
+            stderr=None if log_nodes else subprocess.DEVNULL,
+        )
         termargs = {}
         if log_nodes:
             termargs["logfile"] = sys.stdout
