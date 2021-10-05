@@ -82,19 +82,16 @@ class GNRCLoRaWANSend(ShellInteraction):
     """
 
     @ShellInteraction.check_term
-    def send(self, netif, payload, timeout=-1, async_=False):
-        res = self.cmd(f"send {netif} \"{payload}\"",
-                       timeout=timeout, async_=async_)
+    def send(self, netif, payload, port=1, timeout=-1):
+        self.cmd(f"txtsnd {netif} {port:02x} \"{payload}\"",
+                 timeout=timeout, async_=False)
 
-        recv_downlink = False
-        for line in res.splitlines():
-            if re.match("PKTDUMP", line):
-                recv_downlink = True
+        exp = self.riotctrl.term.expect([
+            pexpect.TIMEOUT,
+            r"~~ PKT"
+        ], timeout=timeout)
 
-            if re.match("Success", line):
-                return recv_downlink
-
-        raise RuntimeError(res)
+        return bool(exp)
 
 
 class GNRCUDP(ShellInteraction):

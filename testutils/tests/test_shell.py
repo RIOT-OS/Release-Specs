@@ -293,23 +293,21 @@ Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4
 
 def test_gnrc_lorawan_send_success():
     ctrl = init_ctrl(output="""
-send 3 "Hello RIOT!" 2
-Successfully sent packet
+txtsnd 3 01 "Hello RIOT!"
 """)
     shell = testutils.shell.GNRCLoRaWANSend(ctrl)
-    res = shell.send(3, "Hello RIOT!")
+    res = shell.send(3, "Hello RIOT!", port=1)
     assert res is False
 
 
 def test_gnrc_lorawan_send_success_downlink():
     ctrl = init_ctrl(output="""
-send 3 "Hello RIOT!" 2
+txtsnd 3 02 "Hello RIOT!"
 PKTDUMP: data received:
 ~~ SNIP  0 - size:   4 byte, type: NETTYPE_LORAWAN (1)
 00000000  AA  AA  AA  AA
 ~~ PKT    -  1 snips, total size:   4 byte
-Successfully sent packet
 """)
     shell = testutils.shell.GNRCLoRaWANSend(ctrl)
-    res = shell.send(3, "Hello RIOT!")
+    res = shell.send(3, "Hello RIOT!", port=2)
     assert res is True
