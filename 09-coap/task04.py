@@ -35,6 +35,7 @@ from aiocoap import *
 
 logging.basicConfig(level=logging.INFO)
 
+
 async def main(host, block_size):
     # create async context and wait a couple of seconds
     context = await Context.create_client_context()
@@ -49,13 +50,18 @@ async def main(host, block_size):
 
     print(f'Result: {response.code}\n{response.payload!r}')
 
+
 if __name__ == "__main__":
     # read command line
     parser = ArgumentParser()
-    parser.add_argument('-r', dest='host', required=True,
-                        help='remote host for URI')
-    parser.add_argument('-b', dest='block_size', type=int, default=32,
-                        help='one of 16, 32, 64, ..., 1024')
+    parser.add_argument('-r', dest='host', required=True, help='remote host for URI')
+    parser.add_argument(
+        '-b',
+        dest='block_size',
+        type=int,
+        default=32,
+        help='one of 16, 32, 64, ..., 1024',
+    )
 
     args = parser.parse_args()
 

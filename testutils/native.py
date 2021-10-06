@@ -6,16 +6,17 @@ import re
 import subprocess
 
 
-TAP_MASTER_C = re.compile(r"^\d+:\s+(?P<tap>[^:]+):.+"
-                          r"master\s+(?P<master>\S+)?")
-TAP_LINK_LOCAL_C = re.compile(r"inet6\s+(?P<link_local>fe80:[0-9a-f:]+)/\d+\s+"
-                              r"scope\s+link")
+TAP_MASTER_C = re.compile(r"^\d+:\s+(?P<tap>[^:]+):.+" r"master\s+(?P<master>\S+)?")
+TAP_LINK_LOCAL_C = re.compile(
+    r"inet6\s+(?P<link_local>fe80:[0-9a-f:]+)/\d+\s+" r"scope\s+link"
+)
 
 
 def _run_check(cmd, shell=False):
     try:
-        subprocess.check_call(cmd, shell=shell, stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL)
+        subprocess.check_call(
+            cmd, shell=shell, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
     except subprocess.CalledProcessError:
         return False
     else:
@@ -69,8 +70,11 @@ def ip_addr_add(iface, addr):
 
 
 def ip_addr_del(iface, addr):
-    subprocess.run(["ip", "addr", "del", addr, "dev", iface],
-                   stderr=subprocess.DEVNULL, check=False)
+    subprocess.run(
+        ["ip", "addr", "del", addr, "dev", iface],
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
 
 
 def ip_route_add(iface, route, via=None):

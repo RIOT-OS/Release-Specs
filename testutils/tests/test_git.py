@@ -31,8 +31,7 @@ def repo_wo_remote(tmp_path):
 
 
 def test_repr(tmp_path):
-    assert repr(testutils.git.Git(tmp_path)) == \
-        f'<Git: {tmp_path}>'
+    assert repr(testutils.git.Git(tmp_path)) == f'<Git: {tmp_path}>'
 
 
 def test_exists(tmp_path):
@@ -59,8 +58,7 @@ def test_cmd(monkeypatch, tmp_path, quiet):
         check_stderr = stderr
         return b"test output\n"
 
-    monkeypatch.setattr(subprocess, 'check_output',
-                        mock_check_output)
+    monkeypatch.setattr(subprocess, 'check_output', mock_check_output)
     assert git.cmd('test', 'foobar') == "test output\n"
 
     assert check_cmd == ['git', '-C', tmp_path, 'test', 'foobar']
@@ -77,8 +75,7 @@ def test_cmd_error(monkeypatch, tmp_path):
         # pylint: disable=unused-argument
         raise subprocess.CalledProcessError(returncode=1337, cmd=cmd)
 
-    monkeypatch.setattr(subprocess, 'check_output',
-                        mock_check_output)
+    monkeypatch.setattr(subprocess, 'check_output', mock_check_output)
     with pytest.raises(testutils.git.GitError) as exc:
         git.cmd('test', 'foobar')
         assert exc.returncode == 1337
@@ -111,7 +108,7 @@ def test_commit(repo_wo_remote):
     git = repo_wo_remote
     # git rev-parse HEAD for non-bare repo fails
     with pytest.raises(testutils.git.GitError):
-        git.head_sha    # pylint: disable=pointless-statement
+        git.head_sha  # pylint: disable=pointless-statement
     git.commit('--allow-empty', '-m', 'test')
     assert re.match('[0-9a-f]{40}', git.head_sha)
 

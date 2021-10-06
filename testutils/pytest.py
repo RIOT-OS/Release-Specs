@@ -47,8 +47,7 @@ def log_file_fmt(fmt_str=None):
     if fmt_str is not None:
         if len(fmt_str) > 0:
             return fmt_str
-        return os.path.join(os.getcwd(),
-                            "{module}-{function}-{node}-{time}.log")
+        return os.path.join(os.getcwd(), "{module}-{function}-{node}-{time}.log")
     return None
 
 
@@ -56,12 +55,9 @@ def check_ssh():
     user, _ = IoTLABExperiment.user_credentials()
     if user is None:
         return False
-    spawn = pexpect.spawnu(
-        f"ssh {user}@{DEFAULT_SITE}.{IOTLAB_DOMAIN} /bin/bash"
-    )
+    spawn = pexpect.spawnu(f"ssh {user}@{DEFAULT_SITE}.{IOTLAB_DOMAIN} /bin/bash")
     spawn.sendline("echo $USER")
-    return bool(spawn.expect([pexpect.TIMEOUT, f"{user}"],
-                             timeout=5))
+    return bool(spawn.expect([pexpect.TIMEOUT, f"{user}"], timeout=5))
 
 
 def check_sudo():
@@ -84,23 +80,22 @@ def check_credentials(run_local):
         iotlab_creds_location = os.path.join(os.environ["HOME"], ".iotlabrc")
         iotlab_creds_mark = pytest.mark.skip(
             reason="Test requires IoT-LAB credentials in "
-                   f"{iotlab_creds_location}. Use `iotlab-auth` to create"
+            f"{iotlab_creds_location}. Use `iotlab-auth` to create"
         )
     elif not run_local and not check_ssh():
         iotlab_creds_mark = pytest.mark.skip(
             reason="Can't access IoT-LAB front-end "
-                   "{DEFAULT_SITE}.{IOTLAB_DOMAIN} via SSH. Use key without "
-                   "password or `ssh-agent`"
+            "{DEFAULT_SITE}.{IOTLAB_DOMAIN} via SSH. Use key without "
+            "password or `ssh-agent`"
         )
     return iotlab_creds_mark
 
 
 def check_rc(only_rc_allowed):
     rc_only_mark = None
-    output = subprocess.check_output([
-        "git", "-C", os.environ["RIOTBASE"], "log", "-1", "--oneline",
-        "--decorate"
-    ]).decode()
+    output = subprocess.check_output(
+        ["git", "-C", os.environ["RIOTBASE"], "log", "-1", "--oneline", "--decorate"]
+    ).decode()
     is_rc = re.search(r"tag:\s\d{4}.\d{2}-RC\d+", output) is not None
 
     if only_rc_allowed and not is_rc:

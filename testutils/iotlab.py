@@ -3,18 +3,24 @@ import re
 
 from iotlabcli.auth import get_user_credentials
 from iotlabcli.rest import Api
-from iotlabcli.experiment import (submit_experiment, wait_experiment,
-                                  stop_experiment, get_experiment,
-                                  exp_resources, AliasNodes)
+from iotlabcli.experiment import (
+    submit_experiment,
+    wait_experiment,
+    stop_experiment,
+    get_experiment,
+    exp_resources,
+    AliasNodes,
+)
 
 
 DEFAULT_SITE = 'saclay'
 IOTLAB_DOMAIN = 'iot-lab.info'
 
 
-class IoTLABExperiment():
+class IoTLABExperiment:
     """Utility for running iotlab-experiments based on a list of RIOTCtrls
-       expects BOARD or IOTLAB_NODE variable to be set for received nodes"""
+    expects BOARD or IOTLAB_NODE variable to be set for received nodes"""
+
     BOARD_ARCHI_MAP = {
         'arduino-zero': {'name': 'arduino-zero', 'radio': 'xbee'},
         'b-l072z-lrwan1': {'name': 'st-lrwan1', 'radio': 'sx1276'},
@@ -50,9 +56,11 @@ class IoTLABExperiment():
         reg = r'([0-9a-zA-Z\-]+)-\d+\.[a-z]+\.iot-lab\.info'
         match = re.search(reg, iotlab_node)
         if match is None:
-            raise ValueError("Unable to parse {iotlab_node} as IoT-LAB node "
-                             "name of format "
-                             "<node-name>.<site-name>.iot-lab.info")
+            raise ValueError(
+                "Unable to parse {iotlab_node} as IoT-LAB node "
+                "name of format "
+                "<node-name>.<site-name>.iot-lab.info"
+            )
         iotlab_node_name = match.group(1)
         dict_values = IoTLABExperiment.BOARD_ARCHI_MAP.values()
         dict_names = [value['name'] for value in dict_values]
@@ -90,14 +98,12 @@ class IoTLABExperiment():
     @staticmethod
     def _check_site(site):
         if site not in IoTLABExperiment.SITES:
-            raise ValueError("iotlab site must be one of "
-                             f"{IoTLABExperiment.SITES}")
+            raise ValueError("iotlab site must be one of " f"{IoTLABExperiment.SITES}")
 
     @staticmethod
     def _valid_addr(ctrl, addr):
         """Check id addr matches a specific RIOTCtrl BOARD"""
-        return addr.startswith(
-            IoTLABExperiment.BOARD_ARCHI_MAP[ctrl.board()]['name'])
+        return addr.startswith(IoTLABExperiment.BOARD_ARCHI_MAP[ctrl.board()]['name'])
 
     @staticmethod
     def _check_ctrls(site, ctrls):
@@ -108,15 +114,12 @@ class IoTLABExperiment():
                 if not IoTLABExperiment.valid_board(ctrl.board()):
                     raise ValueError(f"{ctrl} BOARD unsupported in iotlab")
                 if ctrl.env.get('IOTLAB_NODE') is not None:
-                    IoTLABExperiment.valid_iotlab_node(ctrl.env['IOTLAB_NODE'],
-                                                       site,
-                                                       ctrl.board())
+                    IoTLABExperiment.valid_iotlab_node(
+                        ctrl.env['IOTLAB_NODE'], site, ctrl.board()
+                    )
             elif ctrl.env.get('IOTLAB_NODE') is not None:
-                IoTLABExperiment.valid_iotlab_node(ctrl.env['IOTLAB_NODE'],
-                                                   site)
-                board = IoTLABExperiment.board_from_iotlab_node(
-                    ctrl.env["IOTLAB_NODE"]
-                )
+                IoTLABExperiment.valid_iotlab_node(ctrl.env['IOTLAB_NODE'], site)
+                board = IoTLABExperiment.board_from_iotlab_node(ctrl.env["IOTLAB_NODE"])
                 ctrl.env['BOARD'] = board
             else:
                 raise ValueError("BOARD or IOTLAB_NODE must be set")
@@ -131,11 +134,12 @@ class IoTLABExperiment():
 
     def start(self, duration=60):
         """Submit an experiment, wait for it to be ready and map assigned
-           nodes"""
+        nodes"""
         logging.info("Submitting experiment")
         self.exp_id = self._submit(site=self.site, duration=duration)
-        logging.info(f"Waiting for experiment {self.exp_id} to go to state "
-                     "\"Running\"")
+        logging.info(
+            f"Waiting for experiment {self.exp_id} to go to state " "\"Running\""
+        )
         self._wait()
         self._map_iotlab_nodes_to_riot_ctrl(self._get_nodes())
 
