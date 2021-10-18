@@ -339,15 +339,3 @@ Successfully sent packet
     shell = testutils.shell.GNRCLoRaWANSend(ctrl)
     res = shell.send(3, "Hello RIOT!")
     assert res is True
-
-
-def test_gnrc_lorawan_send_fail():
-    LORAWAN_FAIL_TO_SEND = """
-send 3 "Hello RIOT!" 4
-Error sending packet: (status: -116)
-"""
-    ctrl = init_ctrl(output=LORAWAN_FAIL_TO_SEND)
-    shell = testutils.shell.GNRCLoRaWANSend(ctrl)
-    with pytest.raises(RuntimeError) as error:
-        shell.send(3, "Hello RIOT!")
-    assert str(error.value) == LORAWAN_FAIL_TO_SEND
