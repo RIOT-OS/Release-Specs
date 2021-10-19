@@ -6,12 +6,17 @@ import base64
 import paho.mqtt.client as mqtt
 from testutils.pytest import get_required_envvar
 
-APP_ID = os.environ.get("TTN_APP_ID", "11-lorawan")
-DEVICE_ID = os.environ.get("TTN_DEV_ID", "riot_lorawan_1")
+APP_ID = os.environ.get("TTN_APP_ID", "riot-test")
+DEVICE_ID = os.environ.get("TTN_DEV_ID", "riot-examples-lorawan-otaa")
 DEVICE_ID_ABP = os.environ.get("TTN_DEV_ID_ABP", "riot_lorawan_1_abp")
-DEVEUI = os.environ.get("DEVEUI", "009E40529364FBE6")
-APPEUI = os.environ.get("APPEUI", "70B3D57ED003B26A")
-DEVADDR = os.environ.get("DEVADDR", "26011EB0")
+TTN_MQTT_SERVER = os.environ.get("TTN_MQTT_SERVER", "eu1.cloud.thethings.network")
+
+TOPIC_UPLINK = f'v3/{APP_ID}@ttn/devices/+/up'
+TOPIC_JOIN = f'v3/{APP_ID}@ttn/devices/+/join'
+TOPIC_ACK = f'v3/{APP_ID}@ttn/devices/+/down/ack'
+
+
+SUBSCRIBE_LIST = [TOPIC_UPLINK, TOPIC_JOIN, TOPIC_ACK]
 
 
 def on_connect(client, userdata, flags, rc):
@@ -20,9 +25,8 @@ def on_connect(client, userdata, flags, rc):
     The callback for when the client receives a CONNACK response from the
     server.
     """
-    client.subscribe('+/devices/+/up')
-    client.subscribe('+/devices/+/events/activations')
-    client.subscribe("+/devices/+/events/down/acks")
+    for topic in SUBSCRIBE_LIST:
+        client.subscribe(topic)
 
 
 def on_message(client, userdata, msg):
@@ -50,9 +54,14 @@ class TTNClient:
     def __enter__(self):
         self.mqtt.user_data_set(self)
         self.mqtt.tls_set()
-        password = get_required_envvar("LORAWAN_DL_KEY")
-        self.mqtt.username_pw_set(APP_ID, password=password)
-        self.mqtt.connect('eu.thethings.network', 8883, 60)
+        try:
+            password = get_required_envvar("TTN_DL_KEY")
+        except RuntimeError:
+            # Deprecated, keep old name as long as RIOT-OS/RIOT release
+            # test github action is configured to use the old name
+            password = get_required_envvar("LORAWAN_DL_KEY")
+        self.mqtt.username_pw_set(f"{APP_ID}@ttn", password=password)
+        self.mqtt.connect(TTN_MQTT_SERVER, 8883, 60)
         self.mqtt.loop_start()
         return self
 
@@ -60,12 +69,14 @@ class TTNClient:
         self.mqtt.loop_stop()
 
     def publish_to_dev(self, dev_id, **kwargs):
-        self.mqtt.publish(f"{APP_ID}/devices/{dev_id}/down", json.dumps(kwargs))
+        self.mqtt.publish(
+            f"v3/{APP_ID}@ttn/devices/{dev_id}/down/replace", json.dumps(kwargs)
+        )
 
     def pop_uplink_payload(self):
         try:
-            base64_payload = self.msg.pop()["payload_raw"]
-            return base64.b64decode(base64_payload).decode('ascii')
+            base64_payload = self.msg.pop()["uplink_message"]["frm_payload"]
+            return base64.b64decode(base64_payload).decode('utf-8')
         except IndexError as err:
             raise RuntimeError("Uplink queue empty") from err
 

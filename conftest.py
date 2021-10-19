@@ -169,17 +169,17 @@ def appkey():
 
 @pytest.fixture
 def appeui():
-    return ttn.APPEUI
+    return get_required_envvar("APPEUI")
 
 
 @pytest.fixture
 def deveui():
-    return ttn.DEVEUI
+    return get_required_envvar("DEVEUI")
 
 
 @pytest.fixture
 def devaddr():
-    return ttn.DEVADDR
+    return get_required_envvar("DEVADDR")
 
 
 @pytest.fixture

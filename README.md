@@ -202,7 +202,7 @@ do `OTAA` and another configured to do `ABP`.
   - Device EUI as `DEVEUI`
   - Application EUI as `APPEUI`
   - App Key as `APPKEY`
-- [Personalize device for ABP] and disable **Frame counter checks** to avoid
+- [Personalize device for ABP] and enable  **Reset Frame Counter** to avoid
   having to reset the frame counters before every test run. Take note of:
   - Device Address as `DEVADDR`
   - Network Session Key as `NWKSKEY`
@@ -211,14 +211,18 @@ do `OTAA` and another configured to do `ABP`.
   access to `messages`. Take note of:
   - Access Key as `TTN_DL_KEY`
 
+When configuring a device:
+   - **LoRaWAN version**: choose **MAC V1.0.3**
+   - **Frequency plan**: Choose Europe 863-870 MHz (SF9 for RX2 - recommended)
+
 The listed variables need to be set in the environment.
 
 [11-lorawan]: 11-lorawan/test_spec11.py
 [Create a TTN account]: https://www.thethingsnetwork.org/docs/devices/node/quick-start/#create-an-account
-[Add an application]: https://www.thethingsnetwork.org/docs/applications/add/
-[Register your device]: https://www.thethingsnetwork.org/docs/devices/node/quick-start/#register-your-device
-[Personalize device for ABP]: https://www.thethingsnetwork.org/docs/devices/registration/#personalize-device-for-abp
-[Add an access key]: https://www.thethingsnetwork.org/docs/applications/mqtt/quick-start/index.html#credentials
+[Add an application]: https://www.thethingsindustries.com/docs/integrations/adding-applications/
+[Register your device]: https://www.thethingsindustries.com/docs/devices/adding-devices/the
+[Personalize device for ABP]: https://www.thethingsindustries.com/docs/devices/adding-devices/#abp-devices
+[Add an access key]: https://www.thethingsindustries.com/docs/integrations/mqtt/#creating-an-api-key
 
 #### Local Requirements
 
