@@ -237,6 +237,9 @@ def test_task05(riot_ctrl, ttn_client, dev_id, deveui, appeui, appkey):
     [pytest.param(["b-l072z-lrwan1"], "abp")],
     indirect=["nodes", "dev_id"],
 )
+# Missing fopts will cause it to fail on IoT-LAB(TTN, see:
+# https://github.com/RIOT-OS/RIOT/issues/16962
+@pytest.mark.local_only
 # pylint: disable=R0913
 def test_task06(riot_ctrl, ttn_client, dev_id, devaddr, nwkskey, appskey):
     node = riot_ctrl(0, GNRC_LORAWAN_APP, ShellGnrcLoRaWAN, modules=["gnrc_pktbuf_cmd"])
