@@ -25,6 +25,7 @@ class IoTLABExperiment:
         'arduino-zero': {'name': 'arduino-zero', 'radio': 'xbee'},
         'b-l072z-lrwan1': {'name': 'st-lrwan1', 'radio': 'sx1276'},
         'b-l475e-iot01a': {'name': 'st-iotnode', 'radio': 'multi'},
+        'dwm1001': {'name': 'dwm1001', 'radio': 'dw1000'},
         'firefly': {'name': 'firefly', 'radio': 'multi'},
         'frdm-kw41z': {'name': 'frdm-kw41z', 'radio': 'multi'},
         'iotlab-a8-m3': {'name': 'a8', 'radio': 'at86rf231'},
