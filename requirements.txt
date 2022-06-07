@@ -8,3 +8,4 @@ pytest-rerunfailures
 riotctrl
 scapy
 paho-mqtt
+pandas
