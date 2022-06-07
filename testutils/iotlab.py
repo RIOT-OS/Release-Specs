@@ -181,3 +181,22 @@ class IoTLABExperiment:
         """Return all nodes reserved by the experiment"""
         ret = get_experiment(Api(*self.user_credentials()), self.exp_id)
         return ret['nodes']
+
+    @staticmethod
+    def get_nodes_position(exp_id):
+        """Return nodes positions"""
+        info = []
+        if exp_id:
+            ret = get_experiment(Api(*get_user_credentials()), exp_id, 'nodes')
+            for item in ret['items']:
+                info.append(
+                    {
+                        'network_address': item['network_address'],
+                        'position': (
+                            float(item['x']),
+                            float(item['y']),
+                            float(item['z']),
+                        ),
+                    }
+                )
+        return info
