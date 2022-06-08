@@ -70,9 +70,9 @@ def test_get_github(monkeypatch, access_token, expected):
 
 
 def test_get_repo():
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockGithub:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=no-self-use,unused-argument
         def get_repo(self, name):
             return "I am repo"
 
@@ -80,9 +80,9 @@ def test_get_repo():
 
 
 def test_get_repo_error(caplog):
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockGithub:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=no-self-use,unused-argument
         def get_repo(self, name):
             raise testutils.github.GithubException(404, "I am not repo", None)
 
@@ -122,17 +122,17 @@ def test_get_repo_error(caplog):
     ],
 )
 def test_get_rc_tracking_issue(caplog, issue_titles, rc, expected_idx):
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockIssue:
         def __init__(self, title):
             self.title = title
 
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockRepo:
         def __init__(self, issues):
             self.issues = issues
 
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         def get_issues(self, *args, **kwargs):
             for issue in self.issues:
                 yield issue
@@ -149,9 +149,9 @@ def test_get_rc_tracking_issue(caplog, issue_titles, rc, expected_idx):
 
 
 def test_get_rc_tracking_issue_error(caplog):
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockRepo:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=no-self-use,unused-argument
         def get_issues(self, *args, **kwargs):
             raise testutils.github.GithubException(403, "You don't get issues", None)
 
@@ -193,7 +193,7 @@ def test_mark_task_done(body, comment_url, task_line, user, expected):
         def body(self):
             return self._body
 
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         def edit(self, body, *args, **kwargs):
             self._body = body
 
@@ -213,14 +213,14 @@ def test_mark_task_done_error1(caplog, raiser):
         def __init__(self, body):
             self.body = body
 
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         def edit(self, body, *args, **kwargs):
             self.body = body
 
         def update(self):
             pass
 
-    # pylint: disable=W0613
+    # pylint: disable=unused-argument
     def _raise(*args, **kwargs):
         raise testutils.github.GithubException(404, "This went wrong", None)
 
@@ -242,7 +242,7 @@ def test_mark_task_done_error2(caplog):
         def body(self):
             raise testutils.github.GithubException(404, "This went wrong", None)
 
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         def edit(self, body, *args, **kwargs):
             self._body = body
 
@@ -352,15 +352,15 @@ class MockComment:
 
 
 def _github(user_class=None):
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockUser:
         @property
         def login(self):
             return "user"
 
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockGithub:
-        # pylint: disable=R0201
+        # pylint: disable=no-self-use
         def get_user(self):
             if user_class is None:
                 return MockUser()
@@ -381,15 +381,15 @@ def _github(user_class=None):
     ],
 )
 def test_find_previous_comment(comments, exp):
-    class MockIssue:  # pylint: disable=R0903
-        def get_comments(self):  # pylint: disable=R0201
+    class MockIssue:  # pylint: disable=too-few-public-methods
+        def get_comments(self):  # pylint: disable=no-self-use
             return comments
 
     assert testutils.github.find_previous_comment(_github(), MockIssue()) == exp
 
 
 def test_create_comment(monkeypatch, caplog):
-    class MockIssue:  # pylint: disable=R0903
+    class MockIssue:  # pylint: disable=too-few-public-methods
         def __init__(self):
             self.comment = None
 
@@ -420,8 +420,8 @@ def test_create_comment(monkeypatch, caplog):
 
 
 def test_create_comment_error(caplog):
-    class MockIssue:  # pylint: disable=R0903
-        def create_comment(self, comment):  # pylint: disable=R0201
+    class MockIssue:  # pylint: disable=too-few-public-methods
+        def create_comment(self, comment):  # pylint: disable=no-self-use
             raise testutils.github.GithubException(300, "Nope", None)
 
     with caplog.at_level(logging.ERROR):
@@ -675,7 +675,7 @@ def _get_mock_report(outcome, longrepr=None, sections=None, when=None):
 def test_update_comment(
     monkeypatch, caplog, comment_body, env, gist_id, exp_body, exp_errs
 ):
-    # pylint: disable=R0913
+    # pylint: disable=too-many-arguments
     # patch environment variables to not include run URL when run in Github
     # Action
     monkeypatch.setattr(testutils.github.os, "environ", env)
@@ -784,7 +784,7 @@ def test_upload_result_content_error(monkeypatch, caplog, tmp_path):
 
 def test_update_comment_edit_error(monkeypatch, caplog):
     class MockCommentEditError(MockComment):
-        def edit(self, body):  # pylint: disable=R0201
+        def edit(self, body):  # pylint: disable=no-self-use
             raise testutils.github.GithubException(300, "Nope", None)
 
     # isolate test environment
@@ -1114,7 +1114,7 @@ def test_upload_results(
         ),
     ],
 )
-# pylint: disable=R0913
+# pylint: disable=too-many-arguments
 def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task, env):
     class MockIssue:
         def __init__(self):
@@ -1129,7 +1129,7 @@ def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task, en
                 return [self.comment]
             return []
 
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     monkeypatch.setattr(testutils.github.os, "environ", env)
     monkeypatch.setattr(testutils.github, "upload_results", lambda *args: None)
     report = _get_mock_report(outcome, longrepr=longrepr, sections=sections)
@@ -1171,16 +1171,16 @@ def test_make_comment(monkeypatch, tmpdir, outcome, longrepr, sections, task, en
         ("failed", None, [], {"spec": {"spec": 5}, "name": "Lorem", "url": "t::test"}),
     ],
 )
-# pylint: disable=R0913
+# pylint: disable=too-many-arguments
 def test_make_comment_error(
     monkeypatch, tmpdir, caplog, outcome, longrepr, sections, task
 ):
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockIssue:
         def __init__(self):
             self.comment = None
 
-        # pylint: disable=R0201,W0613
+        # pylint: disable=no-self-use,unused-argument
         def create_comment(self, comment):
             raise testutils.github.GithubException(300, "Nope", None)
 
@@ -1198,7 +1198,7 @@ def test_make_comment_error(
 
 
 def _mock_update_issue():
-    # pylint: disable=R0903
+    # pylint: disable=too-few-public-methods
     class MockIssue:
         @property
         def body(self):
@@ -1430,7 +1430,7 @@ def _mock_update_issue():
         ),
     ],
 )
-# pylint: disable=R0913,R0914
+# pylint: disable=too-many-arguments,too-many-locals
 def test_update_issue(
     monkeypatch,
     caplog,
@@ -1447,7 +1447,7 @@ def test_update_issue(
     comment_error,
     exp_marked,
 ):
-    # pylint: disable=R0903,W0621
+    # pylint: disable=too-few-public-methods,W0621
     class MockComment:
         @property
         def html_url(self):
@@ -1465,7 +1465,7 @@ def test_update_issue(
         testutils.github, "get_rc_tracking_issue", lambda *args, **kwargs: issue
     )
     if task is None:
-        # pylint: disable=W0613
+        # pylint: disable=unused-argument
         def _raise(*args, **kwargs):
             raise testutils.github.GithubException(420, "Fail!", None)
 
@@ -1475,13 +1475,13 @@ def test_update_issue(
             testutils.github, "find_task_text", lambda *args, **kwargs: task
         )
 
-    # pylint: disable=W0613
+    # pylint: disable=unused-argument
     def comment(*args, **kwargs):
         if comment_error:
             return None
         return MockComment()
 
-    # pylint: disable=W0613
+    # pylint: disable=unused-argument
     def mark(*args, **kwargs):
         nonlocal task_marked_done
         task_marked_done = True
