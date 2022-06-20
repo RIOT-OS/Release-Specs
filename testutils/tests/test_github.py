@@ -72,7 +72,7 @@ def test_get_github(monkeypatch, access_token, expected):
 def test_get_repo():
     # pylint: disable=R0903
     class MockGithub:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=W0613
         def get_repo(self, name):
             return "I am repo"
 
@@ -82,7 +82,7 @@ def test_get_repo():
 def test_get_repo_error(caplog):
     # pylint: disable=R0903
     class MockGithub:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=W0613
         def get_repo(self, name):
             raise testutils.github.GithubException(404, "I am not repo", None)
 
@@ -151,7 +151,7 @@ def test_get_rc_tracking_issue(caplog, issue_titles, rc, expected_idx):
 def test_get_rc_tracking_issue_error(caplog):
     # pylint: disable=R0903
     class MockRepo:
-        # pylint: disable=R0201,W0613
+        # pylint: disable=W0613
         def get_issues(self, *args, **kwargs):
             raise testutils.github.GithubException(403, "You don't get issues", None)
 
@@ -360,7 +360,6 @@ def _github(user_class=None):
 
     # pylint: disable=R0903
     class MockGithub:
-        # pylint: disable=R0201
         def get_user(self):
             if user_class is None:
                 return MockUser()
@@ -382,7 +381,7 @@ def _github(user_class=None):
 )
 def test_find_previous_comment(comments, exp):
     class MockIssue:  # pylint: disable=R0903
-        def get_comments(self):  # pylint: disable=R0201
+        def get_comments(self):
             return comments
 
     assert testutils.github.find_previous_comment(_github(), MockIssue()) == exp
@@ -421,7 +420,7 @@ def test_create_comment(monkeypatch, caplog):
 
 def test_create_comment_error(caplog):
     class MockIssue:  # pylint: disable=R0903
-        def create_comment(self, comment):  # pylint: disable=R0201
+        def create_comment(self, comment):
             raise testutils.github.GithubException(300, "Nope", None)
 
     with caplog.at_level(logging.ERROR):
@@ -784,7 +783,7 @@ def test_upload_result_content_error(monkeypatch, caplog, tmp_path):
 
 def test_update_comment_edit_error(monkeypatch, caplog):
     class MockCommentEditError(MockComment):
-        def edit(self, body):  # pylint: disable=R0201
+        def edit(self, body):
             raise testutils.github.GithubException(300, "Nope", None)
 
     # isolate test environment
@@ -822,7 +821,7 @@ def test_get_results_gist(  # noqa: C901
     error_get,
     error_create,
 ):
-    # pylint: disable=too-few-public-methods,no-self-use,too-many-arguments
+    # pylint: disable=too-few-public-methods,too-many-arguments
     # pylint: disable=unused-argument
     class MockGist:
         def __init__(self, identifier):
@@ -1180,7 +1179,7 @@ def test_make_comment_error(
         def __init__(self):
             self.comment = None
 
-        # pylint: disable=R0201,W0613
+        # pylint: disable=W0613
         def create_comment(self, comment):
             raise testutils.github.GithubException(300, "Nope", None)
 
