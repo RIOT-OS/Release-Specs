@@ -44,7 +44,7 @@ class Shell(Ifconfig, CordEp):
 class TimeResource(aiocoap.resource.Resource):
     """Handle GET for clock time."""
 
-    # pylint: disable=W0613, disable=R0201
+    # pylint: disable=W0613
     async def render_get(self, request):
         payload = datetime.datetime.now().strftime("%Y-%m-%d %H:%M").encode('ascii')
         msg = aiocoap.Message(payload=payload)

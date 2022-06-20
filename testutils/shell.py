@@ -138,7 +138,7 @@ class GNRCUDP(ShellInteraction):
                 continue
             try:
                 self.riotctrl.term.expect(
-                    r"~~ SNIP  0 - size:\s+\d+ byte, type: NETTYPE_UNDEF " r"\(\d+\)"
+                    r"~~ SNIP  0 - size:\s+\d+ byte, type: NETTYPE_UNDEF \(\d+\)"
                 )
                 self.riotctrl.term.expect(
                     r"~~ SNIP  1 - size:\s+\d+ byte, type: NETTYPE_UDP \(\d+\)"
@@ -147,7 +147,7 @@ class GNRCUDP(ShellInteraction):
                     r"~~ SNIP  2 - size:\s+40 byte, type: NETTYPE_IPV6 \(\d+\)"
                 )
                 self.riotctrl.term.expect(
-                    r"~~ SNIP  3 - size:\s+\d+ byte, type: NETTYPE_NETIF " r"\(-1\)"
+                    r"~~ SNIP  3 - size:\s+\d+ byte, type: NETTYPE_NETIF \(-1\)"
                 )
                 self.riotctrl.term.expect(
                     r"~~ PKT\s+-\s+4 snips, total size:\s+\d+ byte"
