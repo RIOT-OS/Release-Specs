@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import json
 import re
 import math
 import os
@@ -148,8 +149,12 @@ def test_task03(riot_ctrl):
     host_netif = bridge(TAP)
 
     # can't use shell interactions here, as there is no shell
-    node.riotctrl.term.expect(r"inet6 addr:\s+(fe80::[0-9a-f:]+)")
-    node_lladdr = node.riotctrl.term.match.group(1)
+    node.riotctrl.term.expect(r'{"IPv6 addresses": \[.*\].*}')
+    node_lladdr = [
+        addr
+        for addr in json.loads(node.riotctrl.term.match.group(0))["IPv6 addresses"]
+        if addr.startswith("fe80:")
+    ][0]
 
     async def client(host, block_size):
         # create async context and wait a couple of seconds
@@ -191,8 +196,12 @@ def test_task04(riot_ctrl):
     host_netif = bridge(TAP)
 
     # can't use shell interactions here, as there is no shell
-    node.riotctrl.term.expect(r"inet6 addr:\s+(fe80::[0-9a-f:]+)")
-    node_lladdr = node.riotctrl.term.match.group(1)
+    node.riotctrl.term.expect(r'{"IPv6 addresses": \[.*\].*}')
+    node_lladdr = [
+        addr
+        for addr in json.loads(node.riotctrl.term.match.group(0))["IPv6 addresses"]
+        if addr.startswith("fe80:")
+    ][0]
 
     async def client(host, block_size):
         # create async context and wait a couple of seconds
