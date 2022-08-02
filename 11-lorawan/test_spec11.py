@@ -93,6 +93,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     check_pktbuf(node)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
@@ -107,6 +108,7 @@ def test_task01(riot_ctrl, ttn_client):
         assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=60)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
@@ -140,6 +142,7 @@ def test_task02(riot_ctrl, ttn_client, deveui, appeui, appkey, dr):
     assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=60)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
