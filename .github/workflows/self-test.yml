@@ -16,7 +16,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: ['3.8', '3.9', '3.10']
 
     steps:
     - name: Checkout Release-Specs
@@ -48,7 +48,7 @@ jobs:
             --cov-config=testutils/.coveragerc \
             --cov-fail-under=95
     - name: Check code format with black
-      if: matrix.python-version == 3.9
+      if: matrix.python-version == '3.10'
       run: |
         cd Release-Specs
         tox -e black
