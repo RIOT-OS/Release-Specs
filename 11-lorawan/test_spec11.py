@@ -1,4 +1,5 @@
 import time
+import pexpect
 import pytest
 from riotctrl.shell import ShellInteraction
 from riotctrl_shell.netif import Ifconfig
@@ -176,11 +177,29 @@ def test_task03(riot_ctrl, ttn_client, devaddr, nwkskey, appskey, dr):
     # configurations that are currently not backed up in the eeprom
     node.loramac_set("ul_cnt", "0")
     node.loramac_join("abp")
-    node.loramac_tx(APP_PAYLOAD, cnf=True, port=123, timeout=10)
+    # retry sending 3 times as this is in and of it self sometimes flaky
+    retries = 3
+    while retries > 0:
+        try:
+            node.loramac_tx(APP_PAYLOAD, cnf=True, port=123, timeout=10)
+            break
+        except (RuntimeError, pexpect.TIMEOUT):
+            retries -= 1
+            time.sleep(TEST_TX_DELAYS[dr] * 2.5)
+    assert retries > 0
     time.sleep(TEST_TX_DELAYS[dr])
     payload = ttn_client.pop_uplink_payload()
     assert payload == APP_PAYLOAD
-    node.loramac_tx(APP_PAYLOAD, cnf=False, port=42, timeout=10)
+    # retry sending 3 times as this is in and of it self sometimes flaky
+    retries = 3
+    while retries > 0:
+        try:
+            node.loramac_tx(APP_PAYLOAD, cnf=False, port=42, timeout=10)
+            break
+        except (RuntimeError, pexpect.TIMEOUT):
+            retries -= 1
+            time.sleep(TEST_TX_DELAYS[dr] * 2.5)
+    assert retries > 0
     time.sleep(TTN_UPLINK_DELAY)
     payload = ttn_client.pop_uplink_payload()
     assert payload == APP_PAYLOAD
