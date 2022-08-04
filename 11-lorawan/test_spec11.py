@@ -173,9 +173,6 @@ def test_task03(riot_ctrl, ttn_client, devaddr, nwkskey, appskey, dr):
     # Set keys
     for k, v in keys.items():
         node.loramac_set(k, v)
-    # Reset ul_cnt to for NS mac reset: TTN will negotiate RX
-    # configurations that are currently not backed up in the eeprom
-    node.loramac_set("ul_cnt", "0")
     node.loramac_join("abp")
     # retry sending 3 times as this is in and of it self sometimes flaky
     retries = 3
