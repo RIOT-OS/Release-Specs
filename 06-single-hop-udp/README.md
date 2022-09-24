@@ -16,7 +16,7 @@ Sending UDP between two iotlab-m3 nodes.
 ### Result
 
 <5% packets lost on the receiving node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #02 - UDP on iotlab-m3 (UDP port compression)
 ==================================================
@@ -34,7 +34,7 @@ Sending UDP between two iotlab-m3 nodes.
 ### Result
 
 <5% packets lost on the receiving node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #03 - UDP on native (non-existent neighbor)
 ================================================
@@ -50,7 +50,7 @@ Sending UDP from one native node to a non-existent neighbor.
 
 ### Result
 
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant for this test.
 
 Task #04 - UDP on iotlab-m3 (non-existent neighbor)
@@ -68,7 +68,7 @@ Sending UDP from one iotlab-m3 node to a non-existent neighbor.
 
 ### Result
 
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant for this test.
 
 Task #05 - Empty UDP on native
@@ -86,7 +86,7 @@ Sending UDP between two native nodes.
 ### Result
 
 <=10% packets lost on the receiving node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #06 - Empty UDP on iotlab-m3
 =================================
@@ -104,4 +104,4 @@ Sending UDP between two iotlab-m3 nodes.
 ### Result
 
 <=10% packets lost on the receiving node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).

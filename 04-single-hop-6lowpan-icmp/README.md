@@ -47,7 +47,7 @@ ICMPv6 echo request/reply exchange between two nodes.
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #04 - ICMPv6 echo with iotlab-m3/samr21-xpro 15 minutes
 ============================================================
@@ -149,7 +149,7 @@ to one iotlab-m3.
 ### Result
 
 All nodes are still running, reachable, and the packet buffer is empty 3 seconds
-after completions (use module `gnrc_pktbuf_cmd`).
+after completions (use module `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant in this stress test.
 
 Task #10 (Experimental) - ICMPv6 echo with large payload (IPv6 fragmentation)
@@ -169,7 +169,7 @@ both the fragmented and reassembled requests/replies).
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #11 (Experimental) - ICMPv6 stress test on nrf802154
 =========================================================
@@ -188,7 +188,7 @@ Rapid ICMPv6 echo request/reply exchange between an a nrf802154 based node
 ### Result
 
 All nodes are still running, reachable, and the packet buffer is empty 3 seconds
-after completions (use module `gnrc_pktbuf_cmd`).
+after completions (use module `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant in this stress test.
 
 Task #12 (Experimental) - ICMPv6 multicast echo with iotlab-m3/nrf802154

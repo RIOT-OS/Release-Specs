@@ -203,7 +203,9 @@ def test_task04(riot_ctrl, appeui, deveui, appkey, devaddr, nwkskey, appskey):
 )
 # pylint: disable=R0913
 def test_task05(riot_ctrl, ttn_client, dev_id, deveui, appeui, appkey):
-    node = riot_ctrl(0, GNRC_LORAWAN_APP, ShellGnrcLoRaWAN, modules=["gnrc_pktbuf_cmd"])
+    node = riot_ctrl(
+        0, GNRC_LORAWAN_APP, ShellGnrcLoRaWAN, modules=["shell_cmd_gnrc_pktbuf"]
+    )
 
     iface = lorawan_netif(node)
     assert iface
@@ -242,7 +244,9 @@ def test_task05(riot_ctrl, ttn_client, dev_id, deveui, appeui, appkey):
 @pytest.mark.local_only
 # pylint: disable=R0913
 def test_task06(riot_ctrl, ttn_client, dev_id, devaddr, nwkskey, appskey):
-    node = riot_ctrl(0, GNRC_LORAWAN_APP, ShellGnrcLoRaWAN, modules=["gnrc_pktbuf_cmd"])
+    node = riot_ctrl(
+        0, GNRC_LORAWAN_APP, ShellGnrcLoRaWAN, modules=["shell_cmd_gnrc_pktbuf"]
+    )
 
     iface = lorawan_netif(node)
     assert iface
