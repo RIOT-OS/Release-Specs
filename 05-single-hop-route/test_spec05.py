@@ -22,8 +22,8 @@ class Shell(Ifconfig, GNRCICMPv6Echo, GNRCPktbufStats, GNRCIPv6NIB):
 )
 def test_task01(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap0"),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap1"),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap0"),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap1"),
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())
@@ -49,8 +49,8 @@ def test_task01(riot_ctrl):
 )
 def test_task02(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())
@@ -73,8 +73,8 @@ def test_task02(riot_ctrl):
 )
 def test_task03(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap0"),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap1"),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap0"),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap1"),
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())
@@ -99,8 +99,8 @@ def test_task03(riot_ctrl):
 )
 def test_task04(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap0"),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"], port="tap1"),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap0"),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], port="tap1"),
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())

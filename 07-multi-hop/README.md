@@ -10,7 +10,7 @@ with static routes.
 ### Result
 
 <20% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #02 - UDP on iotlab-m3 with three hops (static route)
 ==========================================================
@@ -21,7 +21,7 @@ Sending UDP between two iotlab-m3 nodes over three hops with static routes.
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #03 - ICMPv6 echo on iotlab-m3 with three hops (RPL route)
 ===============================================================
@@ -33,7 +33,7 @@ with RPL generated routes.
 ### Result
 
 <20% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #04 - UDP on iotlab-m3 with three hops (RPL route)
 =======================================================
@@ -44,7 +44,7 @@ Sending UDP between two iotlab-m3 nodes over three hops with RPL generated route
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #05 (Experimental) - UDP with large payload on iotlab-m3 with three hops (RPL route)
 =========================================================================================
@@ -58,4 +58,4 @@ requests/replies).
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).

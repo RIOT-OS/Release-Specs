@@ -26,8 +26,8 @@ class Shell(Ifconfig, GNRCICMPv6Echo, GNRCPktbufStats):
 )
 def test_task01(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -50,8 +50,8 @@ def test_task01(riot_ctrl):
 )
 def test_task02(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, _ = lladdr(pinged.ifconfig_list())
@@ -73,8 +73,8 @@ def test_task02(riot_ctrl):
 )
 def test_task03(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -97,8 +97,8 @@ def test_task03(riot_ctrl):
 )
 def test_task04(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -129,8 +129,8 @@ def test_task04(riot_ctrl):
 def test_task05(riot_ctrl):
     try:
         pinger, pinged = (
-            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
         )
     except subprocess.CalledProcessError:
         pytest.xfail(
@@ -160,8 +160,8 @@ def test_task05(riot_ctrl):
 def test_task06(riot_ctrl):
     try:
         pinger, pinged = (
-            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
         )
     except subprocess.CalledProcessError:
         pytest.xfail(
@@ -188,8 +188,8 @@ def test_task06(riot_ctrl):
 )
 def test_task07(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd", "xbee"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf", "xbee"]),
     )
 
     pinged_netif, _ = lladdr(pinged.ifconfig_list())
@@ -210,8 +210,8 @@ def test_task07(riot_ctrl):
 )
 def test_task08(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd", "xbee"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf", "xbee"]),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -233,9 +233,9 @@ def test_task08(riot_ctrl):
 )
 def test_task09(riot_ctrl):
     nodes = (
-        riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(2, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(2, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged = nodes[0]
@@ -266,8 +266,8 @@ def test_task09(riot_ctrl):
 )
 def test_task10(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, TASK10_APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-        riot_ctrl(1, TASK10_APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+        riot_ctrl(0, TASK10_APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(1, TASK10_APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -298,9 +298,9 @@ def test_task10(riot_ctrl):
 def test_task11(riot_ctrl):
     try:
         nodes = (
-            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(2, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(2, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
         )
     except subprocess.CalledProcessError:
         pytest.xfail(
@@ -339,8 +339,8 @@ def test_task11(riot_ctrl):
 def test_task12(riot_ctrl):
     try:
         pinger, pinged = (
-            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
         )
     except subprocess.CalledProcessError:
         pytest.xfail(
@@ -368,8 +368,8 @@ def test_task12(riot_ctrl):
 def test_task13(riot_ctrl):
     try:
         pinger, pinged = (
-            riot_ctrl(0, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
-            riot_ctrl(1, APP, Shell, modules=["gnrc_pktbuf_cmd"]),
+            riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+            riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
         )
     except subprocess.CalledProcessError:
         pytest.xfail(

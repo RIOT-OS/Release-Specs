@@ -60,7 +60,7 @@ host, e.g. Linux host) simultaneously to one native node for 1 hour.
 ### Result
 
 All nodes are still running, reachable, and the packet buffer is empty 10
-seconds after completions (use module `gnrc_pktbuf_cmd`).
+seconds after completions (use module `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant in this stress test.
 
 Task #05 - ICMPv6 stress test on native (neighbor cache stress)
@@ -78,7 +78,7 @@ one native node.
 ### Result
 
 All nodes are still running, reachable, and the packet buffer is empty 10
-seconds after completions (use module `gnrc_pktbuf_cmd`).
+seconds after completions (use module `shell_cmd_gnrc_pktbuf`).
 Packet loss is irrelevant in this stress test.
 
 Task #06 - ICMPv6 link-local echo on native (IPv6 fragmentation)

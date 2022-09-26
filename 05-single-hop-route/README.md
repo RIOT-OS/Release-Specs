@@ -19,7 +19,7 @@ otherwise default routes and address resolution will be auto-configured).
 ### Result
 
 <1% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 
 Task #02 - ICMPv6 echo unicast addresess on iotlab-m3 (default route)
@@ -41,7 +41,7 @@ advertisements for this task).
 ### Result
 
 <10% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #03 - ICMPv6 echo unicast addresess on native (specific route)
 ===================================================================
@@ -62,7 +62,7 @@ otherwise default routes and address resolution will be auto-configured ).
 ### Result
 
 <1% packets lost on the pinging node.
-No leaks in the packet buffer (check with `gnrc_pktbuf_cmd`).
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
 Task #04 - ICMPv6 echo unicast addresess on iotlab-m3 (static route)
 ====================================================================
