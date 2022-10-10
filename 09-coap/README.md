@@ -54,7 +54,7 @@ Start a native terminal for the RIOT cord_ep example app.
 
 Register with the RD server with the command:
 ```
-   > cord_ep register [fd00:bbbb::1]
+   > cord_ep register coap://[fd00:bbbb::1]
 ```
 
 You should see the message below in the RIOT native terminal:

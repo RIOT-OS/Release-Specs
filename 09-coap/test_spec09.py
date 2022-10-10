@@ -89,7 +89,7 @@ def test_task01(riot_ctrl, log_nodes):
         stderr=None if log_nodes else subprocess.DEVNULL,
     )
     try:
-        res = node.cord_ep_register(f"[{HOST_ULA}]")
+        res = node.cord_ep_register(f"coap://[{HOST_ULA}]")
         parser = CordEpRegistrationInfoParser()
         core_reg = parser.parse(res)
         ltime = core_reg['ltime']
