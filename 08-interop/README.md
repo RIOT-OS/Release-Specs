@@ -345,7 +345,7 @@ RIOT should be able to connect to your WiFi network and configure a global addre
 You should be able to ping global addresses (requires a working IPv6 uplink on your network)
 
 ```
-2020-08-02 20:35:27,462 # ping6 2600::
+2020-08-02 20:35:27,462 # ping 2600::
 2020-08-02 20:35:27,672 # 12 bytes from 2600::: icmp_seq=0 ttl=50 time=203.340 ms
 2020-08-02 20:35:28,607 # 12 bytes from 2600::: icmp_seq=1 ttl=50 time=139.033 ms
 2020-08-02 20:35:29,608 # 12 bytes from 2600::: icmp_seq=2 ttl=50 time=140.839 ms
@@ -358,7 +358,7 @@ You should be able to ping global addresses (requires a working IPv6 uplink on y
 Valid DNS names should get resolved too
 
 ```
-2020-08-02 20:35:37,927 # ping6 riot-os.org
+2020-08-02 20:35:37,927 # ping riot-os.org
 2020-08-02 20:35:38,075 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=56 time=33.071 ms
 2020-08-02 20:35:39,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=56 time=34.129 ms
 2020-08-02 20:35:40,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=56 time=33.182 ms
@@ -414,7 +414,7 @@ Make sure both boards operate on the same `esp_now` channel.
 You should be able to reach the border router using it's global address
 
 ```
-2020-08-02 20:45:41,423 #  ping6 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291
+2020-08-02 20:45:41,423 #  ping 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291
 2020-08-02 20:45:41,439 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=0 ttl=64 time=8.020 ms
 2020-08-02 20:45:42,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=1 ttl=64 time=7.252 ms
 2020-08-02 20:45:43,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=2 ttl=64 time=6.779 ms
@@ -427,7 +427,7 @@ You should be able to reach the border router using it's global address
 You should be able to reach a global address on the internet
 
 ```
-2020-08-02 20:45:49,052 #  ping6 2600::
+2020-08-02 20:45:49,052 #  ping 2600::
 2020-08-02 20:45:49,200 # 12 bytes from 2600::: icmp_seq=0 ttl=49 time=143.513 ms
 2020-08-02 20:45:50,200 # 12 bytes from 2600::: icmp_seq=1 ttl=49 time=143.223 ms
 2020-08-02 20:45:51,199 # 12 bytes from 2600::: icmp_seq=2 ttl=49 time=142.450 ms
@@ -440,7 +440,7 @@ You should be able to reach a global address on the internet
 DNS names should also get resolved
 
 ```
-2020-08-02 20:45:57,277 #  ping6 riot-os.org
+2020-08-02 20:45:57,277 #  ping riot-os.org
 2020-08-02 20:45:57,330 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=55 time=35.999 ms
 2020-08-02 20:45:58,335 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=55 time=40.993 ms
 2020-08-02 20:45:59,328 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=55 time=34.089 ms

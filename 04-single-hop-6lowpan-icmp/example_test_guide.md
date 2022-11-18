@@ -41,10 +41,10 @@ ICMPv6 echo request/reply exchange between two iotlab-m3 nodes
 1. On the dest node use `ifconfig`
 2. Copy the link local address `inet6 addr: fe80::... scope: local VAL`, it
 should look like `fe80::1711:6b10:65f8:b43a`
-3. Ping from the src to the dest `ping6 -c 1000 -i 20 -s 0 <ll_addr>`
+3. Ping from the src to the dest `ping -c 1000 -i 20 -s 0 <ll_addr>`
 4. Record the packet loss, it should be less then 10%
 _(if packet loss is high try to increase the -i value as it may be a property of
-the async ping6 call)_
+the async ping call)_
 5. check the packet buffer with `pktbuf` once everything is complete
 _(as long as there is no hex dump it should be fine)_
 
@@ -59,7 +59,7 @@ Task #02 - ICMPv6 multicast echo with iotlab-m3/samr21-xpro
 ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 
 1. Set the channel on the both dest and src to 17 `ifconfig 6 set chan 17`
-2. Ping from the src to the dest `ping6 -c 1000 -i 100 -s 50 ff02::1`
+2. Ping from the src to the dest `ping -c 1000 -i 100 -s 50 ff02::1`
 3. Record the packet loss and timings, it should be less then 10%
 4. check the packet buffer with `pktbuf`
 
@@ -73,7 +73,7 @@ Task #03 - ICMPv6 echo with large payload
 
 ICMPv6 echo request/reply exchange between _any_ two nodes.
 
-1. Ping from the src to the dest `ping6 -c 500 -i 300 -s 1000 <ll_addr>`
+1. Ping from the src to the dest `ping -c 500 -i 300 -s 1000 <ll_addr>`
 2. Record the packet loss and timings, it should be less then 10%
 3. check the packet buffer with `pktbuf`
 
@@ -87,7 +87,7 @@ Task #04 - ICMPv6 echo with iotlab-m3/samr21-xpro 15 minutes
 
 ICMPv6 echo request/reply exchange between an iotlab-m3 and a samr21-xpro node.
 
-1. Ping from the src to the dest `ping6 -c 10000 -i 100 -s 100 <ll_addr>`
+1. Ping from the src to the dest `ping -c 10000 -i 100 -s 100 <ll_addr>`
 2. Record the packet loss and timings, it should be less then 10%
 3. check the packet buffer with `pktbuf`
 
@@ -102,7 +102,7 @@ Task #05 (Experimental) - ICMPv6 multicast echo with samr21-xpro/remote
 ICMPv6 echo request/reply exchange between a `samr21-xpro` a `remote-revb`
 
 1. Set the channel on the both dest and src to 17 `ifconfig 6 set chan 17`
-2. Ping from the src to the dest `ping6 -c 1000 -i 100 -s 50 ff02::1`
+2. Ping from the src to the dest `ping -c 1000 -i 100 -s 50 ff02::1`
 3. Record the packet loss and timings, it should be less then 10%
 4. check the packet buffer with `pktbuf`
 
@@ -116,7 +116,7 @@ Task #06 (Experimental) - ICMPv6 link-local echo with samr21-xpro/remote
 
 ICMPv6 echo request/reply exchange between a `samr21-xpro` a `remote-revb`
 
-1. Ping from the src to the dest `ping6 -c 1000 -i 100 -s 100 <ll_addr>`
+1. Ping from the src to the dest `ping -c 1000 -i 100 -s 100 <ll_addr>`
 2. Record the packet loss and timings, it should be less then 10%
 3. check the packet buffer with `pktbuf`
 
@@ -133,7 +133,7 @@ ICMPv6 echo request/reply exchange between a `samr21-xpro` a `arduino-zero`
 1. Flash the `arduino-zero` with the
 `USEMODULE=xbee BOARD=arduino-zero make flash` command
 2. Set the channel on the both dest and src to 17 `ifconfig 6 set chan 17`
-3. Ping from the src to the dest `ping6 -c 1000 -i 150 -s 50 ff02::1`
+3. Ping from the src to the dest `ping -c 1000 -i 150 -s 50 ff02::1`
 4. Record the packet loss and timings, it should be less then 10%
 5. check the packet buffer with `pktbuf`
 
@@ -149,7 +149,7 @@ ICMPv6 echo request/reply exchange between a `samr21-xpro` a `arduino-zero`
 
 1. Flash the `arduino-zero` with the
 `USEMODULE=xbee BOARD=arduino-zero make flash` command
-2. Ping from the src to the dest `ping6 -c 1000 -i 350 -s 100 <ll_addr>`
+2. Ping from the src to the dest `ping -c 1000 -i 350 -s 100 <ll_addr>`
 3. Record the packet loss and timings, it should be less then 10%
 4. check the packet buffer with `pktbuf`
 
@@ -163,7 +163,7 @@ Task #09 - ICMPv6 stress test on iotlab-m3
 
 Rapid ICMPv6 echo request/reply exchange from two iotlab-m3 nodes simultaneously
 to one iotlab-m3.
-1. Ping from many srcs to the dest `ping6 -c 1000 -i 200 -s 1232 <ll_addr>`
+1. Ping from many srcs to the dest `ping -c 1000 -i 200 -s 1232 <ll_addr>`
 2. check the packet buffer with `pktbuf`
 3. As long as there are no crashes and the `pktbuf` clears after some time it
 is OK.
@@ -177,6 +177,6 @@ ICMPv6 echo request/reply exchange between two nodes (make sure module
 both the fragmented and reassembled requests/replies).
 1. Compile with `CFLAGS+=GNRC_PKTBUF_SIZE=8192` and
    `USEMODULE += gnrc_ipv6_ext_frag`.
-2. Ping from the src to the dest `ping6 -c 200 -i 600 -s 2048 <ll_addr>`
+2. Ping from the src to the dest `ping -c 200 -i 600 -s 2048 <ll_addr>`
 3. Record the packet loss and timings, it should be less then 10%
 4. check the packet buffer with `pktbuf`
