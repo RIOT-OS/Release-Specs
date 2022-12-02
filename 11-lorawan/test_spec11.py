@@ -1,4 +1,5 @@
 import time
+import pexpect
 import pytest
 from riotctrl.shell import ShellInteraction
 from riotctrl_shell.netif import Ifconfig
@@ -24,9 +25,28 @@ TTN_UPLINK_DELAY = 5
 TTN_PORT = 1
 OTAA_JOIN_DELAY = 20
 
-# Theoretical duty cycling timeoff for EU863-870
-# https://www.semtech.com/uploads/documents/LoraDesignGuide_STD.pdf#page=7
-TEST_DATA_RATES = {"5": 6.2, "3": 20.6, "0": 164.6}
+# Theoretical duty cycling tx_delay for EU863-870
+TEST_TX_DELAYS = {
+    # see SX1276 datasheet: T_packet * 100 to ensure duty cycle of at most 1%
+    # https://cdn-shop.adafruit.com/product-files/3179/sx1276_77_78_79.pdf
+    # section 4.1.1.7
+    # or https://loratools.nl/#/airtime (Duty Cycle or Time on air (in s) * 100)
+    # based on EU868 regional parameters (v1.0.3), section 2.2.3:
+    # DataRate | Configuration        | Indicative physical
+    #          | (SF / BW)            | bit rate [bit/s]
+    # ---------+----------------------+--------------------
+    #        0 | SF12 / 125 kHz       | 250
+    #        1 | SF11 / 125 kHz       | 440
+    #        2 | SF10 / 125 kHz       | 980
+    #        3 | SF9 / 125 kHz        | 1760
+    #        4 | SF8 / 125 kHz        | 3125
+    #        5 | SF7 / 125 kHz        | 5470
+    #        6 | SF7 / 250 kHz        | 11000
+    # payload length includes 13 bytes header + len("This is RIOT!") => 26 bytes
+    0: 164.659,
+    3: 20.582,
+    5: 6.17,
+}
 
 
 class ShellGnrcLoRaWAN(Ifconfig, GNRCLoRaWANSend, GNRCPktbufStats):
@@ -74,6 +94,7 @@ def run_lw_test(node, ttn_client, iface, dev_id):
     check_pktbuf(node)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
@@ -88,70 +109,97 @@ def test_task01(riot_ctrl, ttn_client):
         assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=60)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    "nodes", [pytest.param(["b-l072z-lrwan1"])], indirect=["nodes"]
+    "nodes, dr",
+    [
+        pytest.param(["b-l072z-lrwan1"], 5),
+        pytest.param(["b-l072z-lrwan1"], 3),
+        pytest.param(["b-l072z-lrwan1"], 0),
+    ],
+    indirect=["nodes"],
 )
-def test_task02(riot_ctrl, ttn_client, deveui, appeui, appkey):
+def test_task02(riot_ctrl, ttn_client, deveui, appeui, appkey, dr):
+    # pylint: disable=too-many-arguments
     node = riot_ctrl(0, SEMTECH_LORAMAC_APP, ShellLoramac)
     keys = {
         "appeui": appeui,
         "deveui": deveui,
         "appkey": appkey,
+        "dr": dr,
     }
 
-    for key, time_off in TEST_DATA_RATES.items():
-        # Set keys
-        for k, v in keys.items():
-            node.loramac_set(k, v)
-        node.loramac_set("dr", key)
-        node.loramac_join("otaa")
-        node.loramac_tx(APP_PAYLOAD, cnf=True, port=123)
-        time.sleep(time_off)
-        assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
-        node.loramac_tx(APP_PAYLOAD, cnf=False, port=42)
-        time.sleep(TTN_UPLINK_DELAY)
-        assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
-        node.reboot()
+    # Set keys
+    for k, v in keys.items():
+        node.loramac_set(k, v)
+    node.loramac_join("otaa")
+    node.loramac_tx(APP_PAYLOAD, cnf=True, port=123)
+    time.sleep(TEST_TX_DELAYS[dr])
+    assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
+    node.loramac_tx(APP_PAYLOAD, cnf=False, port=42)
+    time.sleep(TTN_UPLINK_DELAY)
+    assert ttn_client.pop_uplink_payload() == APP_PAYLOAD
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=60)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    "nodes", [pytest.param(["b-l072z-lrwan1"])], indirect=["nodes"]
+    "nodes, dr",
+    [
+        pytest.param(["b-l072z-lrwan1"], 5),
+        pytest.param(["b-l072z-lrwan1"], 3),
+        pytest.param(["b-l072z-lrwan1"], 0),
+    ],
+    indirect=["nodes"],
 )
-def test_task03(riot_ctrl, ttn_client, devaddr, nwkskey, appskey):
+def test_task03(riot_ctrl, ttn_client, devaddr, nwkskey, appskey, dr):
+    # pylint: disable=too-many-arguments
     node = riot_ctrl(0, SEMTECH_LORAMAC_APP, ShellLoramac)
     keys = {
         "appskey": appskey,
         "nwkskey": nwkskey,
         "devaddr": devaddr,
         "rx2_dr": RX2_DR,
+        "dr": dr,
     }
 
     # Make sure the eeprom is flushed
     node.loramac_eeprom_erase()
     node.reboot()
 
-    for key, time_off in TEST_DATA_RATES.items():
-        # Set keys
-        for k, v in keys.items():
-            node.loramac_set(k, v)
-        node.loramac_set("dr", key)
-        # Reset ul_cnt to for NS mac reset: TTN will negotiate RX
-        # configurations that are currently not backed up in the eeprom
-        node.loramac_set("ul_cnt", "0")
-        node.loramac_join("abp")
-        node.loramac_tx(APP_PAYLOAD, cnf=True, port=123, timeout=10)
-        time.sleep(time_off)
-        payload = ttn_client.pop_uplink_payload()
-        assert payload == APP_PAYLOAD
-        node.loramac_tx(APP_PAYLOAD, cnf=False, port=42, timeout=10)
-        time.sleep(TTN_UPLINK_DELAY)
-        payload = ttn_client.pop_uplink_payload()
-        assert payload == APP_PAYLOAD
-        node.reboot()
+    # Set keys
+    for k, v in keys.items():
+        node.loramac_set(k, v)
+    node.loramac_join("abp")
+    # retry sending 3 times as this is in and of it self sometimes flaky
+    retries = 3
+    while retries > 0:
+        try:
+            node.loramac_tx(APP_PAYLOAD, cnf=True, port=123, timeout=10)
+            break
+        except (RuntimeError, pexpect.TIMEOUT):
+            retries -= 1
+            time.sleep(TEST_TX_DELAYS[dr] * 2.5)
+    assert retries > 0
+    time.sleep(TEST_TX_DELAYS[dr])
+    payload = ttn_client.pop_uplink_payload()
+    assert payload == APP_PAYLOAD
+    # retry sending 3 times as this is in and of it self sometimes flaky
+    retries = 3
+    while retries > 0:
+        try:
+            node.loramac_tx(APP_PAYLOAD, cnf=False, port=42, timeout=10)
+            break
+        except (RuntimeError, pexpect.TIMEOUT):
+            retries -= 1
+            time.sleep(TEST_TX_DELAYS[dr] * 2.5)
+    assert retries > 0
+    time.sleep(TTN_UPLINK_DELAY)
+    payload = ttn_client.pop_uplink_payload()
+    assert payload == APP_PAYLOAD
 
 
 @pytest.mark.iotlab_creds
