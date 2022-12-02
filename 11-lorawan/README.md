@@ -283,20 +283,20 @@ Personalization  and send/receive LoRaWAN frames.
 - Configure GNRC LoRaWAN to send unconfirmed messages.
       > ifconfig <lw_if> -ack_req
 
-- Send a message using the `send` command
-      > send <lw_if> "This is an unconfirmed RIOT message!"
+- Send a message using the `txtsnd` command
+      > txtsnd <lw_if> "This is an unconfirmed RIOT message!"
 
 - After 2 seconds the downlink message should be shown in the RIOT shell.
 
-- Configure GNRC LoRaWAN to send confirmed messages.
+- Configure GNRC LoRaWAN to txtsnd confirmed messages.
       > ifconfig <lw_if> ack_req
 
-- Send a message using the `send` command
-      > send <lw_if> "This is a confirmed RIOT message!"
+- Send a message using the `txtsnd` command
+      > txtsnd <lw_if> "This is a confirmed RIOT message!"
 
 ### Result
 
 GNRC LoRAWAN should be able to send and receive data from the Network Server.
-Both send functions should print `Successfully sent packet`
+Both txtsnd functions should print nothing.
 The Network Server should notify the reception of an ACK (carried with the
-frame right after the node receives data)
+frame right after the node receives data).
