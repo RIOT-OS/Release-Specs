@@ -249,6 +249,9 @@ Task #06 - GNRC LoRaWAN (ABP)
 
 ### Description
 
+**Note:** This test currently does not work with The Things Network, due to incompatible FOpts
+handling. See https://github.com/RIOT-OS/RIOT/issues/16962
+
 GNRC LoRaWAN is able to join a LoRaWAN network using Activation By
 Personalization  and send/receive LoRaWAN frames.
 
