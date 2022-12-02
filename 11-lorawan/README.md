@@ -261,7 +261,7 @@ Personalization  and send/receive LoRaWAN frames.
 - Configure the DevAddr, Network SKey and App SKey using the `ifconfig` command.
   The RX2 DataRate is also set. In the case of TTN, this value is 3.
 
-      > ifconfig <lw_if> set addr 0011223344556677
+      > ifconfig <lw_if> set addr 00112233
       > ifconfig <lw_if> set nwkskey 00112233445566778899AABBCCDDEEFF
       > ifconfig <lw_if> set appskey 00112233445566778899AABBCCDDEEFF
       > ifconfig <lw_if> set rx2_dr 3
