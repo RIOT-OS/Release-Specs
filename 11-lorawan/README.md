@@ -249,6 +249,9 @@ Task #06 - GNRC LoRaWAN (ABP)
 
 ### Description
 
+**Note:** This test currently does not work with The Things Network, due to incompatible FOpts
+handling. See https://github.com/RIOT-OS/RIOT/issues/16962
+
 GNRC LoRaWAN is able to join a LoRaWAN network using Activation By
 Personalization  and send/receive LoRaWAN frames.
 
@@ -261,7 +264,7 @@ Personalization  and send/receive LoRaWAN frames.
 - Configure the DevAddr, Network SKey and App SKey using the `ifconfig` command.
   The RX2 DataRate is also set. In the case of TTN, this value is 3.
 
-      > ifconfig <lw_if> set addr 0011223344556677
+      > ifconfig <lw_if> set addr 00112233
       > ifconfig <lw_if> set nwkskey 00112233445566778899AABBCCDDEEFF
       > ifconfig <lw_if> set appskey 00112233445566778899AABBCCDDEEFF
       > ifconfig <lw_if> set rx2_dr 3
@@ -283,20 +286,20 @@ Personalization  and send/receive LoRaWAN frames.
 - Configure GNRC LoRaWAN to send unconfirmed messages.
       > ifconfig <lw_if> -ack_req
 
-- Send a message using the `send` command
-      > send <lw_if> "This is an unconfirmed RIOT message!"
+- Send a message using the `txtsnd` command
+      > txtsnd <lw_if> "This is an unconfirmed RIOT message!"
 
 - After 2 seconds the downlink message should be shown in the RIOT shell.
 
-- Configure GNRC LoRaWAN to send confirmed messages.
+- Configure GNRC LoRaWAN to txtsnd confirmed messages.
       > ifconfig <lw_if> ack_req
 
-- Send a message using the `send` command
-      > send <lw_if> "This is a confirmed RIOT message!"
+- Send a message using the `txtsnd` command
+      > txtsnd <lw_if> "This is a confirmed RIOT message!"
 
 ### Result
 
 GNRC LoRAWAN should be able to send and receive data from the Network Server.
-Both send functions should print `Successfully sent packet`
+Both txtsnd functions should print nothing.
 The Network Server should notify the reception of an ACK (carried with the
-frame right after the node receives data)
+frame right after the node receives data).
