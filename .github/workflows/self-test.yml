@@ -43,7 +43,7 @@ jobs:
       run: |
         pyenv="py$(echo "${{ matrix.python-version }}" | tr -d .)"
         cd Release-Specs
-        tox -e "test,${pyenv},flake8,pylint" -- --doctest-modules --self-test \
+        tox -e "test,flake8,pylint" -- --doctest-modules --self-test \
             --cov=testutils --cov-report term-missing \
             --cov-config=testutils/.coveragerc \
             --cov-fail-under=95
