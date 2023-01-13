@@ -372,6 +372,16 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
             stdout=None if log_nodes else subprocess.DEVNULL,
             stderr=None if log_nodes else subprocess.DEVNULL,
         )
+        if node.env.get("IOTLAB_NODE"):
+            # reset to prevent at86rf2xx `ifconfig` issue
+            time.sleep(1)
+            node.make_run(
+                ['reset'],
+                check=True,
+                stdout=None if log_nodes else subprocess.DEVNULL,
+                stderr=None if log_nodes else subprocess.DEVNULL,
+            )
+            time.sleep(1)
         termargs = {}
         if log_nodes:
             termargs["logfile"] = sys.stdout
