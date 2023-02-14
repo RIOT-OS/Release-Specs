@@ -368,8 +368,8 @@ Valid DNS names should get resolved too
 2020-08-02 20:35:40,088 # round-trip min/avg/max = 33.071/33.460/34.129 ms
 ```
 
-Task #13 - ICMPv6 echo between ESP and named Internet host through Linux with 6LowPAN
-=====================================================================================
+Task #13 - ICMPv6 echo between ESP and named Internet host through RIOT BR with 6LowPAN
+=======================================================================================
 ### Description
 
 A second esp* board will connect to the border router from Task #12 using 6LoWPAN/`esp_now`.
