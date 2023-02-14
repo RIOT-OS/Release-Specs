@@ -19,8 +19,7 @@ def _run_check(cmd, shell=False):
         )
     except subprocess.CalledProcessError:
         return False
-    else:
-        return True
+    return True
 
 
 def command_exists(cmd):
