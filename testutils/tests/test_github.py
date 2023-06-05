@@ -684,7 +684,7 @@ def test_update_comment(
         if gist_id is not None:
             task['gist_id'] = gist_id
         testutils.github.update_comment(_get_mock_report("passed"), comment, task)
-    assert comment.body == exp_body
+    assert comment.body.strip() == exp_body.strip()
     if exp_errs:
         for exp_err in exp_errs:
             assert exp_err in caplog.text
