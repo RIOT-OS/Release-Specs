@@ -5,10 +5,10 @@ _The following is a possible way to run the tests, this is just an example_
 _One can use IoT-LAB for everything but the remote-revb boards_
 1. Get 2 of the following boards: `samr21-xpro`, `iotlab-m3`
 2. Get the following boards:`remote-revb`, `arduino-zero` with `xbee` module
-3. `cd ${RIOTBASE}/tests/gnrc_udp`
+3. `cd ${RIOTBASE}/tests/net/gnrc_udp`
 4. Setup a terminal for each board _(tmux is your friend)_
 5. Find the serial numbers and ports with `ls /dev/serial/by-id/` or with
-`make -C tests/gnrc_udp list-ttys`
+`make -C tests/net/gnrc_udp list-ttys`
 6. For the samr21 terminals use the following to setup the env
 _eg_ `export BOARD=samr21-xpro && export SERIAL=<SAMR_SERIAL> && export PORT=<SAMR_PORT>`
 

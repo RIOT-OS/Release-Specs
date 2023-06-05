@@ -10,7 +10,7 @@ from testutils.shell import ping6, lladdr, check_pktbuf
 
 
 APP = 'examples/gnrc_networking'
-TASK10_APP = 'tests/gnrc_udp'
+TASK10_APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
 
 

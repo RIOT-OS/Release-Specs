@@ -8,9 +8,9 @@ node1 <-> node2 <-> node3 <-> node4_
 
 # Task 1 and 2 Setup
 1. First build the firmware for all the nodes
-`USEMODULE=shell_cmd_gnrc_pktbuf make -C tests/gnrc_udp/ BOARD=iotlab-m3 clean all`
+`USEMODULE=shell_cmd_gnrc_pktbuf make -C tests/net/gnrc_udp/ BOARD=iotlab-m3 clean all`
 1. Open 4 instances of nodes physically close together
-`make -C tests/gnrc_udp/ BOARD=iotlab-m3 IOTLAB_NODE=<iotlab id> flash-only term`
+`make -C tests/net/gnrc_udp/ BOARD=iotlab-m3 IOTLAB_NODE=<iotlab id> flash-only term`
 1. On each end of the nodes add a global IP address (ie. node1:
    `ifconfig 5 add abcd::1` and node 4: `ifconfig 5 add abcd::2`)
 1. Add the routing for both ways:
@@ -58,9 +58,9 @@ No leaks in the packet buffer (check with `pktbuf`).
 
 # Task 3 and 4 Setup
 1. First build the firmware for all the nodes
-`USEMODULE="l2filter_whitelist shell_cmd_gnrc_pktbuf" BOARD=iotlab-m3 make -C tests/gnrc_udp/ clean all`
+`USEMODULE="l2filter_whitelist shell_cmd_gnrc_pktbuf" BOARD=iotlab-m3 make -C tests/net/gnrc_udp/ clean all`
 1. Flash all nodes with with the l2filter_whitelist module firmware
-`BOARD=iotlab-m3 IOTLAB_NODE=<iotlab id> make -C tests/gnrc_udp/ flash-only term`
+`BOARD=iotlab-m3 IOTLAB_NODE=<iotlab id> make -C tests/net/gnrc_udp/ flash-only term`
 1. Setup the l2filter_whitelist addresses
     - Node 1: `ifconfig 5 l2filter add <MAC addr of node 2>`
     - Node 2: `ifconfig 5 l2filter add <MAC addr of node 1>` and
