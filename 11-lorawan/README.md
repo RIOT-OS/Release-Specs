@@ -33,9 +33,9 @@ OTAA join procedure and uplink with datarates indexes 0, 3, 5 (others are option
 
 ### Testing procedure
 
-- Build and flash the `tests/pkg_semtech-loramac`
+- Build and flash the `tests/pkg/semtech-loramac`
 
-      $ make BOARD=<board> -C tests/pkg_semtech-loramac flash term
+      $ make BOARD=<board> -C tests/pkg/semtech-loramac flash term
 
 - Configure the devive EUI, application EUI, application key
 
@@ -78,9 +78,9 @@ ABP join procedure and uplinks with datarates indexes 0, 3, 5 (others are option
 
 ### Testing procedure
 
-- Build and flash the `tests/pkg_semtech-loramac`
+- Build and flash the `tests/pkg/semtech-loramac`
 
-      $ make BOARD=<board> -C tests/pkg_semtech-loramac flash term
+      $ make BOARD=<board> -C tests/pkg/semtech-loramac flash term
 
 - Configure the devive EUI, application EUI, application key
 
@@ -137,9 +137,9 @@ Device parameters (DevEUI, AppEUI, AppKey, etc) persistence works.
 This procedure can only be performed on a board with EEPROM storage. Use the
 ST B-L072Z-LRWAN1 or any other STM32 L0/L1 Nucleo 64 with an Mbed LoRa shield.
 
-- Build and flash the `tests/pkg_semtech-loramac`
+- Build and flash the `tests/pkg/semtech-loramac`
 
-      $ make BOARD=<board> -C tests/pkg_semtech-loramac flash term
+      $ make BOARD=<board> -C tests/pkg/semtech-loramac flash term
 
 - Erase any previously stored parameters:
 

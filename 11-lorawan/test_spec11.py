@@ -12,7 +12,7 @@ from testutils.shell import check_pktbuf
 
 GNRC_LORAWAN_APP = "examples/gnrc_lorawan"
 LORAWAN_APP = "examples/lorawan"
-SEMTECH_LORAMAC_APP = "tests/pkg_semtech-loramac"
+SEMTECH_LORAMAC_APP = "tests/pkg/semtech-loramac"
 pytestmark = pytest.mark.rc_only()
 
 APP_PAYLOAD = "This is RIOT!"
