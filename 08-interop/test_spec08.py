@@ -13,7 +13,7 @@ from testutils.shell import lladdr, ping6, GNRCUDP
 
 
 GNRC_APP = 'examples/gnrc_networking'
-LWIP_APP = 'tests/lwip'
+LWIP_APP = 'tests/pkg/lwip'
 pytestmark = pytest.mark.rc_only()
 
 
