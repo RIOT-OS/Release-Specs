@@ -8,7 +8,7 @@ from riotctrl_shell.netif import Ifconfig
 from testutils.shell import lladdr, global_addr, ping6, GNRCUDP, PARSERS, check_pktbuf
 
 
-APP = 'tests/gnrc_udp'
+APP = 'tests/net/gnrc_udp'
 TO_ADDR = "affe::1"  # address for the first statically routed node
 FROM_ADDR = "beef::1"  # address for the last statically routed node
 pytestmark = pytest.mark.rc_only()

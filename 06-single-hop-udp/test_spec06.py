@@ -7,7 +7,7 @@ from testutils.native import bridged
 from testutils.shell import lladdr, GNRCUDP, check_pktbuf
 
 
-APP = 'tests/gnrc_udp'
+APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
 
 
