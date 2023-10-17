@@ -123,7 +123,7 @@ def test_task04(riot_ctrl):
 # nodes and iotlab_site passed to riot_ctrl fixture
 @pytest.mark.parametrize(
     'nodes, iotlab_site',
-    [pytest.param(['samr21-xpro', 'firefly'], "lille")],
+    [pytest.param(['iotlab-m3', 'openmote-b'], "strasbourg")],
     indirect=['nodes', 'iotlab_site'],
 )
 def test_task05(riot_ctrl):
@@ -138,9 +138,9 @@ def test_task05(riot_ctrl):
             # pylint: disable=C0301
             "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-756756109"  # noqa: E501
         )
-    pinged_netif, _ = lladdr(pinged.ifconfig_list())
+    pinged_netif, _ = lladdr(pinged.ifconfig_list(), ignore_chan_0=True)
     pinged.ifconfig_set(pinged_netif, "channel", 17)
-    pinger_netif, _ = lladdr(pinger.ifconfig_list())
+    pinger_netif, _ = lladdr(pinger.ifconfig_list(), ignore_chan_0=True)
     pinger.ifconfig_set(pinger_netif, "channel", 17)
 
     res = ping6(pinger, "ff02::1", count=1000, interval=100, packet_size=50)
@@ -154,7 +154,7 @@ def test_task05(riot_ctrl):
 # nodes and iotlab_site passed to riot_ctrl fixture
 @pytest.mark.parametrize(
     'nodes, iotlab_site',
-    [pytest.param(['samr21-xpro', 'firefly'], "lille")],
+    [pytest.param(['iotlab-m3', 'openmote-b'], "strasbourg")],
     indirect=['nodes', 'iotlab_site'],
 )
 def test_task06(riot_ctrl):
@@ -169,10 +169,10 @@ def test_task06(riot_ctrl):
             # pylint: disable=C0301
             "https://github.com/RIOT-OS/Release-Specs/pull/198#issuecomment-758522278"  # noqa: E501
         )
-    pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
+    pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list(), ignore_chan_0=True)
     pinged.ifconfig_set(pinged_netif, "channel", 26)
     assert pinged_addr.startswith("fe80::")
-    pinger_netif, _ = lladdr(pinger.ifconfig_list())
+    pinger_netif, _ = lladdr(pinger.ifconfig_list(), ignore_chan_0=True)
     pinger.ifconfig_set(pinger_netif, "channel", 26)
 
     res = ping6(pinger, pinged_addr, count=1000, interval=100, packet_size=100)
