@@ -324,5 +324,5 @@ cp .devdata.env.sample .devdata.env
 [pytest]: https://pytest.org
 [riotctrl]: https://pypi.org/project/riotctrl/
 [IoT-LAB saclay site]: https://www.iot-lab.info/deployment/saclay/
-[multiple boards udev]: http://riot-os.org/api/advanced-build-system-tricks.html#multiple-boards-udev
+[multiple boards udev]: https://doc.riot-os.org/flashing.html#multiple-boards-udev
 [rjl]: https://github.com/haukepetersen/rjl
