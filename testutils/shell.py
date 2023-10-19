@@ -197,18 +197,25 @@ def ifconfig(node, netif=None):
     return res
 
 
-def first_netif_and_addr_by_scope(ifconfig_out, scope):
+def first_netif_and_addr_by_scope(ifconfig_out, scope, ignore_chan_0=False):
     netifs = PARSERS["ifconfig"].parse(ifconfig_out)
-    key = next(iter(netifs))
-    netif = netifs[key]
-    return (
-        key,
-        [addr["addr"] for addr in netif["ipv6_addrs"] if addr["scope"] == scope][0],
+    for key, netif in netifs.items():
+        if not ignore_chan_0 or netif.get("channel", -1) != 0:
+            return (
+                key,
+                [
+                    addr["addr"]
+                    for addr in netif["ipv6_addrs"]
+                    if addr["scope"] == scope
+                ][0],
+            )
+    raise RuntimeError(f"For valid netifs found in {netifs}")
+
+
+def lladdr(ifconfig_out, ignore_chan_0=False):
+    return first_netif_and_addr_by_scope(
+        ifconfig_out, "link", ignore_chan_0=ignore_chan_0
     )
-
-
-def lladdr(ifconfig_out):
-    return first_netif_and_addr_by_scope(ifconfig_out, "link")
 
 
 def global_addr(ifconfig_out):

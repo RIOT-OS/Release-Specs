@@ -35,12 +35,13 @@ class IoTLABExperiment:
         'nrf52832-mdk': {'name': 'nrf52832mdk', 'radio': 'ble'},
         'nrf52840dk': {'name': 'nrf52840dk', 'radio': 'multi'},
         'nrf52840-mdk': {'name': 'nrf52840mdk', 'radio': 'multi'},
+        'openmote-b': {'name': 'openmoteb'},
         'pba-d-01-kw2x': {'name': 'phynode', 'radio': 'kw2xrf'},
         'samr21-xpro': {'name': 'samr21', 'radio': 'at86rf233'},
         'samr30-xpro': {'name': 'samr30', 'radio': 'at86rf212b'},
     }
 
-    SITES = ['grenoble', 'lille', 'saclay']
+    SITES = ['grenoble', 'lille', 'saclay', 'strasbourg']
 
     def __init__(self, name, ctrls, site=DEFAULT_SITE):
         IoTLABExperiment._check_site(site)
@@ -57,7 +58,7 @@ class IoTLABExperiment:
         match = re.search(reg, iotlab_node)
         if match is None:
             raise ValueError(
-                "Unable to parse {iotlab_node} as IoT-LAB node "
+                f"Unable to parse {iotlab_node} as IoT-LAB node "
                 "name of format "
                 "<node-name>.<site-name>.iot-lab.info"
             )
@@ -92,6 +93,8 @@ class IoTLABExperiment:
     def _archi_from_board(board):
         """Return iotlab 'archi' format for BOARD"""
         name = IoTLABExperiment.BOARD_ARCHI_MAP[board]['name']
+        if 'radio' not in IoTLABExperiment.BOARD_ARCHI_MAP[board]:
+            return f'{name}'
         radio = IoTLABExperiment.BOARD_ARCHI_MAP[board]['radio']
         return f'{name}:{radio}'
 
