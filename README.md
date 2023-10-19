@@ -220,7 +220,7 @@ The listed variables need to be set in the environment.
 [11-lorawan]: 11-lorawan/test_spec11.py
 [Create a TTN account]: https://www.thethingsnetwork.org/docs/devices/node/quick-start/#create-an-account
 [Add an application]: https://www.thethingsindustries.com/docs/integrations/adding-applications/
-[Register your device]: https://www.thethingsindustries.com/docs/devices/adding-devices/the
+[Register your device]: https://www.thethingsindustries.com/docs/devices/adding-devices/
 [Personalize device for ABP]: https://www.thethingsindustries.com/docs/devices/adding-devices/#abp-devices
 [Add an access key]: https://www.thethingsindustries.com/docs/integrations/mqtt/#creating-an-api-key
 
