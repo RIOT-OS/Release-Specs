@@ -1,5 +1,8 @@
+import os
 import re
 import sys
+import subprocess
+
 
 import pexpect.replwrap
 import pytest
@@ -47,6 +50,49 @@ def test_task01(riot_ctrl, log_nodes):
         node, f"{linux_addr}%{node_iface}", count=20, interval=100, packet_size=8
     )
     assert res["stats"]["packet_loss"] < 1
+
+
+@pytest.mark.flaky(reruns=1, reruns_delay=30)
+@pytest.mark.iotlab_creds
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize(
+    'nodes', [pytest.param(['nrf52840dk', 'nrf52840dk'])], indirect=['nodes']
+)
+def test_task03(riot_ctrl):
+    # run `./compile_contiki.sh` relative to this file
+    subprocess.check_call(
+        ["./compile_contiki.sh"],
+        cwd=os.path.dirname(os.path.realpath(__file__)),
+    )
+
+    build_path = "build/nrf52840/dk/hello-world.nrf52840"
+    flashfile = f"/tmp/contiki-ng/examples/hello-world/{build_path}"
+
+    gnrc_node, contiki_node = (
+        riot_ctrl(0, GNRC_APP, Shell),
+        riot_ctrl(
+            1,
+            'examples/hello-world',
+            riotctrl.shell.ShellInteraction,
+            extras={"BINFILE": flashfile},
+        ),
+    )
+
+    gnrc_netif, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
+
+    # get the address of the contiki node, ie a substring after "-- "
+    res = contiki_node.cmd("ip-addr")
+    match = re.search("-- (.+)", res)
+    assert match
+    contiki_addr = match[1]
+
+    gnrc_node.ifconfig_set(gnrc_netif, "pan_id", "abcd")
+
+    res = contiki_node.cmd(f"ping {gnrc_addr}")
+    assert f"Received ping reply from {gnrc_addr}" in res
+
+    res = ping6(gnrc_node, contiki_addr, 3, 12, 1)
+    assert res['stats']['packet_loss'] < 10
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=30)

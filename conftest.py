@@ -303,7 +303,8 @@ def nodes(local, request, boards, iotlab_site):
         RUNNING_EXPERIMENTS.remove(exp)
 
 
-def update_env(node, modules=None, cflags=None, port=None, termflags=None):
+def update_env(node, modules=None, cflags=None, port=None, termflags=None, extras=None):
+    # pylint: disable=too-many-arguments
     node.env['QUIETER'] = '1'
     if not isinstance(modules, str) and isinstance(modules, Iterable):
         node.env['USEMODULE'] = ' '.join(str(m) for m in modules)
@@ -322,6 +323,8 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None):
         node.env['PORT'] = port
     if termflags is not None:
         node.env['TERMFLAGS'] = termflags
+    if extras is not None:
+        node.env.update(extras)
 
 
 @pytest.fixture
@@ -333,6 +336,7 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
     factory_ctrls = []
 
     # pylint: disable=R0913
+    # flake8: noqa: C901
     def ctrl(
         nodes_idx,
         application_dir,
@@ -342,12 +346,13 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
         cflags=None,
         port=None,
         termflags=None,
+        extras=None,
     ):
         if board_type is not None:
             node = next(n for n in nodes if n.board() == board_type)
         else:
             node = nodes[nodes_idx]
-        update_env(node, modules, cflags, port, termflags)
+        update_env(node, modules, cflags, port, termflags, extras)
         # if the nodes are not logged, there is no sense in logging to a file
         # so check if nodes are logged as well as if they should be logged to a
         # file
@@ -366,8 +371,11 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
+        flash_cmd = "flash"
+        if "BINFILE" in node.env:
+            flash_cmd = "flash-only"
         node.make_run(
-            ['flash'],
+            [flash_cmd],
             check=True,
             stdout=None if log_nodes else subprocess.DEVNULL,
             stderr=None if log_nodes else subprocess.DEVNULL,
