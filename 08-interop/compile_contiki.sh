@@ -19,7 +19,8 @@ fi
 # Compile the `examples/hello-world` application for the nRF52840 platform.
 export CNG_PATH=/tmp/contiki-ng
 docker run \
-    --sysctl net.ipv6.conf.all.disable_ipv6=0 \
+    -e LOCAL_UID=$(id -u $USER) \
+    -e LOCAL_GID=$(id -g $USER) \
     --mount type=bind,source=$CNG_PATH,destination=/home/user/contiki-ng \
     contiker/contiki-ng \
     make -C examples/hello-world TARGET=nrf52840 hello-world
