@@ -19,13 +19,6 @@ west update cmsis hal_atmel
 west zephyr-export
 pip install -r ~/zephyrproject/zephyr/scripts/requirements.txt
 
-# cd ~
-# wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.4/zephyr-sdk-0.16.4_linux-x86_64.tar.xz
-# wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.4/sha256.sum | shasum --check --ignore-missing
-# tar xvf zephyr-sdk-0.16.4_linux-x86_64.tar.xz
-# cd zephyr-sdk-0.16.4
-# ./setup.sh
-
 cd /workdir/zephyr
 echo "CONFIG_CPP=n
 
@@ -51,5 +44,4 @@ CONFIG_IEEE802154_RF2XX_RX_STACK_SIZE=384
 
 CONFIG_UART_USE_RUNTIME_CONFIGURE=n" > samples/net/sockets/echo_server/boards/atsamr21_xpro.conf
 west build -p auto -b atsamr21_xpro samples/net/sockets/echo_server -- -DOVERLAY_CONFIG=overlay-802154.conf
-# west flash
 '
