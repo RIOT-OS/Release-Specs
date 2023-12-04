@@ -218,3 +218,50 @@ def test_start_error(monkeypatch):
     ctrls[0].env.pop("BOARD")
     with pytest.raises(ValueError):
         exp.start()
+
+
+@pytest.mark.parametrize(
+    "exp_nodes",
+    [
+        (
+            [
+                {
+                    "network_address": "dwm1001-13.lille.iot-lab.info",
+                    "x": "25.71",
+                    "y": "9.39",
+                    "z": "9.22",
+                },
+                {
+                    "network_address": "dwm1001-11.lille.iot-lab.info",
+                    "x": "27.51",
+                    "y": "7.1",
+                    "z": "9.51",
+                },
+            ]
+        )
+    ],
+)
+def test_get_nodes_position(monkeypatch, exp_nodes):
+    monkeypatch.setattr(
+        testutils.iotlab.IoTLABExperiment,
+        "user_credentials",
+        lambda cls: ("user", "password"),
+    )
+    monkeypatch.setattr(testutils.iotlab, "Api", lambda user, password: None)
+    monkeypatch.setattr(
+        testutils.iotlab,
+        "submit_experiment",
+        lambda api, name, duration, resources: {"id": 12345},
+    )
+    monkeypatch.setattr(
+        testutils.iotlab,
+        "get_experiment",
+        lambda api, exp_id, option: {"items": exp_nodes},
+    )
+    info = testutils.iotlab.IoTLABExperiment.get_nodes_position(12345)
+    assert info[0]['network_address'] == "dwm1001-13.lille.iot-lab.info"
+    assert info[0]['position'] == (25.71, 9.39, 9.22)
+    assert info[1]['network_address'] == "dwm1001-11.lille.iot-lab.info"
+    assert info[1]['position'] == (27.51, 7.1, 9.51)
+    info = testutils.iotlab.IoTLABExperiment.get_nodes_position(None)
+    assert len(info) == 0

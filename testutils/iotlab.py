@@ -25,6 +25,7 @@ class IoTLABExperiment:
         'arduino-zero': {'name': 'arduino-zero', 'radio': 'xbee'},
         'b-l072z-lrwan1': {'name': 'st-lrwan1', 'radio': 'sx1276'},
         'b-l475e-iot01a': {'name': 'st-iotnode', 'radio': 'multi'},
+        'dwm1001': {'name': 'dwm1001', 'radio': 'dw1000'},
         'firefly': {'name': 'firefly', 'radio': 'multi'},
         'frdm-kw41z': {'name': 'frdm-kw41z', 'radio': 'multi'},
         'iotlab-a8-m3': {'name': 'a8', 'radio': 'at86rf231'},
@@ -183,3 +184,22 @@ class IoTLABExperiment:
         """Return all nodes reserved by the experiment"""
         ret = get_experiment(Api(*self.user_credentials()), self.exp_id)
         return ret['nodes']
+
+    @staticmethod
+    def get_nodes_position(exp_id):
+        """Return nodes positions"""
+        info = []
+        if exp_id:
+            ret = get_experiment(Api(*get_user_credentials()), exp_id, 'nodes')
+            for item in ret['items']:
+                info.append(
+                    {
+                        'network_address': item['network_address'],
+                        'position': (
+                            float(item['x']),
+                            float(item['y']),
+                            float(item['z']),
+                        ),
+                    }
+                )
+        return info
