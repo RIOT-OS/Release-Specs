@@ -155,7 +155,7 @@ def test_task11(riot_ctrl):
         ),
     )
     zephyr_node.prompt = "uart:~$ "
-    
+
     # gnrc_netif, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
 
     # Get the ipv6 address, expected response:
@@ -184,18 +184,17 @@ def test_task11(riot_ctrl):
 
     # Get the PAN ID, expected response: "PAN ID 43981 (0xabcd)"
     res = zephyr_node.cmd("ieee802154 get_pan_id")
-    match = re.search("PAN ID (?P<pan_id>\d+) \(0x(?P<pan_id_hex>[0-9a-f]+)\)", res)
+    match = re.search(r"PAN ID (?P<pan_id>\d+) \(0x(?P<pan_id_hex>[0-9a-f]+)\)", res)
     assert match
     pan_id = match["pan_id_hex"]
 
     # Get the Channel, expected response: "Channel 26"
     res = zephyr_node.cmd("ieee802154 get_chan")
-    match = re.search("Channel (?P<channel>\d+)", res)
+    match = re.search(r"Channel (?P<channel>\d+)", res)
     assert match
     channel = match[1]
 
-
-    gnrc_netif, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
+    gnrc_netif, _ = lladdr(gnrc_node.ifconfig_list())
 
     gnrc_node.ifconfig_set(gnrc_netif, "channel", channel)
     gnrc_node.ifconfig_set(gnrc_netif, "pan_id", pan_id)
@@ -207,5 +206,3 @@ def test_task11(riot_ctrl):
 
     res = zephyr_node.riotctrl.term.readline()
     assert "Received and replied with 13 bytes" in res
-
-
