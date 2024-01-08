@@ -279,6 +279,10 @@ def nodes(local, request, boards, iotlab_site):
     for board in boards:
         if local or only_native or IoTLABExperiment.valid_board(board):
             env = {'BOARD': f'{board}'}
+            if only_native:
+                # XXX this does not work for a mix of native and non-native boards,
+                # but we do not have these in the release tests at the moment.
+                env["RIOT_TERMINAL"] = "native"
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
