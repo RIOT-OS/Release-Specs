@@ -1,4 +1,5 @@
 import logging
+import random
 import re
 
 from iotlabcli.auth import get_user_credentials
@@ -55,14 +56,14 @@ class IoTLABExperiment:
     def board_from_iotlab_node(iotlab_node):
         """Return BOARD matching iotlab_node"""
         reg = r'([0-9a-zA-Z\-]+)-\d+\.[a-z]+\.iot-lab\.info'
-        match = re.search(reg, iotlab_node)
-        if match is None:
+        matches = re.findall(reg, iotlab_node)
+        if not matches:
             raise ValueError(
                 f"Unable to parse {iotlab_node} as IoT-LAB node "
                 "name of format "
                 "<node-name>.<site-name>.iot-lab.info"
             )
-        iotlab_node_name = match.group(1)
+        iotlab_node_name = random.choice(matches)
         dict_values = IoTLABExperiment.BOARD_ARCHI_MAP.values()
         dict_names = [value['name'] for value in dict_values]
         dict_keys = list(IoTLABExperiment.BOARD_ARCHI_MAP.keys())
