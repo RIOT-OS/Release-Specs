@@ -983,9 +983,11 @@ def test_upload_results(
     monkeypatch.setattr(
         testutils.github,
         "get_results_gist",
-        lambda *args, **kwargs: (testutils.github.Git('.'), "", "the_gist_id")
-        if gist_created
-        else (None, None, None),
+        lambda *args, **kwargs: (
+            (testutils.github.Git('.'), "", "the_gist_id")
+            if gist_created
+            else (None, None, None)
+        ),
     )
     monkeypatch.setattr(
         testutils.github, "upload_result_content", lambda *args, **kwargs: head
