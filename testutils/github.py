@@ -210,9 +210,9 @@ def create_comment(github, issue):
 def _generate_outcome_summary(pytest_report, task):
     # pylint: disable=C0209
     return "<strong>{a_open}{outcome}{a_close}</strong>".format(
-        a_open='<a href="{}">'.format(task["outcome_url"])
-        if "outcome_url" in task
-        else '',
+        a_open=(
+            '<a href="{}">'.format(task["outcome_url"]) if "outcome_url" in task else ''
+        ),
         outcome=pytest_report.outcome.upper(),
         a_close='</a>' if "outcome_url" in task else '',
     )
