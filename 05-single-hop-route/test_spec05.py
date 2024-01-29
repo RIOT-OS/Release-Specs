@@ -56,8 +56,8 @@ def test_task01(riot_ctrl):
 )
 def test_task02(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
-        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(0, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], cflags="-DCONFIG_IEEE802154_DEFAULT_CHANNEL=13"),
+        riot_ctrl(1, APP, Shell, modules=["shell_cmd_gnrc_pktbuf"], cflags="-DCONFIG_IEEE802154_DEFAULT_CHANNEL=13"),
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())
