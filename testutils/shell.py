@@ -222,6 +222,22 @@ def global_addr(ifconfig_out):
     return first_netif_and_addr_by_scope(ifconfig_out, "global")
 
 
+def has_global_addr(node):
+    """Check if node has a global address."""
+    try:
+        global_addr(node.ifconfig_list())
+    except (RuntimeError, IndexError):
+        return False
+    return True
+
+
+def try_to_remove_global_addr(node):
+    """Try to remove global address from node."""
+    if has_global_addr(node):
+        netif, addr = global_addr(node.ifconfig_list())
+        node.cmd(f"ifconfig {netif} del {addr}")
+
+
 def check_pktbuf(*nodes, wait=10):
     if wait:
         time.sleep(wait)

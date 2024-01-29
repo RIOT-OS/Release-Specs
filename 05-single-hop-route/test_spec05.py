@@ -1,10 +1,17 @@
 import pytest
+import random
 
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
 
 from testutils.native import bridged
-from testutils.shell import ping6, lladdr, check_pktbuf
+from testutils.shell import (
+    ping6,
+    lladdr,
+    check_pktbuf,
+    has_global_addr,
+    try_to_remove_global_addr,
+)
 
 
 APP = 'examples/gnrc_networking'
@@ -42,7 +49,7 @@ def test_task01(riot_ctrl):
     check_pktbuf(pinged, pinger)
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=30)
+@pytest.mark.flaky(reruns=0, reruns_delay=30)
 @pytest.mark.iotlab_creds
 @pytest.mark.parametrize(
     'nodes', [pytest.param(['iotlab-m3', 'iotlab-m3'])], indirect=['nodes']
@@ -54,14 +61,24 @@ def test_task02(riot_ctrl):
     )
 
     pinged_netif, pinged_lladdr = lladdr(pinged.ifconfig_list())
-    pinged.ifconfig_add(pinged_netif, "beef::1/64")
     pinger_netif, pinger_lladdr = lladdr(pinger.ifconfig_list())
+
+    if has_global_addr(pinged) or has_global_addr(pinger):
+        pan_id = format(random.randint(0x1000, 0xFFFF), "x")
+        pinged.ifconfig_set(pinged_netif, "pan_id", pan_id)
+        pinger.ifconfig_set(pinger_netif, "pan_id", pan_id)
+        pinged.ifconfig_set(pinged_netif, "chan", "12")
+        pinger.ifconfig_set(pinger_netif, "chan", "12")
+        try_to_remove_global_addr(pinged)
+        try_to_remove_global_addr(pinger)
+
+    pinged.ifconfig_add(pinged_netif, "beef::1/64")
     pinger.ifconfig_add(pinger_netif, "affe::1/120")
 
     pinged.nib_route_add(pinged_netif, "::", pinger_lladdr)
     pinger.nib_route_add(pinger_netif, "::", pinged_lladdr)
 
-    res = ping6(pinger, "beef::1", count=100, interval=300, packet_size=1024)
+    res = ping6(pinger, f"beef::1", count=100, interval=300, packet_size=1024)
     assert res['stats']['packet_loss'] < 10
 
     check_pktbuf(pinged, pinger)
