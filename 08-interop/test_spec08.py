@@ -151,7 +151,7 @@ def test_task11(riot_ctrl):
             1,
             'examples/hello-world',
             riotctrl.shell.ShellInteraction,
-            extras={"BINFILE": flashfile},
+            extras={"skip_flash": "1"},
         ),
     )
     zephyr_node.prompt = "uart:~$ "
