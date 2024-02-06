@@ -4,7 +4,7 @@ import re
 import urllib.parse
 
 from bs4 import BeautifulSoup
-from github import Github, GithubException, InputFileContent
+from github import Auth, Github, GithubException, InputFileContent
 
 from testutils.git import Git, GitError
 
@@ -80,7 +80,7 @@ def get_github():
     access_token = get_access_token()
     if not access_token:
         return None
-    return Github(access_token, base_url=API_URL)
+    return Github(auth=Auth.Token(access_token), base_url=API_URL)
 
 
 def get_repo(github):
@@ -210,9 +210,9 @@ def create_comment(github, issue):
 def _generate_outcome_summary(pytest_report, task):
     # pylint: disable=C0209
     return "<strong>{a_open}{outcome}{a_close}</strong>".format(
-        a_open='<a href="{}">'.format(task["outcome_url"])
-        if "outcome_url" in task
-        else '',
+        a_open=(
+            '<a href="{}">'.format(task["outcome_url"]) if "outcome_url" in task else ''
+        ),
         outcome=pytest_report.outcome.upper(),
         a_close='</a>' if "outcome_url" in task else '',
     )
