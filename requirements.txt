@@ -11,3 +11,4 @@ pytest-rerunfailures
 riotctrl
 scapy
 paho-mqtt
+pyserial

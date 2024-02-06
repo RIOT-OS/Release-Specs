@@ -127,3 +127,82 @@ def test_task08(riot_ctrl):
     lwip_node.riotctrl.term.expect_exact(
         "00000000  " + "  ".join(hex(ord(c))[2:] for c in "01234567"), timeout=3
     )
+
+
+# @pytest.mark.flaky(reruns=1, reruns_delay=30)
+@pytest.mark.iotlab_creds
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize(
+    'nodes', [pytest.param(['iotlab-m3', 'samr21-xpro'])], indirect=['nodes']
+)
+def test_task11(riot_ctrl):
+    # run `./compile_contiki.sh` relative to this file
+    subprocess.check_call(
+        ["./compile_zephyr.sh"],
+        cwd=os.path.dirname(os.path.realpath(__file__)),
+    )
+
+    build_path = "zephyr/build/zephyr/zephyr.elf"
+    flashfile = f"/tmp/zephyrproject/{build_path}"
+
+    gnrc_node, zephyr_node = (
+        riot_ctrl(0, GNRC_APP, Shell),
+        riot_ctrl(
+            1,
+            'examples/hello-world',
+            riotctrl.shell.ShellInteraction,
+            extras={"skip_flash": "1"},
+        ),
+    )
+    zephyr_node.prompt = "uart:~$ "
+
+    # gnrc_netif, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
+
+    # Get the ipv6 address, expected response:
+    # IPv6 support                              : enabled
+    # IPv6 fragmentation support                : disabled
+    # Multicast Listener Discovery support      : enabled
+    # Neighbor cache support                    : enabled
+    # Neighbor discovery support                : enabled
+    # Duplicate address detection (DAD) support : enabled
+    # Router advertisement RDNSS option support : enabled
+    # 6lo header compression support            : enabled
+    # Max number of IPv6 network interfaces in the system          : 1
+    # Max number of unicast IPv6 addresses per network interface   : 3
+    # Max number of multicast IPv6 addresses per network interface : 4
+    # Max number of IPv6 prefixes per network interface            : 2
+
+    # IPv6 addresses for interface 0x20007d60 (IEEE 802.15.4)
+    # =======================================================
+    # Type            State           Lifetime (sec)  Address
+    # autoconf        preferred       infinite        fe80::d419:100:7ae4:9b3b/128
+    # manual          preferred       infinite        2001:db8::1/128
+    res = zephyr_node.cmd("net ipv6")
+    match = re.search("fe80::(?P<addr>[0-9a-f:]+)/128", res)
+    assert match
+    zephyr_addr = f"fe80::{match[1]}"
+
+    # Get the PAN ID, expected response: "PAN ID 43981 (0xabcd)"
+    res = zephyr_node.cmd("ieee802154 get_pan_id")
+    match = re.search(r"PAN ID (?P<pan_id>\d+) \(0x(?P<pan_id_hex>[0-9a-f]+)\)", res)
+    assert match
+    pan_id = match["pan_id_hex"]
+
+    # Get the Channel, expected response: "Channel 26"
+    res = zephyr_node.cmd("ieee802154 get_chan")
+    match = re.search(r"Channel (?P<channel>\d+)", res)
+    assert match
+    channel = match[1]
+
+    gnrc_netif, _ = lladdr(gnrc_node.ifconfig_list())
+
+    gnrc_node.ifconfig_set(gnrc_netif, "channel", channel)
+    gnrc_node.ifconfig_set(gnrc_netif, "pan_id", pan_id)
+    res = gnrc_node.cmd("udp server start 4242")
+    assert "udp server start 4242" in res
+
+    res = gnrc_node.cmd(f"udp send {zephyr_addr} 4242 \"RIOT Testing!\"")
+    assert "Success: sent 13 byte" in res
+
+    res = zephyr_node.riotctrl.term.readline()
+    assert "Received and replied with 13 bytes" in res

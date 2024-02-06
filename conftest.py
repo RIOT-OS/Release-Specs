@@ -383,15 +383,16 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
         # need to access private member here isn't possible otherwise sadly :(
         # pylint: disable=W0212
         node._application_directory = os.path.join(riotbase, application_dir)
-        flash_cmd = "flash"
-        if "BINFILE" in node.env:
-            flash_cmd = "flash-only"
-        node.make_run(
-            [flash_cmd],
-            check=True,
-            stdout=None if log_nodes else subprocess.DEVNULL,
-            stderr=None if log_nodes else subprocess.DEVNULL,
-        )
+        if extras and not extras.get("skip_flash", False):
+            flash_cmd = "flash"
+            if "BINFILE" in node.env:
+                flash_cmd = "flash-only"
+            node.make_run(
+                [flash_cmd],
+                check=True,
+                stdout=None if log_nodes else subprocess.DEVNULL,
+                stderr=None if log_nodes else subprocess.DEVNULL,
+            )
         if node.env.get("IOTLAB_NODE"):
             # reset to prevent at86rf2xx `ifconfig` issue
             time.sleep(1)
