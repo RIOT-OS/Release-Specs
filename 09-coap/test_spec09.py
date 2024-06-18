@@ -36,7 +36,7 @@ class Shell(Ifconfig, CordEp):
         cmd = "coap get "
         if confirmable:
             cmd += "-c "
-        cmd += f"[{addr}]:{port:d} {resource}"
+        cmd += f"coap://[{addr}]:{port:d}{resource}"
         return self.cmd(cmd, timeout=timeout, async_=async_)
 
 
