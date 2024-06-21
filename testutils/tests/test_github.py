@@ -134,8 +134,7 @@ def test_get_rc_tracking_issue(caplog, issue_titles, rc, expected_idx):
 
         # pylint: disable=W0613
         def get_issues(self, *args, **kwargs):
-            for issue in self.issues:
-                yield issue
+            yield from self.issues
 
     issues = [MockIssue(title) for title in issue_titles]
     repo = MockRepo(issues)
@@ -983,9 +982,11 @@ def test_upload_results(
     monkeypatch.setattr(
         testutils.github,
         "get_results_gist",
-        lambda *args, **kwargs: (testutils.github.Git('.'), "", "the_gist_id")
-        if gist_created
-        else (None, None, None),
+        lambda *args, **kwargs: (
+            (testutils.github.Git('.'), "", "the_gist_id")
+            if gist_created
+            else (None, None, None)
+        ),
     )
     monkeypatch.setattr(
         testutils.github, "upload_result_content", lambda *args, **kwargs: head

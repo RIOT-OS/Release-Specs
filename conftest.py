@@ -6,6 +6,7 @@ Central pytest definitions.
 See https://docs.pytest.org/en/stable/fixture.html#conftest-py-sharing-fixture-functions
 """  # noqa: E501
 
+import random
 import re
 import os
 import subprocess
@@ -29,6 +30,7 @@ IOTLAB_EXPERIMENT_DURATION = 120
 RIOTBASE = os.environ.get('RIOTBASE')
 RUNNING_CTRLS = []
 RUNNING_EXPERIMENTS = []
+DEFAULT_PAN_ID = str(random.randint(0, 0xFFFD))
 
 
 def pytest_addoption(parser):
@@ -279,6 +281,10 @@ def nodes(local, request, boards, iotlab_site):
     for board in boards:
         if local or only_native or IoTLABExperiment.valid_board(board):
             env = {'BOARD': f'{board}'}
+            if only_native:
+                # XXX this does not work for a mix of native and non-native boards,
+                # but we do not have these in the release tests at the moment.
+                env["RIOT_TERMINAL"] = "native"
         else:
             env = {
                 'BOARD': IoTLABExperiment.board_from_iotlab_node(board),
@@ -316,6 +322,12 @@ def update_env(node, modules=None, cflags=None, port=None, termflags=None, extra
         node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
             node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '')
             + f" -e 'USEMODULE={node.env['USEMODULE']}'"
+        )
+    node.env['DEFAULT_PAN_ID'] = DEFAULT_PAN_ID
+    if os.environ.get('BUILD_IN_DOCKER', 0) == '1':
+        node.env['DOCKER_ENVIRONMENT_CMDLINE'] = (
+            node.env.get('DOCKER_ENVIRONMENT_CMDLINE', '')
+            + f" -e 'DEFAULT_PAN_ID={node.env['DEFAULT_PAN_ID']}'"
         )
     if cflags is not None:
         node.env['CFLAGS'] = cflags
