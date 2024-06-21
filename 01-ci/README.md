@@ -4,7 +4,7 @@ Task #01 - Compile test
 =======================
 ### Description
 
-Execute ./dist/tools/compile_test/compile_test.py
+Check the latest release branch CI build.
 
 ### Result
 
