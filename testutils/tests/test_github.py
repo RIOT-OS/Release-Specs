@@ -134,8 +134,7 @@ def test_get_rc_tracking_issue(caplog, issue_titles, rc, expected_idx):
 
         # pylint: disable=W0613
         def get_issues(self, *args, **kwargs):
-            for issue in self.issues:
-                yield issue
+            yield from self.issues
 
     issues = [MockIssue(title) for title in issue_titles]
     repo = MockRepo(issues)

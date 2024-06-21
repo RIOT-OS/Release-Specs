@@ -10,4 +10,4 @@ pytest-cov
 pytest-rerunfailures
 riotctrl
 scapy
-paho-mqtt
+paho-mqtt<2
