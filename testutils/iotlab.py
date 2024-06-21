@@ -64,7 +64,7 @@ class IoTLABExperiment:
                 "name of format "
                 "<node-name>.<site-name>.iot-lab.info"
             )
-        iotlab_node_name = iotlab_node_name = match.group(1)
+        iotlab_node_name = match.group(1)
         dict_values = IoTLABExperiment.BOARD_ARCHI_MAP.values()
         dict_names = [value['name'] for value in dict_values]
         dict_keys = list(IoTLABExperiment.BOARD_ARCHI_MAP.keys())
