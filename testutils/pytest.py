@@ -85,8 +85,9 @@ def check_credentials(run_local):
     elif not run_local and not check_ssh():
         iotlab_creds_mark = pytest.mark.skip(
             reason="Can't access IoT-LAB front-end "
-            "{DEFAULT_SITE}.{IOTLAB_DOMAIN} via SSH. Use key without "
-            "password or `ssh-agent`"
+            f"{DEFAULT_SITE}.{IOTLAB_DOMAIN} via SSH. Use key without "
+            "password or `ssh-agent` and connect once manually "
+            "to accept the fingerprint"
         )
     return iotlab_creds_mark
 
