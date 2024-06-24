@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import subprocess
 
 
 import pexpect.replwrap
@@ -59,14 +58,9 @@ def test_task01(riot_ctrl, log_nodes):
     'nodes', [pytest.param(['nrf52840dk', 'nrf52840dk'])], indirect=['nodes']
 )
 def test_task03(riot_ctrl):
-    # run `./compile_contiki.sh` relative to this file
-    subprocess.check_call(
-        ["./compile_contiki.sh"],
-        cwd=os.path.dirname(os.path.realpath(__file__)),
-    )
-
-    build_path = "build/nrf52840/dk/hello-world.nrf52840"
-    flashfile = f"/tmp/contiki-ng/examples/hello-world/{build_path}"
+    # get the current directory of this file
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    contiki_bin_file = os.path.join(current_dir, "task03-contiki-nrf52840.bin")
 
     gnrc_node, contiki_node = (
         riot_ctrl(0, GNRC_APP, Shell),
@@ -74,7 +68,7 @@ def test_task03(riot_ctrl):
             1,
             'examples/hello-world',
             riotctrl.shell.ShellInteraction,
-            extras={"BINFILE": flashfile},
+            extras={"BINFILE": contiki_bin_file},
         ),
     )
 
