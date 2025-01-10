@@ -2,17 +2,14 @@ import os
 import re
 import sys
 
-
 import pexpect.replwrap
 import pytest
-
 import riotctrl.shell
 from riotctrl_shell.gnrc import GNRCICMPv6Echo
 from riotctrl_shell.netif import Ifconfig
-
-from testutils.native import bridge, get_link_local, get_ping_cmd, interface_exists
-from testutils.shell import lladdr, ping6, GNRCUDP
-
+from testutils.native import (bridge, get_link_local, get_ping_cmd,
+                              interface_exists)
+from testutils.shell import GNRCUDP, lladdr, ping6
 
 GNRC_APP = 'examples/gnrc_networking'
 LWIP_APP = 'tests/pkg/lwip'
@@ -49,6 +46,34 @@ def test_task01(riot_ctrl, log_nodes):
         node, f"{linux_addr}%{node_iface}", count=20, interval=100, packet_size=8
     )
     assert res["stats"]["packet_loss"] < 1
+
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+# nodes passed to riot_ctrl fixture
+@pytest.mark.parametrize('nodes', [pytest.param(['native64'])], indirect=['nodes'])
+def test_task02(riot_ctrl, log_nodes):
+    node = riot_ctrl(0, GNRC_APP, Shell, port='tap0')
+    linux = pexpect.replwrap.bash()
+
+    node_iface, node_addr = lladdr(node.ifconfig_list())
+    assert node_addr.startswith("fe80::")
+    linux_iface = bridge('tap0')
+    linux_addr = get_link_local(linux_iface)
+    assert linux_addr.startswith("fe80::")
+    ping_cmd = get_ping_cmd()
+
+    if log_nodes:
+        linux.child.logfile = sys.stdout
+    out = linux.run_command(
+        f"{ping_cmd} -c 20 -i .5 {node_addr}%{linux_iface}", timeout=20
+    )
+    m = re.search(r"\b(\d+)% packet loss", out)
+    assert m is not None
+    assert int(m.group(1)) < 1
+    res = ping6(
+        node, f"{linux_addr}%{node_iface}", count=20, interval=100, packet_size=8
+    )
+    assert res["stats"]["packet_loss"] < 1
+
 
 
 @pytest.mark.flaky(reruns=1, reruns_delay=30)

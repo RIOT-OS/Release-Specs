@@ -39,3 +39,13 @@ Run all unittests at once on an iotlab-m3 node.
 ### Result
 
 All tests run successfully. (Output says: "OK (xyz tests)"
+
+Task #05 - Unittests on native64
+================================
+### Description
+
+Run all unittests at once in native64.
+
+### Result
+
+All tests run successfully. (Output says: "OK (xyz tests)"

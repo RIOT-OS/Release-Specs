@@ -3,7 +3,6 @@ import subprocess
 
 import pytest
 
-
 APP = 'tests/unittests'
 TESTS_SUITES = sorted(
     d.name
@@ -46,4 +45,9 @@ def test_task03(nodes, log_nodes, riotbase, test_suite):
 # nodes passed to nodes fixture
 @pytest.mark.parametrize('nodes', [pytest.param(['iotlab-m3'])], indirect=['nodes'])
 def test_task04(nodes, log_nodes, riotbase):
+    run_unittests('all', nodes, log_nodes, os.path.join(riotbase, APP))
+
+# nodes passed to nodes fixture
+@pytest.mark.parametrize('nodes', [pytest.param(['native64'])], indirect=['nodes'])
+def test_task05(nodes, log_nodes, riotbase):
     run_unittests('all', nodes, log_nodes, os.path.join(riotbase, APP))

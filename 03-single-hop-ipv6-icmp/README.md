@@ -97,3 +97,21 @@ both the fragmented and reassembled requests/replies).
 ### Result
 
 <1% packets lost on the pinging node.
+
+Task #07 - ICMPv6 stress test on native64 (1 hour)
+================================================
+### Description
+
+Rapid ICMPv6 echo request/reply exchange from 10 host ping applications (same
+host, e.g. Linux host) simultaneously to one native64 node for 1 hour.
+* Stack configuration: IPv6 (default)
+* Count:                  Infinity
+* Interval:               0ms
+* Payload:                1452B
+* Destination Address:    Link local unicast (fe80::.../64)
+
+### Result
+
+All nodes are still running, reachable, and the packet buffer is empty 10
+seconds after completions (use module `shell_cmd_gnrc_pktbuf`).
+Packet loss is irrelevant in this stress test.
