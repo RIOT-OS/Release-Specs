@@ -55,7 +55,7 @@ def test_task01(riot_ctrl, log_nodes):
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['nrf52840dk', 'nrf52840dk'])], indirect=['nodes']
+    'nodes', [pytest.param(['nrf52840dk', 'nrf52840dk'], "saclay")], indirect=['nodes']
 )
 def test_task03(riot_ctrl):
     # get the current directory of this file
