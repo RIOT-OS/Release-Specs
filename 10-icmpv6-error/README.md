@@ -224,7 +224,7 @@ hop link but not the second hop link via a native node from a Linux host.
 
         $ GNRC_NETIF_NUMOF=2 USEMODULE="socket_zep netdev_tap" \
           CFLAGS=-DGNRC_IPV6_NIB_CONF_SLAAC=1 TERMFLAGS="-z [::]:17755 tap0" \
-            make -C examples/gnrc_networking clean all term
+            make -C examples/networking/gnrc/gnrc_networking clean all term
 
 4. Add `beef::/64` route via TAP interface on RIOT side:
 

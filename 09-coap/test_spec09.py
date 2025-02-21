@@ -78,7 +78,7 @@ def teardown_function(function):
 @pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
 @pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task01(riot_ctrl, log_nodes):
-    node = riot_ctrl(0, 'examples/cord_ep', Shell, port=TAP)
+    node = riot_ctrl(0, 'examples/networking/cord/cord_ep', Shell, port=TAP)
 
     node_netif, _ = lladdr(node.ifconfig_list())
     node.ifconfig_add(node_netif, NODE_ULA)
@@ -116,7 +116,7 @@ def test_task01(riot_ctrl, log_nodes):
     indirect=['nodes'],
 )
 def test_task02(riot_ctrl, start_server, expected):
-    node = riot_ctrl(0, 'examples/gcoap', Shell, port=TAP)
+    node = riot_ctrl(0, 'examples/networking/coap/gcoap', Shell, port=TAP)
 
     node_netif, _ = lladdr(node.ifconfig_list())
     node.ifconfig_add(node_netif, NODE_ULA)
@@ -145,7 +145,7 @@ def test_task02(riot_ctrl, start_server, expected):
 @pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
 @pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task03(riot_ctrl):
-    node = riot_ctrl(0, 'examples/nanocoap_server', Shell, port=TAP)
+    node = riot_ctrl(0, 'examples/networking/coap/nanocoap_server', Shell, port=TAP)
     host_netif = bridge(TAP)
 
     # can't use shell interactions here, as there is no shell
@@ -192,7 +192,7 @@ def test_task03(riot_ctrl):
 @pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
 @pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task04(riot_ctrl):
-    node = riot_ctrl(0, 'examples/nanocoap_server', Shell, port=TAP)
+    node = riot_ctrl(0, 'examples/networking/coap/nanocoap_server', Shell, port=TAP)
     host_netif = bridge(TAP)
 
     # can't use shell interactions here, as there is no shell
@@ -237,7 +237,7 @@ def test_task04(riot_ctrl):
 @pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
 @pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task05(riot_ctrl):
-    node = riot_ctrl(0, 'examples/gcoap', Shell, port=TAP)
+    node = riot_ctrl(0, 'examples/networking/coap/gcoap', Shell, port=TAP)
 
     node_netif, _ = lladdr(node.ifconfig_list())
     node.ifconfig_add(node_netif, NODE_ULA)

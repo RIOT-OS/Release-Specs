@@ -7,7 +7,7 @@ from testutils.native import bridged
 from testutils.shell import ping6, lladdr, check_pktbuf
 
 
-APP = 'examples/gnrc_networking'
+APP = 'examples/networking/gnrc/gnrc_networking'
 pytestmark = pytest.mark.rc_only()
 
 

@@ -14,7 +14,7 @@ from testutils.native import bridge, get_link_local, get_ping_cmd, interface_exi
 from testutils.shell import lladdr, ping6, GNRCUDP
 
 
-GNRC_APP = 'examples/gnrc_networking'
+GNRC_APP = 'examples/networking/gnrc/gnrc_networking'
 LWIP_APP = 'tests/pkg/lwip'
 pytestmark = pytest.mark.rc_only()
 
