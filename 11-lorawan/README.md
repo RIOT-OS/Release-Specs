@@ -9,9 +9,9 @@ LoRaWAN example is fully functional
 
 ### Testing procedure
 
-Build and flash the `examples/lorawan` application with the following command
+Build and flash the `examples/networking/misc/lorawan` application with the following command
 
-    $ make BOARD=<board> DEVEUI=<device eui> APPEUI=<application eui> APPKEY=<application key> -C examples/lorawan flash term
+    $ make BOARD=<board> DEVEUI=<device eui> APPEUI=<application eui> APPKEY=<application key> -C examples/networking/misc/lorawan flash term
 
 _Note:_ The application can be tested on IoT-LAB with a device register on
 TheThingsNetwork backend: start an experiment with one of the st-lrwan1 boards
@@ -199,9 +199,9 @@ send/receive LoRaWAN frames.
 
 ### Testing procedure
 
-- Build and flash the `examples/gnrc_lorawan`
+- Build and flash the `examples/networking/gnrc/gnrc_lorawan`
 
-      $ make BOARD=<board> -C examples/gnrc_lorawan flash term
+      $ make BOARD=<board> -C examples/networking/gnrc/gnrc_lorawan flash term
 
 - Configure the device EUI, application EUI, application the `ifconfig` command
 

@@ -9,7 +9,7 @@ from testutils.asyncio import wait_for_futures
 from testutils.shell import ping6, lladdr, check_pktbuf
 
 
-APP = 'examples/gnrc_networking'
+APP = 'examples/networking/gnrc/gnrc_networking'
 TASK10_APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
 

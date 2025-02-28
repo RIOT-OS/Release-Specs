@@ -27,7 +27,7 @@ class GNRCUDPClientSendParser(ShellInteractionParser):
     """
     Shell interaction parser for
 
-    - $RIOTBASE/examples/gnrc_networking
+    - $RIOTBASE/examples/networking/gnrc/gnrc_networking
     - $RIOTBASE/tests/net/gnrc_udp.
 
     As the `udp` shell command is application specific, a central
@@ -78,7 +78,7 @@ class GNRCLoRaWANSend(ShellInteraction):
     """
     Shell interaction for
 
-    - $RIOTBASE/examples/gnrc_lorawan
+    - $RIOTBASE/examples/networking/gnrc/gnrc_lorawan
 
     As the `send` shell command is application specific, a central
     ShellInteraction in `riotctrl_shell` does not make much sense
@@ -99,7 +99,7 @@ class GNRCUDP(ShellInteraction):
     """
     Shell interaction for
 
-    - $RIOTBASE/examples/gnrc_networking
+    - $RIOTBASE/examples/networking/gnrc/gnrc_networking
     - $RIOTBASE/tests/net/gnrc_udp.
 
     As the `udp` shell command is application specific, a central

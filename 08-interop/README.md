@@ -84,7 +84,7 @@ ip-addr
 2023-04-14 15:23:36,735 # -- fe80::f6ce:36c6:d8d1:e340
 ```
 
-8. For the RIOT side just use [gnrc_networking](https://github.com/RIOT-OS/RIOT/tree/master/examples/gnrc_networking). Get the link-local IP address with `ifconfig`:
+8. For the RIOT side just use [gnrc_networking](https://github.com/RIOT-OS/RIOT/tree/master/examples/networking/gnrc/gnrc_networking). Get the link-local IP address with `ifconfig`:
 
 ```
 2023-04-14 15:11:12,614 # ifconfig
@@ -344,7 +344,7 @@ The credentials for the WiFi network will be passed on the command line.
 Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
 
 ```
-USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/gnrc_border_router BOARD=esp<...> UPLINK=wifi WIFI_SSID=<your_ssd> WIFI_PASS=<your_password> PORT=<port> flash term
+USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/networking/gnrc/gnrc_border_router BOARD=esp<...> UPLINK=wifi WIFI_SSID=<your_ssd> WIFI_PASS=<your_password> PORT=<port> flash term
 ```
 
 ### Result
@@ -413,7 +413,7 @@ Use the `sock_dns` and `gnrc_ipv6_nib_dns` modules to enable name resolution.
 Replace `esp8266-esp-12x` with the esp* board of your choice, adjust `PORT` if needed.
 
 ```
-USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/gnrc_networking BOARD=esp<…> PORT=<port> flash term
+USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/networking/gnrc/gnrc_networking BOARD=esp<…> PORT=<port> flash term
 ```
 
 ### Result
