@@ -104,15 +104,15 @@ def test_check_user_credentials_unset(monkeypatch):
     "ctrl_envs,args,exp_boards",
     [
         (
-            [{"IOTLAB_NODE": "m3-23.saclay.iot-lab.info", "BOARD": "iotlab-m3"}],
+            [{"IOTLAB_NODE": "m3-23.grenoble.iot-lab.info", "BOARD": "iotlab-m3"}],
             (),
             ["iotlab-m3"],
         ),
-        ([{"IOTLAB_NODE": "m3-23.saclay.iot-lab.info"}], (), ["iotlab-m3"]),
+        ([{"IOTLAB_NODE": "m3-23.grenoble.iot-lab.info"}], (), ["iotlab-m3"]),
         ([{"BOARD": "iotlab-m3"}], (), ["iotlab-m3"]),
         (
-            [{"IOTLAB_NODE": "m3-23.saclay.iot-lab.info", "BOARD": "iotlab-m3"}],
-            ("saclay",),
+            [{"IOTLAB_NODE": "m3-23.grenoble.iot-lab.info", "BOARD": "iotlab-m3"}],
+            ("grenoble",),
             ["iotlab-m3"],
         ),
         (
@@ -124,13 +124,13 @@ def test_check_user_credentials_unset(monkeypatch):
     ],
 )
 def test_init(ctrl_envs, args, exp_boards):
-    assert testutils.iotlab.DEFAULT_SITE == "saclay"
+    assert testutils.iotlab.DEFAULT_SITE == "grenoble"
     ctrls = [MockRIOTCtrl(env) for env in ctrl_envs]
     exp = testutils.iotlab.IoTLABExperiment("test", ctrls, *args)
     if args:
         assert exp.site == args[0]
     else:
-        assert exp.site == "saclay"
+        assert exp.site == "grenoble"
     assert exp.ctrls == ctrls
     for ctrl, exp_board in zip(exp.ctrls, exp_boards):
         assert ctrl.board() == exp_board
@@ -178,8 +178,8 @@ def test_stop(monkeypatch, exp_id, expected):
     [
         ([{"BOARD": "nrf52dk"}], ["nrf52dk-5.saclay.iot-lab.info"]),
         (
-            [{"IOTLAB_NODE": "samr21-21.saclay.iot-lab.info"}],
-            ["samr21-21.saclay.iot-lab.info"],
+            [{"IOTLAB_NODE": "samr21-21.grenoble.iot-lab.info"}],
+            ["samr21-21.grenoble.iot-lab.info"],
         ),
     ],
 )
