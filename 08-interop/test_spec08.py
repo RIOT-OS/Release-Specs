@@ -66,7 +66,7 @@ def test_task03(riot_ctrl):
         riot_ctrl(0, GNRC_APP, Shell),
         riot_ctrl(
             1,
-            'examples/hello-world',
+            'examples/basic/hello-world',
             riotctrl.shell.ShellInteraction,
             extras={"BINFILE": contiki_bin_file},
         ),
