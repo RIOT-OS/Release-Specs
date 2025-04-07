@@ -24,7 +24,7 @@ $ PYTHONPATH="/home/kbee/src/aiocoap" ./task04.py -r [fe80::200:bbff:febb:2%tap0
 
 Result: 2.05 Content
 b'This is RIOT (Version: 2018.04-devel-3264-g99ae4-gazelle-2018.10-branch)
-running on a native board with a native MCU.'
+running on a native64 board with a native MCU.'
 """
 
 import logging

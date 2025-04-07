@@ -226,8 +226,7 @@ def test_task04(riot_ctrl):
         )
         assert str(response.code) == "2.05 Content"
         assert re.search(
-            r"This is RIOT \(Version: .*\) running on a "
-            r"native board with a native MCU\.",
+            r"This is RIOT \(Version: .*\) running on a \S+ board with a \S+ MCU\.",
             response.payload.decode(),
         )
 
