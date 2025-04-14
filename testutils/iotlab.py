@@ -13,7 +13,7 @@ from iotlabcli.experiment import (
 )
 
 
-DEFAULT_SITE = 'saclay'
+DEFAULT_SITE = 'grenoble'
 IOTLAB_DOMAIN = 'iot-lab.info'
 
 
