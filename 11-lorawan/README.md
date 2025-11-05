@@ -199,9 +199,9 @@ send/receive LoRaWAN frames.
 
 ### Testing procedure
 
-- Build and flash the `examples/networking/gnrc/gnrc_lorawan`
+- Build and flash the `examples/networking/gnrc/lorawan`
 
-      $ make BOARD=<board> -C examples/networking/gnrc/gnrc_lorawan flash term
+      $ make BOARD=<board> -C examples/networking/gnrc/lorawan flash term
 
 - Configure the device EUI, application EUI, application the `ifconfig` command
 

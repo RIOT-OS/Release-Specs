@@ -35,7 +35,7 @@ from testutils.native import (
 )
 
 
-APP = 'examples/networking/gnrc/gnrc_networking'
+APP = 'examples/networking/gnrc/networking'
 TAP = 'tap0'
 NETIF_PARSER = IfconfigListParser()
 
