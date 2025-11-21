@@ -1,4 +1,5 @@
 import logging
+import random
 import re
 
 from iotlabcli.auth import get_user_credentials
@@ -9,6 +10,7 @@ from iotlabcli.experiment import (
     stop_experiment,
     get_experiment,
     exp_resources,
+    info_experiment,
     AliasNodes,
 )
 
@@ -151,6 +153,25 @@ class IoTLABExperiment:
         ret = wait_experiment(Api(*self.user_credentials()), self.exp_id)
         return ret
 
+    def _select_random_node(self, site, board):
+        api = Api(*self.user_credentials())
+        info = info_experiment(api, site=site)
+        choices = []
+        for iot_lab_nodes in info.values():
+            if not isinstance(iot_lab_nodes, list):
+                continue
+            for iot_lab_node in iot_lab_nodes:
+                if iot_lab_node.get("state", "") != "Alive":
+                    continue
+                net_addr = iot_lab_node.get("network_address", "")
+                if board not in net_addr:
+                    continue
+                choices.append(net_addr)
+        if not choices:
+            raise RuntimeError(f"No {board} found at {site}")
+        ret = random.choice(choices)
+        return ret
+
     def _submit(self, site, duration):
         """Submit an experiment with required nodes"""
         api = Api(*self.user_credentials())
@@ -159,9 +180,19 @@ class IoTLABExperiment:
             if ctrl.env.get('IOTLAB_NODE') is not None:
                 resources.append(exp_resources([ctrl.env.get('IOTLAB_NODE')]))
             elif ctrl.board() is not None:
-                board = IoTLABExperiment._archi_from_board(ctrl.board())
-                alias = AliasNodes(1, site, board)
-                resources.append(exp_resources(alias))
+                # Since we cannot combine alias and phyical nodes in the same
+                # experiment and but we would prefer to use iotlab-m3 alias
+                # nodes because the m3 nodes can report that they are broken.
+                # Let's take the easiest solution and only use alias nodes
+                # if they are all iotlab-m3 nodes.
+                if all(ctrl.board() == 'iotlab-m3' for ctrl in self.ctrls):
+                    board = IoTLABExperiment._archi_from_board(ctrl.board())
+                    alias = AliasNodes(1, site, board)
+                    resources.append(exp_resources(alias))
+                else:
+                    board = IoTLABExperiment.BOARD_ARCHI_MAP[ctrl.board()]['name']
+                    net_addr = self._select_random_node(site, board)
+                    resources.append(exp_resources([net_addr]))
             else:
                 raise ValueError("neither BOARD or IOTLAB_NODE are set")
         return submit_experiment(api, self.name, duration, resources)['id']
