@@ -46,7 +46,7 @@ def test_task01(riot_ctrl):
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['samr21-xpro', 'iotlab-m3'])], indirect=['nodes']
+    'nodes', [pytest.param(['samr21-xpro', 'iotlab-m3'], "saclay")], indirect=['nodes']
 )
 def test_task02(riot_ctrl):
     pinger, pinged = (
@@ -93,7 +93,7 @@ def test_task03(riot_ctrl):
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['samr21-xpro', 'iotlab-m3'])], indirect=['nodes']
+    'nodes', [pytest.param(['samr21-xpro', 'iotlab-m3'], "saclay")], indirect=['nodes']
 )
 def test_task04(riot_ctrl):
     pinger, pinged = (
@@ -184,7 +184,9 @@ def test_task06(riot_ctrl):
 @pytest.mark.local_only
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['samr21-xpro', 'arduino-zero'])], indirect=['nodes']
+    'nodes',
+    [pytest.param(['samr21-xpro', 'arduino-zero'], "saclay")],
+    indirect=['nodes'],
 )
 def test_task07(riot_ctrl):
     pinger, pinged = (
@@ -206,7 +208,9 @@ def test_task07(riot_ctrl):
 @pytest.mark.local_only
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['samr21-xpro', 'arduino-zero'])], indirect=['nodes']
+    'nodes',
+    [pytest.param(['samr21-xpro', 'arduino-zero'], "saclay")],
+    indirect=['nodes'],
 )
 def test_task08(riot_ctrl):
     pinger, pinged = (
@@ -292,7 +296,7 @@ def test_task10(riot_ctrl):
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
     'nodes',
-    [pytest.param(['nrf52840dk', 'iotlab-m3', 'iotlab-m3'])],
+    [pytest.param(['nrf52840dk', 'iotlab-m3', 'iotlab-m3'], "saclay")],
     indirect=['nodes'],
 )
 def test_task11(riot_ctrl):
@@ -334,7 +338,7 @@ def test_task11(riot_ctrl):
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['iotlab-m3', 'nrf52840dk'])], indirect=['nodes']
+    'nodes', [pytest.param(['iotlab-m3', 'nrf52840dk'], "saclay")], indirect=['nodes']
 )
 def test_task12(riot_ctrl):
     try:
@@ -363,7 +367,7 @@ def test_task12(riot_ctrl):
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
-    'nodes', [pytest.param(['iotlab-m3', 'nrf52840dk'])], indirect=['nodes']
+    'nodes', [pytest.param(['iotlab-m3', 'nrf52840dk'], "saclay")], indirect=['nodes']
 )
 def test_task13(riot_ctrl):
     try:
