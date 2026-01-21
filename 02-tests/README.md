@@ -40,3 +40,13 @@ Perform a subset of tests (!= subset from Task #02) on samr21-xpro node.
 ### Result
 
 All tests succeed.
+
+Task #04 - Subset of tests on native64
+=======================================
+### Description
+
+Perform a subset of tests on native64 and check their output.
+
+### Result
+
+All tests succeed.

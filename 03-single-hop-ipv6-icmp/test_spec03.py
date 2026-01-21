@@ -3,14 +3,11 @@ import sys
 import pexpect
 import pexpect.replwrap
 import pytest
-
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
-
-from testutils.asyncio import wait_for_futures, timeout_futures
-from testutils.native import bridged, bridge, get_ping_cmd, interface_exists
-from testutils.shell import ping6, lladdr, check_pktbuf
-
+from testutils.asyncio import timeout_futures, wait_for_futures
+from testutils.native import bridge, bridged, get_ping_cmd, interface_exists
+from testutils.shell import check_pktbuf, lladdr, ping6
 
 APP = 'tests/net/gnrc_udp'
 TASK05_NODES = 11
@@ -163,3 +160,40 @@ def test_task06(riot_ctrl):
     assert res['stats']['packet_loss'] < 1
 
     check_pktbuf(pinged, pinger)
+
+@pytest.mark.skipif(not interface_exists("tap0"), reason="tap0 does not exist")
+@pytest.mark.sudo_only  # ping -f requires root
+@pytest.mark.parametrize(
+    'nodes', [pytest.param(['native64'] * TASK05_NODES)], indirect=['nodes']
+)
+def test_task07(riot_ctrl, log_nodes):
+    node = riot_ctrl(0, APP, Shell, port='tap0')
+    pingers = [pexpect.replwrap.bash() for _ in range(10)]
+
+    _, pinged_addr = lladdr(node.ifconfig_list())
+    assert pinged_addr.startswith("fe80::")
+    iface = bridge('tap0')
+    pinged_addr += f"%{iface}"
+    ping_cmd = get_ping_cmd()
+
+    futures = []
+    try:
+        for pinger in pingers:
+            if log_nodes:
+                pinger.child.logfile = sys.stdout
+            out = pinger.run_command(
+                f"{ping_cmd} -f -s 1452 {pinged_addr}"
+                # pipe to /dev/null because output can go
+                # into MiB of data ;-)
+                " 2>&1 > /dev/null",
+                async_=True,
+                timeout=60 * 60,
+            )
+            futures.append(out)
+        timeout_futures(futures, 60 * 60)
+    finally:
+        for pinger in pingers:
+            # interrupt prevailing `ping6`s
+            pinger.child.sendintr()
+
+    check_pktbuf(node)

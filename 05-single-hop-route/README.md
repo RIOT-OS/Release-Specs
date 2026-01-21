@@ -43,7 +43,29 @@ advertisements for this task).
 <10% packets lost on the pinging node.
 No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
-Task #03 - ICMPv6 echo unicast addresess on native (specific route)
+Task #03 - ICMPv6 echo unicast addresess on native64 (default route)
+====================================================================
+### Description
+
+ICMPv6 echo request/reply exchange between two native64 nodes both with global
+unicast addresses. A static default route has to be used
+(`nib route add <iface> :: <dst link-local>`, also remember to deactivate router
+advertisements on both ends *beforehand* with `ifconfig <iface> -rtr_adv`,
+otherwise default routes and address resolution will be auto-configured).
+* Stack configuration: IPv6 (default)
+* Count:                  100
+* Interval:               10ms
+* Payload:                1kB
+* Sender Address:         beef::2/64
+* Destination Address:    beef::1/64
+
+### Result
+
+<1% packets lost on the pinging node.
+No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
+
+
+Task #04 - ICMPv6 echo unicast addresess on native (specific route)
 ===================================================================
 ### Description
 
@@ -64,7 +86,7 @@ otherwise default routes and address resolution will be auto-configured ).
 <1% packets lost on the pinging node.
 No leaks in the packet buffer (check with `shell_cmd_gnrc_pktbuf`).
 
-Task #04 - ICMPv6 echo unicast addresess on iotlab-m3 (static route)
+Task #05 - ICMPv6 echo unicast addresess on iotlab-m3 (static route)
 ====================================================================
 ### Description
 
