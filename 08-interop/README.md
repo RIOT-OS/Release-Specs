@@ -201,7 +201,7 @@ node running Zephyr.
 #### Setting up the Zephyr node
 
 1. Follow the
-['Getting Started'](https://docs.zephyrproject.org/latest/getting_started/index.html)
+['Getting Started'](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
 guide on Zephyr's documentation.
 2. You will be using the `echo_server` example application. To compile and
    flash, connect the samr21-xpro board and in zephyr's root directory run:
