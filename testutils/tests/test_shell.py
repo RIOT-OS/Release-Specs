@@ -138,15 +138,13 @@ def test_udp_client_send_error():
 
 
 def test_ping6():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 12 bytes from ::1: icmp_seq=0 ttl=64
 12 bytes from ::1: icmp_seq=1 ttl=64
 12 bytes from ::1: icmp_seq=2 ttl=64
 
 --- ::1 PING statistics ---
-3 packets transmitted, 3 packets received, 0% packet loss"""
-    )
+3 packets transmitted, 3 packets received, 0% packet loss""")
     shell = riotctrl_shell.gnrc.GNRCICMPv6Echo(ctrl)
     ping_res = testutils.shell.ping6(shell, "ff02::1", 3, 4, 1000)
     assert ping_res
@@ -171,8 +169,7 @@ def test_pktbuf_not_empty():
 
 
 def test_lladdr():
-    netif, lladdr = testutils.shell.lladdr(
-        """
+    netif, lladdr = testutils.shell.lladdr("""
 Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           L2-PDU:1500  MTU:1500  HL:64  RTR
           RTR_ADV
@@ -182,25 +179,21 @@ Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           inet6 group: ff02::2
           inet6 group: ff02::1
           inet6 group: ff02::1:ff3d:dfcb
-            """
-    )
+            """)
     assert netif == "6"
     assert lladdr == "fe80::682e:4fff:fe3d:dfcb"
 
 
 def test_lladdr_no_lladdr():
     with pytest.raises(KeyError):
-        testutils.shell.lladdr(
-            """
+        testutils.shell.lladdr("""
 Iface  4  HWaddr: 6A:2E:4F:3D:DF:CB
           L2-PDU:1500  Source address length: 6
-            """
-        )
+            """)
 
 
 def test_global_addr():
-    netif, global_addr = testutils.shell.global_addr(
-        """
+    netif, global_addr = testutils.shell.global_addr("""
 Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           L2-PDU:1500  MTU:1500  HL:64  RTR
           RTR_ADV
@@ -211,16 +204,14 @@ Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           inet6 group: ff02::2
           inet6 group: ff02::1
           inet6 group: ff02::1:ff3d:dfcb
-            """
-    )
+            """)
     assert netif == "6"
     assert global_addr == "2001:db8::682e:4fff:fe3d:dfcb"
 
 
 def test_global_addr_no_global_addr():
     with pytest.raises(IndexError):
-        testutils.shell.global_addr(
-            """
+        testutils.shell.global_addr("""
 Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           L2-PDU:1500  MTU:1500  HL:64  RTR
           RTR_ADV
@@ -230,8 +221,7 @@ Iface  6  HWaddr: 6A:2E:4F:3D:DF:CB
           inet6 group: ff02::2
           inet6 group: ff02::1
           inet6 group: ff02::1:ff3d:dfcb
-            """
-        )
+            """)
 
 
 def test_check_pktbuf_empty(monkeypatch):
@@ -262,15 +252,13 @@ def test_check_pktbuf_empty(monkeypatch):
 
 
 def test_ifconfig():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 ifconfig
 Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4/5  Link: up
            TX-Power: 14dBm  State: SLEEP  Demod margin.: 0  Num gateways.: 0
           IQ_INVERT
           RX_SINGLE  OTAA  L2-PDU:2559
-          """  # noqa: E501
-    )
+          """)  # noqa: E501
     shell = riotctrl_shell.netif.Ifconfig(ctrl)
     res = testutils.shell.ifconfig(shell)
     assert len(res) == 1
@@ -278,8 +266,7 @@ Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4
 
 
 def test_lorawan_netif_None():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 ifconfig
 Iface  7  HWaddr: 76:F5:98:9F:40:22
           L2-PDU:1500  MTU:1500  HL:64  RTR
@@ -291,51 +278,44 @@ Iface  7  HWaddr: 76:F5:98:9F:40:22
           inet6 group: ff02::1
           inet6 group: ff02::1:ff9f:4022
           inet6 group: ff02::1:ff00:2
-          """
-    )
+          """)
     shell = riotctrl_shell.netif.Ifconfig(ctrl)
     res = testutils.shell.lorawan_netif(shell)
     assert res is None
 
 
 def test_lorawan_netif_no_lorawan():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 ifconfig
 Iface  3  HWaddr: 26:01:24:C0  Frequency: 869524963Hz  BW: 125kHz  SF: 12  CR: 4/5  Link: up
            TX-Power: 14dBm  State: SLEEP  Demod margin.: 0  Num gateways.: 0
           IQ_INVERT
           RX_SINGLE  OTAA  L2-PDU:2559
-          """  # noqa: E501
-    )
+          """)  # noqa: E501
     shell = riotctrl_shell.netif.Ifconfig(ctrl)
     res = testutils.shell.lorawan_netif(shell)
     assert res == 3
 
 
 def test_gnrc_lorawan_send_success():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 txtsnd 3 "Hello RIOT!" 2
 Successfully sent packet
-"""
-    )
+""")
     shell = testutils.shell.GNRCLoRaWANSend(ctrl)
     res = shell.txtsnd(3, "Hello RIOT!")
     assert res is False
 
 
 def test_gnrc_lorawan_send_success_downlink():
-    ctrl = init_ctrl(
-        output="""
+    ctrl = init_ctrl(output="""
 txtsnd 3 "Hello RIOT!" 2
 PKTDUMP: data received:
 ~~ SNIP  0 - size:   4 byte, type: NETTYPE_LORAWAN (1)
 00000000  AA  AA  AA  AA
 ~~ PKT    -  1 snips, total size:   4 byte
 Successfully sent packet
-"""
-    )
+""")
     with ctrl.run_term():
         shell = testutils.shell.GNRCLoRaWANSend(ctrl)
         shell.riotctrl.term.expect_res = 1

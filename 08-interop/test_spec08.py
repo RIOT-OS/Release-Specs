@@ -13,7 +13,6 @@ from riotctrl_shell.netif import Ifconfig
 from testutils.native import bridge, get_link_local, get_ping_cmd, interface_exists
 from testutils.shell import lladdr, ping6, GNRCUDP
 
-
 GNRC_APP = 'examples/networking/gnrc/networking'
 LWIP_APP = 'tests/pkg/lwip'
 pytestmark = pytest.mark.rc_only()

@@ -34,7 +34,6 @@ from testutils.native import (
     ip_route_del,
 )
 
-
 APP = 'examples/networking/gnrc/networking'
 TAP = 'tap0'
 NETIF_PARSER = IfconfigListParser()

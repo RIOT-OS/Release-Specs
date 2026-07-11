@@ -6,7 +6,6 @@ from riotctrl_shell.netif import Ifconfig
 from testutils.native import bridged
 from testutils.shell import ping6, lladdr, check_pktbuf
 
-
 APP = 'examples/networking/gnrc/networking'
 pytestmark = pytest.mark.rc_only()
 

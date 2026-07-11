@@ -9,7 +9,6 @@ from riotctrl_shell.sys import Reboot
 from testutils.shell import GNRCLoRaWANSend, ifconfig, lorawan_netif
 from testutils.shell import check_pktbuf
 
-
 GNRC_LORAWAN_APP = "examples/networking/gnrc/lorawan"
 LORAWAN_APP = "examples/networking/misc/lorawan"
 SEMTECH_LORAMAC_APP = "tests/pkg/semtech-loramac"

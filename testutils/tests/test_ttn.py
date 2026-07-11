@@ -4,7 +4,6 @@ import testutils.ttn
 
 from testutils.ttn import SUBSCRIBE_LIST, TOPIC_ACK, TOPIC_UPLINK
 
-
 BASE64_PAYLOAD = "This is RIOT!"
 TEST_DEV_ID = "0102030405060708"
 

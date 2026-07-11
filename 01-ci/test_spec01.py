@@ -3,7 +3,6 @@ import subprocess
 
 import pytest
 
-
 APP = 'tests/unittests'
 TESTS_SUITES = sorted(
     d.name

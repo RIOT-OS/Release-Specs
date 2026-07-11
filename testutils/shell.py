@@ -14,7 +14,6 @@ from riotctrl.shell import ShellInteraction, ShellInteractionParser
 from riotctrl_shell.gnrc import GNRCICMPv6EchoParser, GNRCPktbufStatsParser
 from riotctrl_shell.netif import IfconfigListParser
 
-
 PARSERS = {
     "ping6": GNRCICMPv6EchoParser(),
     "pktbuf": GNRCPktbufStatsParser(),

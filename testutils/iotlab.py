@@ -12,7 +12,6 @@ from iotlabcli.experiment import (
     AliasNodes,
 )
 
-
 DEFAULT_SITE = 'saclay'
 IOTLAB_DOMAIN = 'iot-lab.info'
 

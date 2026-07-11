@@ -8,7 +8,6 @@ from riotctrl_shell.netif import Ifconfig
 from testutils.asyncio import wait_for_futures
 from testutils.shell import ping6, lladdr, check_pktbuf
 
-
 APP = 'examples/networking/gnrc/networking'
 TASK10_APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
