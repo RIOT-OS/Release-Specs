@@ -200,14 +200,20 @@ node running Zephyr.
 
 #### Setting up the Zephyr node
 
+> [!CAUTION]
+> Zephyr appears to be too big nowadays to compile the simple echo shell
+> for the `samr21-xpro`, it can not fit into the RAM anymore.
+> Use another board, such as the `nrf52840dk/nrf52840`
+
 1. Follow the
-['Getting Started'](https://docs.zephyrproject.org/latest/getting_started/index.html)
+['Getting Started'](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
 guide on Zephyr's documentation.
 2. You will be using the `echo_server` example application. To compile and
    flash, connect the samr21-xpro board and in zephyr's root directory run:
 
    ```sh
-   west build -p auto -b atsamr21_xpro samples/net/sockets/echo_server -- -DOVERLAY_CONFIG=overlay-802154.conf
+   west update
+   west build -p auto -b nrf52840dk/nrf52840 samples/net/sockets/echo_server -- -DOVERLAY_CONFIG=overlay-802154.conf
    west flash
    ```
 3. If everything is OK you should be able to connect to the serial output use
@@ -219,7 +225,7 @@ guide on Zephyr's documentation.
    node's IPv6 by running the following on its shell:
 
    ```sh
-   # On samr21-xpro:zephyr node
+   # On nrf52840dk/nrf52840:zephyr node
    uart:~$ net ipv6
 
    IPv6 support                              : enabled
