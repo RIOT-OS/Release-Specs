@@ -6,7 +6,6 @@ from riotctrl_shell.netif import Ifconfig
 from testutils.native import bridged
 from testutils.shell import lladdr, GNRCUDP, check_pktbuf
 
-
 APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
 

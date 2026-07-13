@@ -11,7 +11,6 @@ from testutils.asyncio import wait_for_futures, timeout_futures
 from testutils.native import bridged, bridge, get_ping_cmd, interface_exists
 from testutils.shell import ping6, lladdr, check_pktbuf
 
-
 APP = 'tests/net/gnrc_udp'
 TASK05_NODES = 11
 pytestmark = pytest.mark.rc_only()

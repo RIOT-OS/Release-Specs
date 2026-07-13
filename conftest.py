@@ -25,7 +25,6 @@ from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
 from testutils.pytest import get_required_envvar
 from testutils import ttn
 
-
 IOTLAB_EXPERIMENT_DURATION = 120
 RIOTBASE = os.environ.get('RIOTBASE')
 RUNNING_CTRLS = []

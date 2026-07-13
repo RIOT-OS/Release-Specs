@@ -18,7 +18,6 @@ from testutils.asyncio import timeout_futures, wait_for_futures
 from testutils.native import bridge, interface_exists, ip_addr_add, ip_addr_del
 from testutils.shell import lladdr
 
-
 SPEC_PATH = os.path.dirname(os.path.realpath(__file__))
 HOST_ULA = "fd00:bbbb::1"
 NODE_ULA = "fd00:bbbb::2"

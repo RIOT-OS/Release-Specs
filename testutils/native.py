@@ -5,7 +5,6 @@ Helpers for native
 import re
 import subprocess
 
-
 TAP_MASTER_C = re.compile(r"^\d+:\s+(?P<tap>[^:]+):.+master\s+(?P<master>\S+)?")
 TAP_LINK_LOCAL_C = re.compile(
     r"inet6\s+(?P<link_local>fe80:[0-9a-f:]+)/\d+\s+scope\s+link"

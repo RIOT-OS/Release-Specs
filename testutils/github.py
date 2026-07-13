@@ -8,7 +8,6 @@ from github import Auth, Github, GithubException, InputFileContent
 
 from testutils.git import Git, GitError
 
-
 STICKY_COMMENT_COMMENT = "<!-- release-specs results {user} -->"
 GIST_ID_COMMENT_FMT = "<!-- gist-id:{gist_id} -->"
 GIST_ID_COMMENT_PATTERN = GIST_ID_COMMENT_FMT.format(gist_id="(?P<gist_id>[0-9a-f]+)")
