@@ -177,6 +177,7 @@ def test_stop(monkeypatch, exp_id, expected):
     "ctrl_envs, exp_nodes",
     [
         ([{"BOARD": "nrf52dk"}], ["nrf52dk-5.saclay.iot-lab.info"]),
+        ([{"BOARD": "iotlab-m3"}], ["m3-3.saclay.iot-lab.info"]),
         (
             [{"IOTLAB_NODE": "samr21-21.saclay.iot-lab.info"}],
             ["samr21-21.saclay.iot-lab.info"],
@@ -198,6 +199,18 @@ def test_start(monkeypatch, ctrl_envs, exp_nodes):
     )
     monkeypatch.setattr(
         testutils.iotlab, "get_experiment", lambda api, exp_id: {"nodes": exp_nodes}
+    )
+    monkeypatch.setattr(
+        testutils.iotlab,
+        "info_experiment",
+        lambda api, site: {
+            "items": [
+                {
+                    "state": "Alive",
+                    "network_address": exp_nodes[0],
+                },
+            ],
+        },
     )
     monkeypatch.setattr(testutils.iotlab, "wait_experiment", lambda api, exp_id: {})
     ctrls = [MockRIOTCtrl(env) for env in ctrl_envs]
