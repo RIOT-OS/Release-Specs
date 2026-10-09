@@ -71,4 +71,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    asyncio.get_event_loop().run_until_complete(main(args.host, args.block_size))
+    asyncio.run(main(args.host, args.block_size))

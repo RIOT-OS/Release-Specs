@@ -6,23 +6,17 @@ import asyncio
 
 
 def wait_for_futures(futures):
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.gather(*futures))
+    async def gather_futures(futures):
+        await asyncio.gather(*futures)
+
+    asyncio.run(gather_futures(futures))
 
 
 def timeout_futures(futures, timeout):
-    gather = None
+    async def wait_for_timeout(futures, timeout):
+        try:
+            await asyncio.wait_for(asyncio.gather(*futures), timeout=timeout)
+        except TimeoutError:
+            pass
 
-    async def wait_for_timeout():
-        await asyncio.sleep(timeout)
-        if gather:
-            return gather.cancel()
-        return False
-
-    gather = asyncio.gather(wait_for_timeout(), *futures)
-
-    loop = asyncio.get_event_loop()
-    try:
-        loop.run_until_complete(gather)
-    except asyncio.CancelledError:
-        pass
+    asyncio.run(wait_for_timeout(futures, timeout))
