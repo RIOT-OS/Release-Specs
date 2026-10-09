@@ -400,6 +400,14 @@ def riot_ctrl(log_nodes, log_file_fmt, nodes, riotbase, request):
                 stdout=None if log_nodes else subprocess.DEVNULL,
                 stderr=None if log_nodes else subprocess.DEVNULL,
             )
+            # Some boards need a bit longer to synchronize after reset.
+            # If you encounter off-by-one command output, put the board
+            # of the offending test here.
+            sleepy_boards = [
+                "b-l072z-lrwan1",
+            ]
+            if node.env.get("BOARD") in sleepy_boards:
+                time.sleep(5)
             time.sleep(1)
         termargs = {}
         if log_nodes:
