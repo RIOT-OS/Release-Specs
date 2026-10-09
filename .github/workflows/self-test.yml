@@ -16,21 +16,21 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
 
     steps:
     - name: Checkout Release-Specs
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
       with:
         path: Release-Specs
     - name: Checkout RIOT
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
       with:
         repository: RIOT-OS/RIOT
         fetch-depth: 1
         path: RIOT
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -48,7 +48,7 @@ jobs:
             --cov-config=testutils/.coveragerc \
             --cov-fail-under=95
     - name: Check code format with black
-      if: matrix.python-version == '3.10'
+      if: matrix.python-version == '3.14'
       run: |
         cd Release-Specs
         tox -e black
