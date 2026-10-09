@@ -180,9 +180,7 @@ def test_task03(riot_ctrl):
 
     for block_size in range(16, 1024 + 1, 16):
         print("Testing block size", block_size)
-        response = asyncio.get_event_loop().run_until_complete(
-            client(f"[{node_lladdr}%{host_netif}]", block_size)
-        )
+        response = asyncio.run(client(f"[{node_lladdr}%{host_netif}]", block_size))
         assert str(response.code) == "2.04 Changed"
         # payload is a sha256 digest
         assert re.match("^[0-9A-Fa-f]{64}$", response.payload.decode())
@@ -220,9 +218,7 @@ def test_task04(riot_ctrl):
 
     for block_size in range(16, 1024 + 1, 16):
         print("Testing block size", block_size)
-        response = asyncio.get_event_loop().run_until_complete(
-            client(f"[{node_lladdr}%{host_netif}]", block_size)
-        )
+        response = asyncio.run(client(f"[{node_lladdr}%{host_netif}]", block_size))
         assert str(response.code) == "2.05 Content"
         assert re.search(
             r"This is RIOT \(Version: .*\) running on a \S+ board with a \S+ MCU\.",
