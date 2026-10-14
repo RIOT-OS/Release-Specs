@@ -56,6 +56,7 @@ class ResyncableNode(Version):
     def _resync(self, timeout=1):
         """
         Drop any unread output so the next command sees only its own response.
+
         This is a particular problem with the b-l072z-lrwan1 nodes on the IoT-LAB.
         Original proposal by Claude Sonnet 5.5, but adopted to be a
         ShellInteraction method for automagic re-syncing.
