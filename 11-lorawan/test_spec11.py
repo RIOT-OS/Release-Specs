@@ -5,7 +5,7 @@ from riotctrl.shell import ShellInteraction
 from riotctrl_shell.netif import Ifconfig
 from riotctrl_shell.gnrc import GNRCPktbufStats
 from riotctrl_shell.loramac import Loramac, LoramacHelpParser
-from riotctrl_shell.sys import Reboot
+from riotctrl_shell.sys import Reboot, Version
 from testutils.shell import GNRCLoRaWANSend, ifconfig, lorawan_netif
 from testutils.shell import check_pktbuf
 
@@ -48,12 +48,39 @@ TEST_TX_DELAYS = {
 }
 
 
-class ShellGnrcLoRaWAN(Ifconfig, GNRCLoRaWANSend, GNRCPktbufStats):
+class ResyncableNode(Version):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._resync()
+
+    def _resync(self, timeout=1):
+        """
+        Drop any unread output so the next command sees only its own response.
+        This is a particular problem with the b-l072z-lrwan1 nodes on the IoT-LAB.
+        Original proposal by Claude Sonnet 5.5, but adopted to be a
+        ShellInteraction method for automagic re-syncing.
+        """
+        # Drain whatever is still buffered or arrives within `timeout`
+        while True:
+            try:
+                self.riotctrl.term.expect(r".+", timeout=timeout)
+            except pexpect.TIMEOUT:
+                break
+        # Re-establish a known prompt state, using the version command for that
+        # was my idea -- Martine
+        version = self.version()
+        assert version
+
+
+class ShellGnrcLoRaWAN(ResyncableNode, Ifconfig, GNRCLoRaWANSend, GNRCPktbufStats):
     pass
 
 
-class ShellLoramac(Reboot, Loramac):
-    pass
+class ShellLoramac(ResyncableNode, Reboot, Loramac):
+    def reboot(self, *args, **kwargs):
+        super().reboot(*args, **kwargs)
+        # resync node after reboot, just in case
+        self._resync()
 
 
 def run_lw_test(node, ttn_client, iface, dev_id):
