@@ -105,6 +105,8 @@ class GNRCUDP(ShellInteraction):
     ShellInteraction in `riotctrl_shell` does not make much sense
     """
 
+    ADDR_PORT_PAIR_FMT = "{addr} {port}"
+
     @ShellInteraction.check_term
     def udp_server_start(self, port, timeout=-1, async_=False):
         res = self.cmd(f"udp server start {port}", timeout=timeout, async_=async_)
@@ -127,13 +129,14 @@ class GNRCUDP(ShellInteraction):
                 [
                     pexpect.TIMEOUT,
                     r"Packets received:\s+\d",
+                    r"Received UDP data from \[[0-9a-f:]+%.+\]:\d+",
                     r"PKTDUMP: data received:",
                 ],
                 timeout=timeout,
             )
             if not exp:  # expect timed out
                 packets_lost += 1
-            if exp < 2:
+            if exp < 3:
                 continue
             try:
                 self.riotctrl.term.expect(
@@ -167,8 +170,9 @@ class GNRCUDP(ShellInteraction):
             # wait 1 sec per message
             timeout = count * 1
         delay = int(delay_ms * 1000)
+        addr_port = self.ADDR_PORT_PAIR_FMT.format(addr=dest_addr, port=port)
         res = self.cmd(
-            f"udp send {dest_addr} {port} {payload} {count} {delay}",
+            f"udp send {addr_port} {payload} {count} {delay}",
             timeout=timeout,
             async_=async_,
         )
