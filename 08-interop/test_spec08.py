@@ -18,7 +18,15 @@ LWIP_APP = 'tests/pkg/lwip'
 pytestmark = pytest.mark.rc_only()
 
 
-class Shell(Ifconfig, GNRCICMPv6Echo, GNRCUDP):
+class CommonUDP(GNRCUDP):
+    ADDR_PORT_PAIR_FMT = "[{addr}]:{port}"
+
+
+class GNRCShell(Ifconfig, GNRCICMPv6Echo, CommonUDP):
+    pass
+
+
+class LwIPShell(Ifconfig, CommonUDP):
     pass
 
 
@@ -26,7 +34,7 @@ class Shell(Ifconfig, GNRCICMPv6Echo, GNRCUDP):
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize('nodes', [pytest.param(['native'])], indirect=['nodes'])
 def test_task01(riot_ctrl, log_nodes):
-    node = riot_ctrl(0, GNRC_APP, Shell, port='tap0')
+    node = riot_ctrl(0, GNRC_APP, GNRCShell, port='tap0')
     linux = pexpect.replwrap.bash()
 
     node_iface, node_addr = lladdr(node.ifconfig_list())
@@ -62,7 +70,7 @@ def test_task03(riot_ctrl):
     contiki_bin_file = os.path.join(current_dir, "task03-contiki-nrf52840.bin")
 
     gnrc_node, contiki_node = (
-        riot_ctrl(0, GNRC_APP, Shell),
+        riot_ctrl(0, GNRC_APP, GNRCShell),
         riot_ctrl(
             1,
             'examples/basic/hello-world',
@@ -96,8 +104,8 @@ def test_task03(riot_ctrl):
 )
 def test_task08(riot_ctrl):
     gnrc_node, lwip_node = (
-        riot_ctrl(0, GNRC_APP, Shell),
-        riot_ctrl(1, LWIP_APP, riotctrl.shell.ShellInteraction),
+        riot_ctrl(0, GNRC_APP, GNRCShell),
+        riot_ctrl(1, LWIP_APP, LwIPShell),
     )
 
     _, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
@@ -114,9 +122,7 @@ def test_task08(riot_ctrl):
     assert packet_loss == 0
     gnrc_node.udp_server_stop()
 
-    lwip_node.cmd("udp server start 61617")
+    lwip_node.udp_server_start(61617)
     gnrc_node.udp_client_send(lwip_addr, 61617, "01234567")
-    lwip_node.riotctrl.term.expect_exact(f"Received UDP data from [{gnrc_addr}]:61617")
-    lwip_node.riotctrl.term.expect_exact(
-        "00000000  " + "  ".join(hex(ord(c))[2:] for c in "01234567"), timeout=3
-    )
+    packet_loss = gnrc_node.udp_server_check_output(count=1, delay_ms=0)
+    lwip_node.udp_server_stop(61617)
