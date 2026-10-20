@@ -56,7 +56,7 @@ index 0a79167ae..710496368 100644
 @@ -1,5 +1,7 @@
  CONTIKI_PROJECT = hello-world
  all: $(CONTIKI_PROJECT)
- 
+
 +MODULES += os/services/shell
 +
  CONTIKI = ../..
@@ -88,12 +88,12 @@ ip-addr
 
 ```
 2023-04-14 15:11:12,614 # ifconfig
-2023-04-14 15:11:12,620 # Iface  6  HWaddr: 06:EE  Channel: 26  NID: 0xabcd  PHY: O-QPSK 
-2023-04-14 15:11:12,622 #           
-2023-04-14 15:11:12,626 #           Long HWaddr: 00:04:25:19:18:01:86:EE 
-2023-04-14 15:11:12,633 #            TX-Power: 0dBm  State: IDLE  max. Retrans.: 3  CSMA Retries: 4 
-2023-04-14 15:11:12,640 #           AUTOACK  ACK_REQ  CSMA  L2-PDU:102  MTU:1280  HL:64  RTR  
-2023-04-14 15:11:12,643 #           RTR_ADV  6LO  IPHC  
+2023-04-14 15:11:12,620 # Iface  6  HWaddr: 06:EE  Channel: 26  NID: 0xabcd  PHY: O-QPSK
+2023-04-14 15:11:12,622 #
+2023-04-14 15:11:12,626 #           Long HWaddr: 00:04:25:19:18:01:86:EE
+2023-04-14 15:11:12,633 #            TX-Power: 0dBm  State: IDLE  max. Retrans.: 3  CSMA Retries: 4
+2023-04-14 15:11:12,640 #           AUTOACK  ACK_REQ  CSMA  L2-PDU:102  MTU:1280  HL:64  RTR
+2023-04-14 15:11:12,643 #           RTR_ADV  6LO  IPHC
 2023-04-14 15:11:12,646 #           Source address length: 8
 2023-04-14 15:11:12,649 #           Link type: wireless
 2023-04-14 15:11:12,655 #           inet6 addr: fe80::204:2519:1801:86ee  scope: link  VAL
@@ -101,7 +101,7 @@ ip-addr
 2023-04-14 15:11:12,668 #           inet6 group: ff02::1
 2023-04-14 15:11:12,672 #           inet6 group: ff02::1:ff01:86ee
 2023-04-14 15:11:12,674 #           inet6 group: ff02::1a
-2023-04-14 15:11:12,675 #           
+2023-04-14 15:11:12,675 #
 2023-04-14 15:11:12,678 #           Statistics for Layer 2
 2023-04-14 15:11:12,682 #             RX packets 16174  bytes 1812690
 2023-04-14 15:11:12,688 #             TX packets 14824 (Multicast: 82)  bytes 1715052
@@ -110,7 +110,7 @@ ip-addr
 2023-04-14 15:11:12,698 #             RX packets 3194  bytes 1453638
 2023-04-14 15:11:12,704 #             TX packets 2545 (Multicast: 82)  bytes 1430068
 2023-04-14 15:11:12,707 #             TX succeeded 2545 errors 0
-2023-04-14 15:11:12,707 # 
+2023-04-14 15:11:12,707 #
 ```
 
 9. Set the PAN ID of the RIOT node to `abcd` (default PAN ID of Contiki)
@@ -135,7 +135,7 @@ ping fe80::f6ce:36c6:d8d1:e340
 2023-04-14 15:30:20,449 # 12 bytes from fe80::f6ce:36c6:d8d1:e340%6: icmp_seq=0 ttl=64 rssi=-46 dBm time=24.320 ms
 2023-04-14 15:30:21,441 # 12 bytes from fe80::f6ce:36c6:d8d1:e340%6: icmp_seq=1 ttl=64 rssi=-46 dBm time=6.031 ms
 2023-04-14 15:30:22,455 # 12 bytes from fe80::f6ce:36c6:d8d1:e340%6: icmp_seq=2 ttl=64 rssi=-46 dBm time=8.237 ms
-2023-04-14 15:30:22,455 # 
+2023-04-14 15:30:22,455 #
 2023-04-14 15:30:22,460 # --- fe80::f6ce:36c6:d8d1:e340 PING statistics ---
 2023-04-14 15:30:22,465 # 3 packets transmitted, 3 packets received, 0% packet loss
 2023-04-14 15:30:22,469 # round-trip min/avg/max = 6.031/12.862/24.320 ms
@@ -152,7 +152,7 @@ an Linux Internet host using a Raspberry Pi running Linux with 6LoWPAN support
 as border router. Routes are configured statically.
 
 Since Linux' 6Lo implementation doesn't support 6Lo-ND DAD yet, the RIOT image
-needs to be compiled with `CFLAGS += -DGNRC_IPV6_NIB_CONF_SLAAC=1` to be able to
+needs to be compiled with `CFLAGS += -DCONFIG_GNRC_IPV6_NIB_SLAAC=1` to be able to
 fall back to classic SLAAC + DAD.
 
 Task #05 - ICMPv6 echo between iotlab-m3 and Internet host through RIOT border router
@@ -314,7 +314,7 @@ guide on Zephyr's documentation.
    dst_l2addr: 32:A9:FA:65:10:6B:11:14
    ~~ PKT    -  4 snips, total size:  85 byte
    ```
-   
+
 Task #12 - ICMPv6 echo between Border Router with WiFi uplink to named Internet host
 ====================================================================================
 ### Description
@@ -330,7 +330,7 @@ Two network interfaces are configured:
 
  - a 802.11 WiFi interface used as uplink
  - a proprietary `esp_now` interface as 6LoWPAN downlink
- 
+
  Materials
 ---------
 
@@ -358,8 +358,8 @@ USEMODULE="sock_dns gnrc_ipv6_nib_dns" make -C examples/networking/gnrc/border_r
 RIOT should be able to connect to your WiFi network and configure a global address on both interfaces
 
 ```
-2020-08-02 20:38:20,346 # Iface  11  HWaddr: EC:FA:BC:5F:82:91  Channel: 6  Link: up 
-2020-08-02 20:38:20,349 #           L2-PDU:1500  MTU:1492  HL:255  RTR  
+2020-08-02 20:38:20,346 # Iface  11  HWaddr: EC:FA:BC:5F:82:91  Channel: 6  Link: up
+2020-08-02 20:38:20,349 #           L2-PDU:1500  MTU:1492  HL:255  RTR
 2020-08-02 20:38:20,352 #           Source address length: 6
 2020-08-02 20:38:20,355 #           Link type: wireless
 2020-08-02 20:38:20,360 #           inet6 addr: fe80::eefa:bcff:fe5f:8291  scope: link  VAL
@@ -367,9 +367,9 @@ RIOT should be able to connect to your WiFi network and configure a global addre
 2020-08-02 20:38:20,371 #           inet6 group: ff02::2
 2020-08-02 20:38:20,374 #           inet6 group: ff02::1
 2020-08-02 20:38:20,377 #           inet6 group: ff02::1:ff5f:8291
-2020-08-02 20:38:20,377 #           
-2020-08-02 20:38:20,382 # Iface  10  HWaddr: EE:FA:BC:5F:82:91  Channel: 6 
-2020-08-02 20:38:20,385 #           L2-PDU:249  MTU:1280  HL:64  RTR  
+2020-08-02 20:38:20,377 #
+2020-08-02 20:38:20,382 # Iface  10  HWaddr: EE:FA:BC:5F:82:91  Channel: 6
+2020-08-02 20:38:20,385 #           L2-PDU:249  MTU:1280  HL:64  RTR
 2020-08-02 20:38:20,390 #           RTR_ADV  6LO  Source address length: 6
 2020-08-02 20:38:20,393 #           Link type: wireless
 2020-08-02 20:38:20,399 #           inet6 addr: fe80::ecfa:bcff:fe5f:8291  scope: link  VAL
@@ -386,7 +386,7 @@ You should be able to ping global addresses (requires a working IPv6 uplink on y
 2020-08-02 20:35:27,672 # 12 bytes from 2600::: icmp_seq=0 ttl=50 time=203.340 ms
 2020-08-02 20:35:28,607 # 12 bytes from 2600::: icmp_seq=1 ttl=50 time=139.033 ms
 2020-08-02 20:35:29,608 # 12 bytes from 2600::: icmp_seq=2 ttl=50 time=140.839 ms
-2020-08-02 20:35:29,609 # 
+2020-08-02 20:35:29,609 #
 2020-08-02 20:35:29,611 # --- 2600:: PING statistics ---
 2020-08-02 20:35:29,616 # 3 packets transmitted, 3 packets received, 0% packet loss
 2020-08-02 20:35:29,621 # round-trip min/avg/max = 139.033/161.070/203.340 ms
@@ -399,7 +399,7 @@ Valid DNS names should get resolved too
 2020-08-02 20:35:38,075 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=56 time=33.071 ms
 2020-08-02 20:35:39,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=56 time=34.129 ms
 2020-08-02 20:35:40,076 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=56 time=33.182 ms
-2020-08-02 20:35:40,076 # 
+2020-08-02 20:35:40,076 #
 2020-08-02 20:35:40,078 # --- riot-os.org PING statistics ---
 2020-08-02 20:35:40,084 # 3 packets transmitted, 3 packets received, 0% packet loss
 2020-08-02 20:35:40,088 # round-trip min/avg/max = 33.071/33.460/34.129 ms
@@ -428,8 +428,8 @@ RIOT should connect to the border router and obtain a global address.
 Make sure both boards operate on the same `esp_now` channel.
 
 ```
-2020-08-02 20:45:02,898 # Iface  9  HWaddr: 3C:71:BF:9E:13:FD  Channel: 6 
-2020-08-02 20:45:02,902 #           L2-PDU:249  MTU:1280  HL:64  RTR  
+2020-08-02 20:45:02,898 # Iface  9  HWaddr: 3C:71:BF:9E:13:FD  Channel: 6
+2020-08-02 20:45:02,902 #           L2-PDU:249  MTU:1280  HL:64  RTR
 2020-08-02 20:45:02,906 #           RTR_ADV  6LO  Source address length: 6
 2020-08-02 20:45:02,909 #           Link type: wireless
 2020-08-02 20:45:02,914 #           inet6 addr: fe80::3e71:bfff:fe9e:13fd  scope: link  VAL
@@ -437,7 +437,7 @@ Make sure both boards operate on the same `esp_now` channel.
 2020-08-02 20:45:02,924 #           inet6 group: ff02::2
 2020-08-02 20:45:02,927 #           inet6 group: ff02::1
 2020-08-02 20:45:02,930 #           inet6 group: ff02::1:ff9e:13fd
-2020-08-02 20:45:02,931 #           
+2020-08-02 20:45:02,931 #
 2020-08-02 20:45:02,934 #           Statistics for Layer 2
 2020-08-02 20:45:02,937 #             RX packets 0  bytes 0
 2020-08-02 20:45:02,942 #             TX packets 0 (Multicast: 0)  bytes 214
@@ -455,7 +455,7 @@ You should be able to reach the border router using it's global address
 2020-08-02 20:45:41,439 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=0 ttl=64 time=8.020 ms
 2020-08-02 20:45:42,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=1 ttl=64 time=7.252 ms
 2020-08-02 20:45:43,438 # 12 bytes from 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291: icmp_seq=2 ttl=64 time=6.779 ms
-2020-08-02 20:45:43,438 # 
+2020-08-02 20:45:43,438 #
 2020-08-02 20:45:43,443 # --- 2001:16b8:453f:1ff0:ecfa:bcff:fe5f:8291 PING statistics ---
 2020-08-02 20:45:43,449 # 3 packets transmitted, 3 packets received, 0% packet loss
 2020-08-02 20:45:43,453 # round-trip min/avg/max = 6.779/7.350/8.020 ms
@@ -468,11 +468,11 @@ You should be able to reach a global address on the internet
 2020-08-02 20:45:49,200 # 12 bytes from 2600::: icmp_seq=0 ttl=49 time=143.513 ms
 2020-08-02 20:45:50,200 # 12 bytes from 2600::: icmp_seq=1 ttl=49 time=143.223 ms
 2020-08-02 20:45:51,199 # 12 bytes from 2600::: icmp_seq=2 ttl=49 time=142.450 ms
-2020-08-02 20:45:51,200 # 
+2020-08-02 20:45:51,200 #
 2020-08-02 20:45:51,202 # --- 2600:: PING statistics ---
 2020-08-02 20:45:51,207 # 3 packets transmitted, 3 packets received, 0% packet loss
 2020-08-02 20:45:51,212 # round-trip min/avg/max = 142.450/143.062/143.513 ms
-``` 
+```
 
 DNS names should also get resolved
 
@@ -481,7 +481,7 @@ DNS names should also get resolved
 2020-08-02 20:45:57,330 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=0 ttl=55 time=35.999 ms
 2020-08-02 20:45:58,335 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=1 ttl=55 time=40.993 ms
 2020-08-02 20:45:59,328 # 12 bytes from 2a01:4f8:151:64::11: icmp_seq=2 ttl=55 time=34.089 ms
-2020-08-02 20:45:59,329 # 
+2020-08-02 20:45:59,329 #
 2020-08-02 20:45:59,331 # --- riot-os.org PING statistics ---
 2020-08-02 20:45:59,336 # 3 packets transmitted, 3 packets received, 0% packet loss
 2020-08-02 20:45:59,340 # round-trip min/avg/max = 34.089/37.027/40.993 ms
