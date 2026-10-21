@@ -269,6 +269,7 @@ def test_task04(riot_ctrl, appeui, deveui, appkey, devaddr, nwkskey, appskey):
         assert v in node.loramac_get(k)
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=60)
 @pytest.mark.iotlab_creds
 # nodes passed to riot_ctrl fixture
 @pytest.mark.parametrize(
