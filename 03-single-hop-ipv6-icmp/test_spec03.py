@@ -11,7 +11,12 @@ from testutils.asyncio import wait_for_futures, timeout_futures
 from testutils.native import bridged, bridge, get_ping_cmd, interface_exists
 from testutils.shell import ping6, lladdr, check_pktbuf
 
-APP = 'tests/net/gnrc_udp'
+APP = 'examples/networking/gnrc/networking'
+CFLAGS = "-DCONFIG_GNRC_PKTBUF_SIZE=8192"
+USEMODULE = [
+    "gnrc_ipv6_ext_frag",
+    "shell_cmd_gnrc_pktbuf",
+]
 TASK05_NODES = 11
 pytestmark = pytest.mark.rc_only()
 
@@ -27,8 +32,8 @@ class Shell(Ifconfig, GNRCICMPv6Echo, GNRCPktbufStats):
 )
 def test_task01(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, port='tap0'),
-        riot_ctrl(1, APP, Shell, port='tap1'),
+        riot_ctrl(0, APP, Shell, port='tap0', modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(1, APP, Shell, port='tap1', modules=USEMODULE, cflags=CFLAGS),
     )
 
     res = ping6(pinger, "ff02::1", count=1000, packet_size=0, interval=10)
@@ -44,8 +49,8 @@ def test_task01(riot_ctrl):
 )
 def test_task02(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, port='tap0'),
-        riot_ctrl(1, APP, Shell, port='tap1'),
+        riot_ctrl(0, APP, Shell, port='tap0', modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(1, APP, Shell, port='tap1', modules=USEMODULE, cflags=CFLAGS),
     )
 
     _, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -64,8 +69,8 @@ def test_task02(riot_ctrl):
 )
 def test_task03(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, port='tap0'),
-        riot_ctrl(1, APP, Shell, port='tap1'),
+        riot_ctrl(0, APP, Shell, port='tap0', modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(1, APP, Shell, port='tap1', modules=USEMODULE, cflags=CFLAGS),
     )
 
     _, pinged_addr = lladdr(pinged.ifconfig_list())
@@ -83,36 +88,40 @@ def test_task03(riot_ctrl):
     'nodes', [pytest.param(['native'] * TASK05_NODES)], indirect=['nodes']
 )
 def test_task04(riot_ctrl, log_nodes):
-    node = riot_ctrl(0, APP, Shell, port='tap0')
-    pingers = [pexpect.replwrap.bash() for _ in range(10)]
-
-    _, pinged_addr = lladdr(node.ifconfig_list())
-    assert pinged_addr.startswith("fe80::")
-    iface = bridge('tap0')
-    pinged_addr += f"%{iface}"
-    ping_cmd = get_ping_cmd()
-
-    futures = []
     try:
-        for pinger in pingers:
-            if log_nodes:
-                pinger.child.logfile = sys.stdout
-            out = pinger.run_command(
-                f"{ping_cmd} -f -s 1452 {pinged_addr}"
-                # pipe to /dev/null because output can go
-                # into MiB of data ;-)
-                " 2>&1 > /dev/null",
-                async_=True,
-                timeout=60 * 60,
-            )
-            futures.append(out)
-        timeout_futures(futures, 60 * 60)
-    finally:
-        for pinger in pingers:
-            # interrupt prevailing `ping6`s
-            pinger.child.sendintr()
+        node = riot_ctrl(0, APP, Shell, port='tap0', modules=USEMODULE, cflags=CFLAGS)
+        pingers = [pexpect.replwrap.bash() for _ in range(10)]
 
-    check_pktbuf(node)
+        _, pinged_addr = lladdr(node.ifconfig_list())
+        assert pinged_addr.startswith("fe80::")
+        iface = bridge('tap0')
+        pinged_addr += f"%{iface}"
+        ping_cmd = get_ping_cmd()
+
+        futures = []
+        try:
+            for pinger in pingers:
+                if log_nodes:
+                    pinger.child.logfile = sys.stdout
+                out = pinger.run_command(
+                    f"{ping_cmd} -f -s 1452 {pinged_addr}"
+                    # pipe to /dev/null because output can go
+                    # into MiB of data ;-)
+                    " 2>&1 > /dev/null",
+                    async_=True,
+                    timeout=60 * 60,
+                )
+                futures.append(out)
+            timeout_futures(futures, 60 * 60)
+        finally:
+            for pinger in pingers:
+                # interrupt prevailing `ping6`s
+                pinger.child.sendintr()
+
+        check_pktbuf(node)
+    finally:
+        # clean binaries because we build with sudo
+        node.riotctrl.make_run(["clean"])
 
 
 @pytest.mark.xfail(reason="See https://github.com/RIOT-OS/RIOT/issues/12565")
@@ -124,7 +133,19 @@ def test_task04(riot_ctrl, log_nodes):
     'nodes', [pytest.param(['native'] * TASK05_NODES)], indirect=['nodes']
 )
 def test_task05(nodes, riot_ctrl):
-    nodes = [riot_ctrl(i, APP, Shell, port=f'tap{i}') for i in range(len(nodes))]
+    nodes = [
+        riot_ctrl(
+            i,
+            APP,
+            Shell,
+            port=f'tap{i}',
+            modules=USEMODULE,
+            cflags=CFLAGS,
+            # we use the same native target so one flash execution is enough
+            dont_flash=i > 0,
+        )
+        for i in range(len(nodes))
+    ]
 
     async def finish_task05(pinger, future):
         await future
@@ -151,8 +172,8 @@ def test_task05(nodes, riot_ctrl):
 )
 def test_task06(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, APP, Shell, port='tap0'),
-        riot_ctrl(1, APP, Shell, port='tap1'),
+        riot_ctrl(0, APP, Shell, port='tap0', modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(1, APP, Shell, port='tap1', modules=USEMODULE, cflags=CFLAGS),
     )
 
     _, pinged_addr = lladdr(pinged.ifconfig_list())
