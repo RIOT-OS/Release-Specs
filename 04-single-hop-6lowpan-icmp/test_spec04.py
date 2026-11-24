@@ -9,7 +9,6 @@ from testutils.asyncio import wait_for_futures
 from testutils.shell import ping6, lladdr, check_pktbuf
 
 APP = 'examples/networking/gnrc/networking'
-TASK10_APP = 'tests/net/gnrc_udp'
 pytestmark = pytest.mark.rc_only()
 
 
@@ -265,8 +264,20 @@ def test_task09(riot_ctrl):
 )
 def test_task10(riot_ctrl):
     pinger, pinged = (
-        riot_ctrl(0, TASK10_APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
-        riot_ctrl(1, TASK10_APP, Shell, modules=["shell_cmd_gnrc_pktbuf"]),
+        riot_ctrl(
+            0,
+            APP,
+            Shell,
+            modules=["gnrc_ipv6_ext_frag", "shell_cmd_gnrc_pktbuf"],
+            cflags="-DCONFIG_GNRC_PKTBUF_SIZE=8192",
+        ),
+        riot_ctrl(
+            1,
+            APP,
+            Shell,
+            modules=["gnrc_ipv6_ext_frag", "shell_cmd_gnrc_pktbuf"],
+            cflags="-DCONFIG_GNRC_PKTBUF_SIZE=8192",
+        ),
     )
 
     pinged_netif, pinged_addr = lladdr(pinged.ifconfig_list())
