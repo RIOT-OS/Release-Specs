@@ -20,7 +20,7 @@ from riotctrl.ctrl import RIOTCtrl
 
 import testutils.github
 import testutils.pytest
-from testutils.iotlab import IoTLABExperiment, DEFAULT_SITE
+from testutils.iotlab import IoTLABExperiment, IoTLABDelayError, DEFAULT_SITE
 
 from testutils.pytest import get_required_envvar
 from testutils import ttn
@@ -269,7 +269,7 @@ def get_namefmt(request):
 
 
 @pytest.fixture
-def nodes(local, request, boards, iotlab_site):
+def nodes(local, request, boards, iotlab_site, pytestconfig):
     """
     Provides the nodes for a test as a list of RIOTCtrl objects
     """
@@ -302,10 +302,17 @@ def nodes(local, request, boards, iotlab_site):
             site=iotlab_site,
         )
         RUNNING_EXPERIMENTS.append(exp)
-        exp.start(duration=IOTLAB_EXPERIMENT_DURATION)
-        yield ctrls
-        exp.stop()
-        RUNNING_EXPERIMENTS.remove(exp)
+        try:
+            try:
+                exp.start(
+                    duration=IOTLAB_EXPERIMENT_DURATION, pytestconfig=pytestconfig
+                )
+            except IoTLABDelayError as exc:
+                pytest.skip(f"Skipping test: {exc}")
+            yield ctrls
+        finally:
+            exp.stop()
+            RUNNING_EXPERIMENTS.remove(exp)
 
 
 def update_env(node, modules=None, cflags=None, port=None, termflags=None, extras=None):

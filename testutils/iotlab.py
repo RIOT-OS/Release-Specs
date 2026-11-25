@@ -1,5 +1,8 @@
+import datetime
 import logging
+import os
 import re
+import time
 
 from iotlabcli.auth import get_user_credentials
 from iotlabcli.rest import Api
@@ -14,6 +17,19 @@ from iotlabcli.experiment import (
 
 DEFAULT_SITE = 'saclay'
 IOTLAB_DOMAIN = 'iot-lab.info'
+
+
+class IoTLABDelayError(Exception):
+    MAX_DELAY_SEC = 60 * 10
+    MAX_DELAY_SKIP_SEC = 60 * 60 * 6
+
+    def __init__(self, scheduled_date, msg):
+        super().__init__(msg)
+        self.scheduled_date = scheduled_date
+
+
+def _in_github_run():
+    return "GITHUB_RUN_ID" in os.environ
 
 
 class IoTLABExperiment:
@@ -134,16 +150,62 @@ class IoTLABExperiment:
             self.exp_id = None
         return ret
 
-    def start(self, duration=60):
+    def start(self, duration=60, pytestconfig=None):
         """Submit an experiment, wait for it to be ready and map assigned
         nodes"""
         logging.info("Submitting experiment")
         self.exp_id = self._submit(site=self.site, duration=duration)
+        scheduled_date = self._scheduled_date()
+
+        if scheduled_date is not None:
+            delay = scheduled_date.timestamp() - time.time()
+        else:
+            delay = 0
+
+        if delay > IoTLABDelayError.MAX_DELAY_SEC:
+            msg = f"IoT-LAB experiment {self.exp_id} will start at {scheduled_date}"
+            if _in_github_run() and delay > IoTLABDelayError.MAX_DELAY_SKIP_SEC:
+                self.stop()
+                raise IoTLABDelayError(scheduled_date, f"{msg}. Stopping experiment.")
+            self._notify(
+                f"{msg} (in {(scheduled_date.timestamp() - time.time()) / 3600:.1f}h).",
+                pytestconfig=pytestconfig,
+            )
+
         logging.info(
             f"Waiting for experiment {self.exp_id} to go to state " "\"Running\""
         )
         self._wait()
         self._map_iotlab_nodes_to_riot_ctrl(self._get_nodes())
+
+    def _scheduled_date(self):
+        scheduled_date_str = "1970-01-01"
+        while scheduled_date_str is not None and scheduled_date_str.startswith("1970"):
+            info = get_experiment(Api(*self.user_credentials()), self.exp_id)
+            scheduled_date_str = info.get('scheduled_date')
+            if scheduled_date_str is None:
+                return None
+            # not scheduled yet (Unix timestamp == 0 => 1970-01-01)
+            if scheduled_date_str.startswith("1970"):
+                time.sleep(0.1)
+        scheduled_date = datetime.datetime.fromisoformat(scheduled_date_str)
+        if scheduled_date.tzinfo is None:
+            scheduled_date = scheduled_date.replace(tzinfo=datetime.timezone.utc)
+        return scheduled_date
+
+    @staticmethod
+    def _notify(msg, pytestconfig=None):
+        """Show msg immediately in the pytest terminal output."""
+        reporter = (
+            pytestconfig.pluginmanager.get_plugin('terminalreporter')
+            if pytestconfig is not None
+            else None
+        )
+        if reporter is not None:
+            reporter.ensure_newline()  # don't append to the "test_x.py::test_y" line
+            reporter.write_line(f"WARNING: {msg}", yellow=True, bold=True)
+        else:
+            logging.warning(msg)
 
     def _wait(self):
         """Wait for the experiment to finish launching"""
