@@ -11,7 +11,7 @@ APP = 'examples/networking/gnrc/networking'
 CFLAGS = "-DCONFIG_GNRC_PKTBUF_SIZE=8192"
 USEMODULE = [
     "gnrc_ipv6_ext_frag",
-    "shell_cmd_udp_send_len",
+    "shell_cmd_udp_send_generated",
     "shell_cmd_gnrc_pktbuf",
 ]
 pytestmark = pytest.mark.rc_only()
