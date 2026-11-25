@@ -11,7 +11,7 @@ node1 <-> node2 <-> node3 <-> node4_
    ```sh
    export CFLAGS=-DCONFIG_GNRC_PKTBUF_SIZE=8192
    export USEMODULE=gnrc_ipv6_ext_frag \
-                    shell_cmd_udp_send_len \
+                    shell_cmd_udp_send_generated \
                     shell_cmd_gnrc_pktbuf
    make -C examples/networking/gnrc/networking BOARD=iotlab-m3 clean all
    ```
@@ -72,7 +72,7 @@ No leaks in the packet buffer (check with `pktbuf`).
                  -DCONFIG_GNRC_NETIF_PKTQ_POOL_SIZE=32
    export USEMODULE=gnrc_ipv6_ext_frag \
                     l2filter_whitelist \
-                    shell_cmd_udp_send_len \
+                    shell_cmd_udp_send_generated \
                     shell_cmd_gnrc_pktbuf
    make -C examples/networking/gnrc/networking BOARD=iotlab-m3 clean all
    ```

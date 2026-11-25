@@ -12,7 +12,7 @@ APP = 'examples/networking/gnrc/networking'
 CFLAGS = "-DCONFIG_GNRC_PKTBUF_SIZE=8192"
 USEMODULE = [
     "gnrc_ipv6_ext_frag",
-    "shell_cmd_udp_send_len",
+    "shell_cmd_udp_send_generated",
     "shell_cmd_gnrc_pktbuf",
 ]
 TO_ADDR = "affe::1"  # address for the first statically routed node
