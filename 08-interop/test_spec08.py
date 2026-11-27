@@ -122,6 +122,7 @@ def test_task08(riot_ctrl):
             # there is more than just the actual address in `inet6_addr` so just
             # take the address
             lwip_addr = netif["inet6_addr"].split()[0].strip()
+            break
     assert lwip_addr is not None
 
     gnrc_node.udp_server_start(61616)
