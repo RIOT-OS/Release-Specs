@@ -12,7 +12,7 @@ from riotctrl_shell.netif import Ifconfig
 from riotctrl_shell.udp import UDPClientSendGenerated, UDPServer
 
 from testutils.native import bridge, get_link_local, get_ping_cmd, interface_exists
-from testutils.shell import lladdr, ping6
+from testutils.shell import lladdr, ping6, PARSERS
 
 GNRC_APP = 'examples/networking/gnrc/networking'
 LWIP_APP = 'tests/pkg/lwip'
@@ -111,8 +111,18 @@ def test_task08(riot_ctrl):
 
     _, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
     assert gnrc_addr.startswith("fe80::")
-    _, lwip_addr = lladdr(lwip_node.ifconfig_list())
-    assert lwip_addr.startswith("fe80::")
+
+    lwip_addr = None
+    res = lwip_node.ifconfig_list()
+    netifs = PARSERS["ifconfig"].parse(res)
+    for _, netif in netifs.items():
+        if netif.get("link_type") != "wireless":
+            continue
+        if "inet6_addr" in netif and netif["inet6_addr"].startswith("fe80:"):
+            # there is more than just the actual address in `inet6_addr` so just
+            # take the address
+            lwip_addr = netif["inet6_addr"].split()[0].strip()
+    assert lwip_addr is not None
 
     gnrc_node.udp_server_start(61616)
     lwip_node.udp_client_send(gnrc_addr, 61616, "012345678abcdef")
