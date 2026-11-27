@@ -261,8 +261,7 @@ guide on Zephyr's documentation.
 
 #### Setting up the RIOT node
 
-1. Flash the [gnrc_networking] example or the [gnrc_udp] test to the iotlab-m3 board
-   test.
+1. Flash the [gnrc_networking] example to the iotlab-m3 board test.
 2. Set the channel and PAN ID to the same values as the Zephyr node:
    ```sh
    # On iotlab-m3:riot node
@@ -275,10 +274,9 @@ guide on Zephyr's documentation.
    success: set network identifier on interface 6 to 0xabcd
    ```
 3. The UDP echo server application on the Zephyr node will be listening on port
-   4242, and echoing to the source port of the incoming packet. As both
-   [gnrc_networking] example and [gnrc_udp] test applications use the
-   destination port as the source port for the `udp send` command, we need to
-   start a server on port 4242:
+   4242, and echoing to the source port of the incoming packet. As the
+   [gnrc_networking] example use the destination port as the source port for
+   the `udp send` command, we need to start a server on port 4242:
 
    ```sh
    # On iotlab-m3:riot node

@@ -5,10 +5,10 @@ _The following is a possible way to run the tests, this is just an example_
 _One can use IoT-LAB for everything but the remote-revb boards_
 1. Get 2 of the following boards: `samr21-xpro`, `iotlab-m3`
 2. Get the following boards:`remote-revb`, `arduino-zero` with `xbee` module
-3. `cd ${RIOTBASE}/tests/net/gnrc_udp`
+3. `cd ${RIOTBASE}/examples/networking/gnrc/networking`
 4. Setup a terminal for each board _(tmux is your friend)_
 5. Find the serial numbers and ports with `ls /dev/serial/by-id/` or with
-`make -C tests/net/gnrc_udp list-ttys`
+`make -C examples/networking/gnrc/networking list-ttys`
 6. For the samr21 terminals use the following to setup the env
 _eg_ `export BOARD=samr21-xpro && export SERIAL=<SAMR_SERIAL> && export PORT=<SAMR_PORT>`
 
@@ -28,7 +28,12 @@ _eg_ `export BOARD=iotlab-m3 && export PORT=<M3_PORT>`
 `export BOARD=iotlab-m3 && export PORT=/dev/ttyUSB3`
 
 `export BOARD=iotlab-m3 && export PORT=/dev/ttyUSB5`
-9. Use `make flash term` to access the nodes (or just `make term` if the
+9. Setup the build environment variables
+  - `export CFLAGS=-DCONFIG_GNRC_PKTBUF_SIZE=8192` to increase the packet buffer size (required
+    for task 10)
+  - `export USEMODULE="gnrc_ipv6_ext_frag shell_cmd_gnrc_pktbuf"` to include IPv6 fragmentation
+    (required for task 10) and the `pktbuf` shell command to check the packet buffer for leaks.
+10. Use `make flash term` to access the nodes (or just `make term` if the
 firmware is already flashed)
 
 _note: Boards types can be changed to help vary the test coverage_

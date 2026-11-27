@@ -4,26 +4,40 @@ import pytest
 
 from riotctrl_shell.gnrc import GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats
 from riotctrl_shell.netif import Ifconfig
+from riotctrl_shell.udp import UDPClientSendGenerated, UDPServer
 
-from testutils.shell import lladdr, global_addr, ping6, GNRCUDP, PARSERS, check_pktbuf
+from testutils.shell import lladdr, global_addr, ping6, PARSERS, check_pktbuf
 
-APP = 'tests/net/gnrc_udp'
+APP = 'examples/networking/gnrc/networking'
+CFLAGS = "-DCONFIG_GNRC_PKTBUF_SIZE=8192"
+USEMODULE = [
+    "gnrc_ipv6_ext_frag",
+    "shell_cmd_udp_send_generated",
+    "shell_cmd_gnrc_pktbuf",
+]
 TO_ADDR = "affe::1"  # address for the first statically routed node
 FROM_ADDR = "beef::1"  # address for the last statically routed node
 pytestmark = pytest.mark.rc_only()
 
 
-class Shell(Ifconfig, GNRCICMPv6Echo, GNRCIPv6NIB, GNRCPktbufStats, GNRCUDP):
+class Shell(  # pylint: disable=too-many-ancestors
+    Ifconfig,
+    GNRCICMPv6Echo,
+    GNRCIPv6NIB,
+    GNRCPktbufStats,
+    UDPClientSendGenerated,
+    UDPServer,
+):
     pass
 
 
 @pytest.fixture
 def statically_routed_nodes(riot_ctrl):
     nodes = (
-        riot_ctrl(0, APP, Shell),
-        riot_ctrl(1, APP, Shell),
-        riot_ctrl(2, APP, Shell),
-        riot_ctrl(3, APP, Shell),
+        riot_ctrl(0, APP, Shell, modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(1, APP, Shell, modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(2, APP, Shell, modules=USEMODULE, cflags=CFLAGS),
+        riot_ctrl(3, APP, Shell, modules=USEMODULE, cflags=CFLAGS),
     )
     lladdrs = [
         dict(zip(("netif", "lladdr"), lladdr(node.ifconfig_list()))) for node in nodes
@@ -107,11 +121,23 @@ def _init_rpl_dodag(nodes, nodes_netifs):
 @pytest.fixture
 # pylint: disable=W0621
 def rpl_nodes(riot_ctrl, netif_parser):
+    cflags = (
+        CFLAGS + " -DCONFIG_SHELL_CMD_UDP_BUFSIZE=2048"
+        " -DCONFIG_GNRC_NETIF_PKTQ_POOL_SIZE=32"
+    )
     nodes = (
-        riot_ctrl(0, APP, Shell, modules="l2filter_whitelist"),
-        riot_ctrl(1, APP, Shell, modules="l2filter_whitelist"),
-        riot_ctrl(2, APP, Shell, modules="l2filter_whitelist"),
-        riot_ctrl(3, APP, Shell, modules="l2filter_whitelist"),
+        riot_ctrl(
+            0, APP, Shell, modules=USEMODULE + ["l2filter_whitelist"], cflags=cflags
+        ),
+        riot_ctrl(
+            1, APP, Shell, modules=USEMODULE + ["l2filter_whitelist"], cflags=cflags
+        ),
+        riot_ctrl(
+            2, APP, Shell, modules=USEMODULE + ["l2filter_whitelist"], cflags=cflags
+        ),
+        riot_ctrl(
+            3, APP, Shell, modules=USEMODULE + ["l2filter_whitelist"], cflags=cflags
+        ),
     )
     nodes_netifs = _get_nodes_netifs(nodes, netif_parser)
     _l2filter_nodes(nodes, nodes_netifs)
@@ -149,10 +175,12 @@ def test_task02(statically_routed_nodes):
         (nodes[0], nodes[-1], TO_ADDR),
         (nodes[-1], nodes[0], FROM_ADDR),
     ]:
-        server.udp_server_start(1337)
+        server.udp_server_start(1337, summarize=True)
 
-        client.udp_client_send(server_addr, 1337, count=100, delay_ms=100, payload=50)
-        packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
+        client.udp_client_send(
+            server_addr, 1337, count=100, delay_us=100_000, payload=50
+        )
+        packet_loss = server.udp_server_check_output(count=100, delay_us=100_000)
         assert packet_loss < 10
         server.udp_server_stop()
     check_pktbuf(*statically_routed_nodes)
@@ -186,11 +214,13 @@ def test_task03(rpl_nodes):
 def test_task04(rpl_nodes):
     nodes = rpl_nodes
     for client, server in [(nodes[0], nodes[-1]), (nodes[-1], nodes[0])]:
-        server.udp_server_start(1337)
+        server.udp_server_start(1337, summarize=True)
         _, server_addr = global_addr(server.ifconfig_list())
 
-        client.udp_client_send(server_addr, 1337, count=100, delay_ms=100, payload=50)
-        packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
+        client.udp_client_send(
+            server_addr, 1337, count=100, delay_us=100_000, payload=50
+        )
+        packet_loss = server.udp_server_check_output(count=100, delay_us=100_000)
         assert packet_loss < 10
         server.udp_server_stop()
     check_pktbuf(*rpl_nodes)
@@ -206,13 +236,13 @@ def test_task04(rpl_nodes):
 def test_task05(rpl_nodes):
     nodes = rpl_nodes
     for client, server in [(nodes[0], nodes[-1]), (nodes[-1], nodes[0])]:
-        server.udp_server_start(1337)
+        server.udp_server_start(1337, summarize=True)
         _, server_addr = global_addr(server.ifconfig_list())
 
         client.udp_client_send(
-            server_addr, 1337, count=100, delay_ms=1000, payload=2048
+            server_addr, 1337, count=100, delay_us=1_000_000, payload=2048
         )
-        packet_loss = server.udp_server_check_output(count=100, delay_ms=100)
+        packet_loss = server.udp_server_check_output(count=100, delay_us=1_000_000)
         if packet_loss >= 10:
             pytest.xfail(
                 f"packet_loss {packet_loss} >= 10. This is an experimental "

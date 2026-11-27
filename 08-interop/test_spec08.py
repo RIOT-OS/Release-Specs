@@ -9,17 +9,18 @@ import pytest
 import riotctrl.shell
 from riotctrl_shell.gnrc import GNRCICMPv6Echo
 from riotctrl_shell.netif import Ifconfig
+from riotctrl_shell.udp import UDPClientSendGenerated, UDPServer
 
 from testutils.native import bridge, get_link_local, get_ping_cmd, interface_exists
-from testutils.shell import lladdr, ping6, GNRCUDP
+from testutils.shell import lladdr, ping6, PARSERS
 
 GNRC_APP = 'examples/networking/gnrc/networking'
 LWIP_APP = 'tests/pkg/lwip'
 pytestmark = pytest.mark.rc_only()
 
 
-class CommonUDP(GNRCUDP):
-    ADDR_PORT_PAIR_FMT = "[{addr}]:{port}"
+class CommonUDP(UDPClientSendGenerated, UDPServer):
+    pass
 
 
 class GNRCShell(Ifconfig, GNRCICMPv6Echo, CommonUDP):
@@ -110,19 +111,28 @@ def test_task08(riot_ctrl):
 
     _, gnrc_addr = lladdr(gnrc_node.ifconfig_list())
     assert gnrc_addr.startswith("fe80::")
-    res = lwip_node.cmd("ifconfig")
-    m = re.search(r"inet6 addr:\s+(?P<addr>fe80:[0-9a-f:]+)", res)
-    assert m is not None
-    lwip_addr = m.group("addr")
+
+    lwip_addr = None
+    res = lwip_node.ifconfig_list()
+    netifs = PARSERS["ifconfig"].parse(res)
+    for _, netif in netifs.items():
+        if netif.get("link_type") != "wireless":
+            continue
+        if "inet6_addr" in netif and netif["inet6_addr"].startswith("fe80:"):
+            # there is more than just the actual address in `inet6_addr` so just
+            # take the address
+            lwip_addr = netif["inet6_addr"].split()[0].strip()
+            break
+    assert lwip_addr is not None
 
     gnrc_node.udp_server_start(61616)
-
-    lwip_node.cmd(f"udp send [{gnrc_addr}]:61616 012345678abcdef")
-    packet_loss = gnrc_node.udp_server_check_output(count=1, delay_ms=0)
+    lwip_node.udp_client_send(gnrc_addr, 61616, "012345678abcdef")
+    packet_loss = gnrc_node.udp_server_check_output(count=1, delay_us=0)
     assert packet_loss == 0
     gnrc_node.udp_server_stop()
 
     lwip_node.udp_server_start(61617)
     gnrc_node.udp_client_send(lwip_addr, 61617, "01234567")
-    packet_loss = gnrc_node.udp_server_check_output(count=1, delay_ms=0)
+    packet_loss = lwip_node.udp_server_check_output(count=1, delay_us=0)
+    assert packet_loss == 0
     lwip_node.udp_server_stop(61617)
